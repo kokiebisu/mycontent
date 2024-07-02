@@ -1,9 +1,25 @@
 services:
   db:
+    container_name: db
     image: postgres:13
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: mypassword
       POSTGRES_DB: mydb
+    networks:
+      - mycontent-network
+
+  service-content:
+    container_name: service-content
+    depends_on:
+      - db
+    build:
+      context: .
+      dockerfile: ./packages/content/Dockerfile
+    networks:
+      - mycontent-network
     ports:
-      - "5433:5432"
+      - "4002:4002"
+
+networks:
+  mycontent-network:
