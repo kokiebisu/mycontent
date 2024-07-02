@@ -9,17 +9,29 @@ services:
     networks:
       - mycontent-network
 
+  service-user:
+    container_name: service-user
+    depends_on:
+      - db
+    build:
+      context: .
+      dockerfile: ./packages/service-user/Dockerfile
+    networks:
+      - mycontent-network
+    ports:
+      - "4001:8080"
+
   service-content:
     container_name: service-content
     depends_on:
       - db
     build:
       context: .
-      dockerfile: ./packages/content/Dockerfile
+      dockerfile: ./packages/service-content/Dockerfile
     networks:
       - mycontent-network
     ports:
-      - "4002:4002"
+      - "4002:8080"
 
 networks:
   mycontent-network:
