@@ -1,0 +1,22 @@
+type Content {
+  id: ID!
+  content_type: String!
+  title: String!
+  creator: String!
+  image_url: String!
+  updated_at: String!
+}
+
+type Query {
+  content(id: ID!): Content!
+  contents: [Content!]!
+}
+
+type Mutation {
+  createContent(
+    content_type: String!
+    title: String!
+    creator: String!
+    image_url: String!
+  ): Content!
+}
