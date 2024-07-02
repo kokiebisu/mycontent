@@ -1,0 +1,12 @@
+version: "3"
+
+tasks:
+  generate:ent:
+    cmds:
+      - ent generate ./ent/schema
+  generate:graphql:
+    cmds:
+      - gqlgen generate
+  create:entity:
+    cmds:
+      - ent init
