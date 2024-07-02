@@ -8,11 +8,14 @@ RUN go mod download
 
 COPY . .
 
-WORKDIR /app/packages/content
+WORKDIR /app/packages/service-content
 
 RUN GOOS=linux GOARCH=arm64 go build -o main .
 
 FROM golang:latest
-COPY --from=Builder /app/packages/content/main /main
-# CMD ["tail", "-f", "/dev/null"]
+
+COPY --from=Builder /app/packages/service-content/main /main
+
+EXPOSE 8080
+
 CMD ["/main"]

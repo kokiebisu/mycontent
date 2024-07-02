@@ -1,4 +1,4 @@
-package graph
+package graphql
 
 // This file will be automatically regenerated based on the schema, any resolver implementations
 // will be copied through when generating and any unknown code will be moved to the end.
@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/kokiebisu/mycontent/packages/content/ent"
+	"github.com/kokiebisu/mycontent/packages/service-content/ent"
 )
 
 // UpdatedAt is the resolver for the updated_at field.
@@ -24,7 +24,8 @@ func (r *mutationResolver) CreateContent(ctx context.Context, contentType string
 
 // Content is the resolver for the content field.
 func (r *queryResolver) Content(ctx context.Context, id string) (*ent.Content, error) {
-	idInt, err := strconv.Atoi(id); if err != nil {
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
 		return nil, err
 	}
 	return r.Client.Content.Get(ctx, idInt)

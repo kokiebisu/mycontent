@@ -5,8 +5,8 @@ package ent
 import (
 	"time"
 
-	"github.com/kokiebisu/mycontent/packages/content/ent/content"
-	"github.com/kokiebisu/mycontent/packages/content/ent/schema"
+	"github.com/kokiebisu/mycontent/packages/service-content/ent/content"
+	"github.com/kokiebisu/mycontent/packages/service-content/ent/schema"
 )
 
 // The init function reads all schema descriptors with runtime code

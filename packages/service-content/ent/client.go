@@ -9,12 +9,12 @@ import (
 	"log"
 	"reflect"
 
-	"github.com/kokiebisu/mycontent/packages/content/ent/migrate"
+	"github.com/kokiebisu/mycontent/packages/service-content/ent/migrate"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
-	"github.com/kokiebisu/mycontent/packages/content/ent/content"
+	"github.com/kokiebisu/mycontent/packages/service-content/ent/content"
 )
 
 // Client is the client that holds all ent builders.

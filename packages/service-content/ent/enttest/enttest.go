@@ -5,12 +5,12 @@ package enttest
 import (
 	"context"
 
-	"github.com/kokiebisu/mycontent/packages/content/ent"
+	"github.com/kokiebisu/mycontent/packages/service-content/ent"
 	// required by schema hooks.
-	_ "github.com/kokiebisu/mycontent/packages/content/ent/runtime"
+	_ "github.com/kokiebisu/mycontent/packages/service-content/ent/runtime"
 
 	"entgo.io/ent/dialect/sql/schema"
-	"github.com/kokiebisu/mycontent/packages/content/ent/migrate"
+	"github.com/kokiebisu/mycontent/packages/service-content/ent/migrate"
 )
 
 type (

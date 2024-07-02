@@ -10,8 +10,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/kokiebisu/mycontent/packages/content/ent/content"
-	"github.com/kokiebisu/mycontent/packages/content/ent/predicate"
+	"github.com/kokiebisu/mycontent/packages/service-content/ent/content"
+	"github.com/kokiebisu/mycontent/packages/service-content/ent/predicate"
 )
 
 // ContentQuery is the builder for querying Content entities.

@@ -8,12 +8,12 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/kokiebisu/mycontent/packages/content/ent"
-	"github.com/kokiebisu/mycontent/packages/content/graph"
+	"github.com/kokiebisu/mycontent/packages/service-content/ent"
+	"github.com/kokiebisu/mycontent/packages/service-content/graphql"
 	_ "github.com/lib/pq"
 )
 
-const defaultPort = "4002"
+const defaultPort = "8080"
 
 func main() {
 	client, err := ent.Open("postgres", "host=db port=5432 user=postgres dbname=mydb sslmode=disable password=mypassword")
@@ -31,7 +31,7 @@ func main() {
 		port = defaultPort
 	}
 
-	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{
+	srv := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: &graphql.Resolver{
 		Client: client,
 	}}))
 

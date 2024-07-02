@@ -1,6 +1,6 @@
-package graph
+package graphql
 
-import "github.com/kokiebisu/mycontent/packages/content/ent"
+import "github.com/kokiebisu/mycontent/packages/service-content/ent"
 
 // This file will not be regenerated automatically.
 //

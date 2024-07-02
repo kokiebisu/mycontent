@@ -1,10 +1,10 @@
 version: "3"
 
 tasks:
-  generate:
+  generate:ent:
     cmds:
       - ent generate ./ent/schema
-  gqlgen:
+  generate:graphql:
     cmds:
       - gqlgen generate
   create:entity:
