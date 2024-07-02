@@ -8,15 +8,15 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/kokiebisu/mycontent/packages/contents/ent"
-	"github.com/kokiebisu/mycontent/packages/contents/graph"
+	"github.com/kokiebisu/mycontent/packages/content/ent"
+	"github.com/kokiebisu/mycontent/packages/content/graph"
 	_ "github.com/lib/pq"
 )
 
-const defaultPort = "8080"
+const defaultPort = "4002"
 
 func main() {
-	client, err := ent.Open("postgres", "host=localhost port=5433 user=postgres dbname=mydb sslmode=disable password=mypassword")
+	client, err := ent.Open("postgres", "host=db port=5432 user=postgres dbname=mydb sslmode=disable password=mypassword")
 	if err != nil {
 		log.Fatalf("failed opening connection to postgres: %v", err)
 	}

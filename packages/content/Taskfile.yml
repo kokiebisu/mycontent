@@ -9,4 +9,4 @@ tasks:
       - gqlgen generate
   create:entity:
     cmds:
-      - ent init User
+      - ent init

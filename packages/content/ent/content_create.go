@@ -10,7 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/kokiebisu/mycontent/packages/contents/ent/content"
+	"github.com/kokiebisu/mycontent/packages/content/ent/content"
 )
 
 // ContentCreate is the builder for creating a Content entity.

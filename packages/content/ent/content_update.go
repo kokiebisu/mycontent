@@ -11,8 +11,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/kokiebisu/mycontent/packages/contents/ent/content"
-	"github.com/kokiebisu/mycontent/packages/contents/ent/predicate"
+	"github.com/kokiebisu/mycontent/packages/content/ent/content"
+	"github.com/kokiebisu/mycontent/packages/content/ent/predicate"
 )
 
 // ContentUpdate is the builder for updating Content entities.

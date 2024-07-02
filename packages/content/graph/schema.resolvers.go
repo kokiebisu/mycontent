@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/kokiebisu/mycontent/packages/contents/ent"
+	"github.com/kokiebisu/mycontent/packages/content/ent"
 )
 
 // UpdatedAt is the resolver for the updated_at field.

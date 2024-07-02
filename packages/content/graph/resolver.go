@@ -1,6 +1,6 @@
 package graph
 
-import "github.com/kokiebisu/mycontent/packages/contents/ent"
+import "github.com/kokiebisu/mycontent/packages/content/ent"
 
 // This file will not be regenerated automatically.
 //

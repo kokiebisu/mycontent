@@ -11,8 +11,8 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/kokiebisu/mycontent/packages/contents/ent/content"
-	"github.com/kokiebisu/mycontent/packages/contents/ent/predicate"
+	"github.com/kokiebisu/mycontent/packages/content/ent/content"
+	"github.com/kokiebisu/mycontent/packages/content/ent/predicate"
 )
 
 const (

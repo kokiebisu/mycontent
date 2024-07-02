@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/kokiebisu/mycontent/packages/contents/ent"
+	"github.com/kokiebisu/mycontent/packages/content/ent"
 )
 
 // The ContentFunc type is an adapter to allow the use of ordinary
