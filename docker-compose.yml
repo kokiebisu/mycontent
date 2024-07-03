@@ -19,7 +19,7 @@ services:
     networks:
       - mycontent-network
     ports:
-      - "4001:8080"
+      - "4001:4001"
 
   service-content:
     container_name: service-content
@@ -31,7 +31,20 @@ services:
     networks:
       - mycontent-network
     ports:
-      - "4002:8080"
+      - "4002:4002"
+
+  gateway:
+    container_name: gateway
+    build:
+      context: .
+      dockerfile: ./packages/gateway/Dockerfile
+    depends_on:
+      - service-user
+      - service-content
+    networks:
+      - mycontent-network
+    ports:
+      - "4000:4000"
 
 networks:
   mycontent-network:
