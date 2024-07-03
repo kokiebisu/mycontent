@@ -16,6 +16,6 @@ FROM golang:latest
 
 COPY --from=Builder /app/packages/service-user/main /main
 
-EXPOSE 8080
+EXPOSE 4001
 
 CMD ["/main"]

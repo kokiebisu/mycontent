@@ -8,32 +8,59 @@ import (
 	"context"
 	"strconv"
 
-	"github.com/kokiebisu/mycontent/packages/service-user/ent"
 	"github.com/kokiebisu/mycontent/packages/service-user/ent/user"
 )
 
 // CreateUser is the resolver for the createUser field.
-func (r *mutationResolver) CreateUser(ctx context.Context, input CreateUserInput) (*ent.User, error) {
-	return r.Client.User.Create().SetName(input.Name).SetPersonalityType(user.PersonalityType(input.PersonalityType)).SetUsername(input.Username).SetPassword(input.Password).SetEmail(input.Email).Save(ctx)
+func (r *mutationResolver) CreateUser(ctx context.Context, input CreateUserInput) (*User, error) {
+	entity, err := r.Client.User.Create().SetName(input.Name).SetPersonalityType(user.PersonalityType(input.PersonalityType)).SetEmail(input.Email).SetPassword(input.Password).SetUsername(input.Username).Save(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &User{
+		ID:              strconv.Itoa(entity.ID),
+		Name:            entity.Name,
+		PersonalityType: entity.PersonalityType.String(),
+		Email:           entity.Email,
+		Password:        entity.Password,
+		Username:        entity.Username,
+	}, nil
 }
 
 // User is the resolver for the user field.
-func (r *queryResolver) User(ctx context.Context, id string) (*ent.User, error) {
+func (r *queryResolver) User(ctx context.Context, id string) (*User, error) {
 	idInt, err := strconv.Atoi(id)
 	if err != nil {
 		return nil, err
 	}
-	return r.Client.User.Get(ctx, idInt)
+	entity, err := r.Client.User.Get(ctx, idInt)
+	if err != nil {
+		return nil, err
+	}
+	return &User{
+		ID:   strconv.Itoa(entity.ID),
+		Name: entity.Name,
+	}, nil
 }
 
 // Users is the resolver for the users field.
-func (r *queryResolver) Users(ctx context.Context) ([]*ent.User, error) {
-	return r.Client.User.Query().All(ctx)
-}
-
-// PersonalityType is the resolver for the personality_type field.
-func (r *userResolver) PersonalityType(ctx context.Context, obj *ent.User) (string, error) {
-	return string(obj.PersonalityType), nil
+func (r *queryResolver) Users(ctx context.Context) ([]*User, error) {
+	entities, err := r.Client.User.Query().All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	users := make([]*User, len(entities))
+	for i, entity := range entities {
+		users[i] = &User{
+			ID:              strconv.Itoa(entity.ID),
+			Name:            entity.Name,
+			PersonalityType: entity.PersonalityType.String(),
+			Email:           entity.Email,
+			Password:        entity.Password,
+			Username:        entity.Username,
+		}
+	}
+	return users, nil
 }
 
 // Mutation returns MutationResolver implementation.
@@ -42,9 +69,5 @@ func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
-// User returns UserResolver implementation.
-func (r *Resolver) User() UserResolver { return &userResolver{r} }
-
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
-type userResolver struct{ *Resolver }

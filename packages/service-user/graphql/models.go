@@ -9,3 +9,20 @@ type CreateUserInput struct {
 	Username        string `json:"username"`
 	Password        string `json:"password"`
 }
+
+type Mutation struct {
+}
+
+type Query struct {
+}
+
+type User struct {
+	ID              string `json:"id"`
+	Name            string `json:"name"`
+	PersonalityType string `json:"personality_type"`
+	Email           string `json:"email"`
+	Username        string `json:"username"`
+	Password        string `json:"password"`
+}
+
+func (User) IsEntity() {}

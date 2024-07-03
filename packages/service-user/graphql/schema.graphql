@@ -1,4 +1,4 @@
-type User {
+type User @key(fields: "id") {
   id: ID!
   name: String!
   personality_type: String!
@@ -7,7 +7,7 @@ type User {
   password: String!
 }
 
-type Query {
+extend type Query {
   user(id: ID!): User!
   users: [User!]!
 }
@@ -16,7 +16,6 @@ type Mutation {
   createUser(input: CreateUserInput!): User!
 }
 
-# Input
 input CreateUserInput {
   name: String!
   email: String!

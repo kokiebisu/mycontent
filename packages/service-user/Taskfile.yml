@@ -6,7 +6,7 @@ tasks:
       - ent generate ./ent/schema
   generate:graphql:
     cmds:
-      - gqlgen generate
+      - gqlgen
   create:entity:
     cmds:
       - ent init

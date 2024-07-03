@@ -8,9 +8,9 @@ exec:
   package: graphql
 
 # Uncomment to enable federation
-# federation:
-#   filename: graph/federation.go
-#   package: graph
+federation:
+  filename: graphql/federation.go
+  package: graphql
 
 # Where should any generated models go?
 model:
@@ -65,8 +65,7 @@ resolver:
 
 # gqlgen will search for any type names in the schema in these go packages
 # if they match it will use them, otherwise it will generate them.
-autobind:
-  - "github.com/kokiebisu/mycontent/packages/service-user/ent"
+autobind: []
 
 models:
   ID:
