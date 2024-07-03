@@ -1,4 +1,4 @@
-type Content {
+type Content @key(fields: "id") {
   id: ID!
   content_type: String!
   title: String!
@@ -13,10 +13,12 @@ type Query {
 }
 
 type Mutation {
-  createContent(
-    content_type: String!
-    title: String!
-    creator: String!
-    image_url: String!
-  ): Content!
+  createContent(input: CreateContentInput!): Content!
+}
+
+input CreateContentInput {
+  content_type: String!
+  title: String!
+  creator: String!
+  image_url: String!
 }

@@ -14,7 +14,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
-	"github.com/kokiebisu/mycontent/packages/service-content/ent"
+	"github.com/99designs/gqlgen/plugin/federation/fedruntime"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -39,7 +39,7 @@ type Config struct {
 }
 
 type ResolverRoot interface {
-	Content() ContentResolver
+	Entity() EntityResolver
 	Mutation() MutationResolver
 	Query() QueryResolver
 }
@@ -57,25 +57,35 @@ type ComplexityRoot struct {
 		UpdatedAt   func(childComplexity int) int
 	}
 
+	Entity struct {
+		FindContentByID func(childComplexity int, id string) int
+	}
+
 	Mutation struct {
-		CreateContent func(childComplexity int, contentType string, title string, creator string, imageURL string) int
+		CreateContent func(childComplexity int, input CreateContentInput) int
 	}
 
 	Query struct {
-		Content  func(childComplexity int, id string) int
-		Contents func(childComplexity int) int
+		Content            func(childComplexity int, id string) int
+		Contents           func(childComplexity int) int
+		__resolve__service func(childComplexity int) int
+		__resolve_entities func(childComplexity int, representations []map[string]interface{}) int
+	}
+
+	_Service struct {
+		SDL func(childComplexity int) int
 	}
 }
 
-type ContentResolver interface {
-	UpdatedAt(ctx context.Context, obj *ent.Content) (string, error)
+type EntityResolver interface {
+	FindContentByID(ctx context.Context, id string) (*Content, error)
 }
 type MutationResolver interface {
-	CreateContent(ctx context.Context, contentType string, title string, creator string, imageURL string) (*ent.Content, error)
+	CreateContent(ctx context.Context, input CreateContentInput) (*Content, error)
 }
 type QueryResolver interface {
-	Content(ctx context.Context, id string) (*ent.Content, error)
-	Contents(ctx context.Context) ([]*ent.Content, error)
+	Content(ctx context.Context, id string) (*Content, error)
+	Contents(ctx context.Context) ([]*Content, error)
 }
 
 type executableSchema struct {
@@ -139,6 +149,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Content.UpdatedAt(childComplexity), true
 
+	case "Entity.findContentByID":
+		if e.complexity.Entity.FindContentByID == nil {
+			break
+		}
+
+		args, err := ec.field_Entity_findContentByID_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Entity.FindContentByID(childComplexity, args["id"].(string)), true
+
 	case "Mutation.createContent":
 		if e.complexity.Mutation.CreateContent == nil {
 			break
@@ -149,7 +171,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateContent(childComplexity, args["content_type"].(string), args["title"].(string), args["creator"].(string), args["image_url"].(string)), true
+		return e.complexity.Mutation.CreateContent(childComplexity, args["input"].(CreateContentInput)), true
 
 	case "Query.content":
 		if e.complexity.Query.Content == nil {
@@ -170,6 +192,32 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Contents(childComplexity), true
 
+	case "Query._service":
+		if e.complexity.Query.__resolve__service == nil {
+			break
+		}
+
+		return e.complexity.Query.__resolve__service(childComplexity), true
+
+	case "Query._entities":
+		if e.complexity.Query.__resolve_entities == nil {
+			break
+		}
+
+		args, err := ec.field_Query__entities_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.__resolve_entities(childComplexity, args["representations"].([]map[string]interface{})), true
+
+	case "_Service.sdl":
+		if e.complexity._Service.SDL == nil {
+			break
+		}
+
+		return e.complexity._Service.SDL(childComplexity), true
+
 	}
 	return 0, false
 }
@@ -177,7 +225,9 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
-	inputUnmarshalMap := graphql.BuildUnmarshalerMap()
+	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputCreateContentInput,
+	)
 	first := true
 
 	switch rc.Operation.Operation {
@@ -286,6 +336,34 @@ func sourceData(filename string) string {
 
 var sources = []*ast.Source{
 	{Name: "schema.graphql", Input: sourceData("schema.graphql"), BuiltIn: false},
+	{Name: "../federation/directives.graphql", Input: `
+	directive @key(fields: _FieldSet!) repeatable on OBJECT | INTERFACE
+	directive @requires(fields: _FieldSet!) on FIELD_DEFINITION
+	directive @provides(fields: _FieldSet!) on FIELD_DEFINITION
+	directive @extends on OBJECT | INTERFACE
+	directive @external on FIELD_DEFINITION
+	scalar _Any
+	scalar _FieldSet
+`, BuiltIn: true},
+	{Name: "../federation/entity.graphql", Input: `
+# a union of all types that use the @key directive
+union _Entity = Content
+
+# fake type to build resolver interfaces for users to implement
+type Entity {
+		findContentByID(id: ID!,): Content!
+
+}
+
+type _Service {
+  sdl: String
+}
+
+extend type Query {
+  _entities(representations: [_Any!]!): [_Entity]!
+  _service: _Service!
+}
+`, BuiltIn: true},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
@@ -293,45 +371,33 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
 // region    ***************************** args.gotpl *****************************
 
-func (ec *executionContext) field_Mutation_createContent_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Entity_findContentByID_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
-	if tmp, ok := rawArgs["content_type"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("content_type"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["content_type"] = arg0
-	var arg1 string
-	if tmp, ok := rawArgs["title"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
-		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_createContent_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 CreateContentInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNCreateContentInput2githubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑcontentᚋgraphqlᚐCreateContentInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["title"] = arg1
-	var arg2 string
-	if tmp, ok := rawArgs["creator"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("creator"))
-		arg2, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["creator"] = arg2
-	var arg3 string
-	if tmp, ok := rawArgs["image_url"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("image_url"))
-		arg3, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["image_url"] = arg3
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -347,6 +413,21 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query__entities_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 []map[string]interface{}
+	if tmp, ok := rawArgs["representations"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("representations"))
+		arg0, err = ec.unmarshalN_Any2ᚕmapᚄ(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["representations"] = arg0
 	return args, nil
 }
 
@@ -403,7 +484,7 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _Content_id(ctx context.Context, field graphql.CollectedField, obj *ent.Content) (ret graphql.Marshaler) {
+func (ec *executionContext) _Content_id(ctx context.Context, field graphql.CollectedField, obj *Content) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Content_id(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -429,9 +510,9 @@ func (ec *executionContext) _Content_id(ctx context.Context, field graphql.Colle
 		}
 		return graphql.Null
 	}
-	res := resTmp.(int)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNID2int(ctx, field.Selections, res)
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Content_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -447,7 +528,7 @@ func (ec *executionContext) fieldContext_Content_id(_ context.Context, field gra
 	return fc, nil
 }
 
-func (ec *executionContext) _Content_content_type(ctx context.Context, field graphql.CollectedField, obj *ent.Content) (ret graphql.Marshaler) {
+func (ec *executionContext) _Content_content_type(ctx context.Context, field graphql.CollectedField, obj *Content) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Content_content_type(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -491,7 +572,7 @@ func (ec *executionContext) fieldContext_Content_content_type(_ context.Context,
 	return fc, nil
 }
 
-func (ec *executionContext) _Content_title(ctx context.Context, field graphql.CollectedField, obj *ent.Content) (ret graphql.Marshaler) {
+func (ec *executionContext) _Content_title(ctx context.Context, field graphql.CollectedField, obj *Content) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Content_title(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -535,7 +616,7 @@ func (ec *executionContext) fieldContext_Content_title(_ context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) _Content_creator(ctx context.Context, field graphql.CollectedField, obj *ent.Content) (ret graphql.Marshaler) {
+func (ec *executionContext) _Content_creator(ctx context.Context, field graphql.CollectedField, obj *Content) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Content_creator(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -579,7 +660,7 @@ func (ec *executionContext) fieldContext_Content_creator(_ context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _Content_image_url(ctx context.Context, field graphql.CollectedField, obj *ent.Content) (ret graphql.Marshaler) {
+func (ec *executionContext) _Content_image_url(ctx context.Context, field graphql.CollectedField, obj *Content) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Content_image_url(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -623,7 +704,7 @@ func (ec *executionContext) fieldContext_Content_image_url(_ context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _Content_updated_at(ctx context.Context, field graphql.CollectedField, obj *ent.Content) (ret graphql.Marshaler) {
+func (ec *executionContext) _Content_updated_at(ctx context.Context, field graphql.CollectedField, obj *Content) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Content_updated_at(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -637,7 +718,7 @@ func (ec *executionContext) _Content_updated_at(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Content().UpdatedAt(rctx, obj)
+		return obj.UpdatedAt, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -658,11 +739,80 @@ func (ec *executionContext) fieldContext_Content_updated_at(_ context.Context, f
 	fc = &graphql.FieldContext{
 		Object:     "Content",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
 		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Entity_findContentByID(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Entity_findContentByID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Entity().FindContentByID(rctx, fc.Args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*Content)
+	fc.Result = res
+	return ec.marshalNContent2ᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑcontentᚋgraphqlᚐContent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Entity_findContentByID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Entity",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Content_id(ctx, field)
+			case "content_type":
+				return ec.fieldContext_Content_content_type(ctx, field)
+			case "title":
+				return ec.fieldContext_Content_title(ctx, field)
+			case "creator":
+				return ec.fieldContext_Content_creator(ctx, field)
+			case "image_url":
+				return ec.fieldContext_Content_image_url(ctx, field)
+			case "updated_at":
+				return ec.fieldContext_Content_updated_at(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Content", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Entity_findContentByID_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
 	}
 	return fc, nil
 }
@@ -681,7 +831,7 @@ func (ec *executionContext) _Mutation_createContent(ctx context.Context, field g
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateContent(rctx, fc.Args["content_type"].(string), fc.Args["title"].(string), fc.Args["creator"].(string), fc.Args["image_url"].(string))
+		return ec.resolvers.Mutation().CreateContent(rctx, fc.Args["input"].(CreateContentInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -693,9 +843,9 @@ func (ec *executionContext) _Mutation_createContent(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*ent.Content)
+	res := resTmp.(*Content)
 	fc.Result = res
-	return ec.marshalNContent2ᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑcontentᚋentᚐContent(ctx, field.Selections, res)
+	return ec.marshalNContent2ᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑcontentᚋgraphqlᚐContent(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_createContent(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -762,9 +912,9 @@ func (ec *executionContext) _Query_content(ctx context.Context, field graphql.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*ent.Content)
+	res := resTmp.(*Content)
 	fc.Result = res
-	return ec.marshalNContent2ᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑcontentᚋentᚐContent(ctx, field.Selections, res)
+	return ec.marshalNContent2ᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑcontentᚋgraphqlᚐContent(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_content(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -831,9 +981,9 @@ func (ec *executionContext) _Query_contents(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*ent.Content)
+	res := resTmp.([]*Content)
 	fc.Result = res
-	return ec.marshalNContent2ᚕᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑcontentᚋentᚐContentᚄ(ctx, field.Selections, res)
+	return ec.marshalNContent2ᚕᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑcontentᚋgraphqlᚐContentᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_contents(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -858,6 +1008,109 @@ func (ec *executionContext) fieldContext_Query_contents(_ context.Context, field
 				return ec.fieldContext_Content_updated_at(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Content", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query__entities(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query__entities(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.__resolve_entities(ctx, fc.Args["representations"].([]map[string]interface{})), nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]fedruntime.Entity)
+	fc.Result = res
+	return ec.marshalN_Entity2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋpluginᚋfederationᚋfedruntimeᚐEntity(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query__entities(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type _Entity does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query__entities_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query__service(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query__service(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.__resolve__service(ctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(fedruntime.Service)
+	fc.Result = res
+	return ec.marshalN_Service2githubᚗcomᚋ99designsᚋgqlgenᚋpluginᚋfederationᚋfedruntimeᚐService(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query__service(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "sdl":
+				return ec.fieldContext__Service_sdl(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type _Service", field.Name)
 		},
 	}
 	return fc, nil
@@ -987,6 +1240,47 @@ func (ec *executionContext) fieldContext_Query___schema(_ context.Context, field
 				return ec.fieldContext___Schema_directives(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Schema", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) __Service_sdl(ctx context.Context, field graphql.CollectedField, obj *fedruntime.Service) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext__Service_sdl(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SDL, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalOString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext__Service_sdl(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "_Service",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -2765,17 +3059,81 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(_ context.Context
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputCreateContentInput(ctx context.Context, obj interface{}) (CreateContentInput, error) {
+	var it CreateContentInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"content_type", "title", "creator", "image_url"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "content_type":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("content_type"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ContentType = data
+		case "title":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Title = data
+		case "creator":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("creator"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Creator = data
+		case "image_url":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("image_url"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ImageURL = data
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
+
+func (ec *executionContext) __Entity(ctx context.Context, sel ast.SelectionSet, obj fedruntime.Entity) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case Content:
+		return ec._Content(ctx, sel, &obj)
+	case *Content:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Content(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
 
 // endregion ************************** interface.gotpl ***************************
 
 // region    **************************** object.gotpl ****************************
 
-var contentImplementors = []string{"Content"}
+var contentImplementors = []string{"Content", "_Entity"}
 
-func (ec *executionContext) _Content(ctx context.Context, sel ast.SelectionSet, obj *ent.Content) graphql.Marshaler {
+func (ec *executionContext) _Content(ctx context.Context, sel ast.SelectionSet, obj *Content) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, contentImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -2787,29 +3145,76 @@ func (ec *executionContext) _Content(ctx context.Context, sel ast.SelectionSet, 
 		case "id":
 			out.Values[i] = ec._Content_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "content_type":
 			out.Values[i] = ec._Content_content_type(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "title":
 			out.Values[i] = ec._Content_title(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "creator":
 			out.Values[i] = ec._Content_creator(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "image_url":
 			out.Values[i] = ec._Content_image_url(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "updated_at":
+			out.Values[i] = ec._Content_updated_at(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var entityImplementors = []string{"Entity"}
+
+func (ec *executionContext) _Entity(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, entityImplementors)
+	ctx = graphql.WithFieldContext(ctx, &graphql.FieldContext{
+		Object: "Entity",
+	})
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		innerCtx := graphql.WithRootFieldContext(ctx, &graphql.RootFieldContext{
+			Object: field.Name,
+			Field:  field,
+		})
+
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Entity")
+		case "findContentByID":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -2818,33 +3223,19 @@ func (ec *executionContext) _Content(ctx context.Context, sel ast.SelectionSet, 
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Content_updated_at(ctx, field, obj)
+				res = ec._Entity_findContentByID(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
 				return res
 			}
 
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 			}
 
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2980,6 +3371,50 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "_entities":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query__entities(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "_service":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query__service(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "__type":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___type(ctx, field)
@@ -2988,6 +3423,42 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___schema(ctx, field)
 			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var _ServiceImplementors = []string{"_Service"}
+
+func (ec *executionContext) __Service(ctx context.Context, sel ast.SelectionSet, obj *fedruntime.Service) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, _ServiceImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("_Service")
+		case "sdl":
+			out.Values[i] = ec.__Service_sdl(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3352,11 +3823,11 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) marshalNContent2githubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑcontentᚋentᚐContent(ctx context.Context, sel ast.SelectionSet, v ent.Content) graphql.Marshaler {
+func (ec *executionContext) marshalNContent2githubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑcontentᚋgraphqlᚐContent(ctx context.Context, sel ast.SelectionSet, v Content) graphql.Marshaler {
 	return ec._Content(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNContent2ᚕᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑcontentᚋentᚐContentᚄ(ctx context.Context, sel ast.SelectionSet, v []*ent.Content) graphql.Marshaler {
+func (ec *executionContext) marshalNContent2ᚕᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑcontentᚋgraphqlᚐContentᚄ(ctx context.Context, sel ast.SelectionSet, v []*Content) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -3380,7 +3851,7 @@ func (ec *executionContext) marshalNContent2ᚕᚖgithubᚗcomᚋkokiebisuᚋmyc
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNContent2ᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑcontentᚋentᚐContent(ctx, sel, v[i])
+			ret[i] = ec.marshalNContent2ᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑcontentᚋgraphqlᚐContent(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -3400,7 +3871,7 @@ func (ec *executionContext) marshalNContent2ᚕᚖgithubᚗcomᚋkokiebisuᚋmyc
 	return ret
 }
 
-func (ec *executionContext) marshalNContent2ᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑcontentᚋentᚐContent(ctx context.Context, sel ast.SelectionSet, v *ent.Content) graphql.Marshaler {
+func (ec *executionContext) marshalNContent2ᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑcontentᚋgraphqlᚐContent(ctx context.Context, sel ast.SelectionSet, v *Content) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -3410,19 +3881,9 @@ func (ec *executionContext) marshalNContent2ᚖgithubᚗcomᚋkokiebisuᚋmycont
 	return ec._Content(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNID2int(ctx context.Context, v interface{}) (int, error) {
-	res, err := graphql.UnmarshalInt(v)
+func (ec *executionContext) unmarshalNCreateContentInput2githubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑcontentᚋgraphqlᚐCreateContentInput(ctx context.Context, v interface{}) (CreateContentInput, error) {
+	res, err := ec.unmarshalInputCreateContentInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNID2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
-	res := graphql.MarshalInt(v)
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-	}
-	return res
 }
 
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
@@ -3453,6 +3914,116 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalN_Any2map(ctx context.Context, v interface{}) (map[string]interface{}, error) {
+	res, err := graphql.UnmarshalMap(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalN_Any2map(ctx context.Context, sel ast.SelectionSet, v map[string]interface{}) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	res := graphql.MarshalMap(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
+func (ec *executionContext) unmarshalN_Any2ᚕmapᚄ(ctx context.Context, v interface{}) ([]map[string]interface{}, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]map[string]interface{}, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalN_Any2map(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalN_Any2ᚕmapᚄ(ctx context.Context, sel ast.SelectionSet, v []map[string]interface{}) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalN_Any2map(ctx, sel, v[i])
+	}
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalN_Entity2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋpluginᚋfederationᚋfedruntimeᚐEntity(ctx context.Context, sel ast.SelectionSet, v []fedruntime.Entity) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalO_Entity2githubᚗcomᚋ99designsᚋgqlgenᚋpluginᚋfederationᚋfedruntimeᚐEntity(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalN_FieldSet2string(ctx context.Context, v interface{}) (string, error) {
+	res, err := graphql.UnmarshalString(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalN_FieldSet2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
+	res := graphql.MarshalString(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
+func (ec *executionContext) marshalN_Service2githubᚗcomᚋ99designsᚋgqlgenᚋpluginᚋfederationᚋfedruntimeᚐService(ctx context.Context, sel ast.SelectionSet, v fedruntime.Service) graphql.Marshaler {
+	return ec.__Service(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {
@@ -3734,6 +4305,16 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
+func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {
+	res, err := graphql.UnmarshalString(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOString2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
+	res := graphql.MarshalString(v)
+	return res
+}
+
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
 	if v == nil {
 		return nil, nil
@@ -3748,6 +4329,13 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	}
 	res := graphql.MarshalString(*v)
 	return res
+}
+
+func (ec *executionContext) marshalO_Entity2githubᚗcomᚋ99designsᚋgqlgenᚋpluginᚋfederationᚋfedruntimeᚐEntity(ctx context.Context, sel ast.SelectionSet, v fedruntime.Entity) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec.__Entity(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {

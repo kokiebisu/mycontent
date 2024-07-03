@@ -7,37 +7,60 @@ package graphql
 import (
 	"context"
 	"strconv"
-	"time"
-
-	"github.com/kokiebisu/mycontent/packages/service-content/ent"
 )
 
-// UpdatedAt is the resolver for the updated_at field.
-func (r *contentResolver) UpdatedAt(ctx context.Context, obj *ent.Content) (string, error) {
-	return obj.UpdatedAt.Format(time.RFC3339), nil
-}
-
 // CreateContent is the resolver for the createContent field.
-func (r *mutationResolver) CreateContent(ctx context.Context, contentType string, title string, creator string, imageURL string) (*ent.Content, error) {
-	return r.Client.Content.Create().SetContentType(contentType).SetTitle(title).SetCreator(creator).SetImageURL(imageURL).Save(ctx)
+func (r *mutationResolver) CreateContent(ctx context.Context, input CreateContentInput) (*Content, error) {
+	entity, err := r.Client.Content.Create().SetContentType(input.ContentType).SetTitle(input.Title).SetCreator(input.Creator).SetImageURL(input.ImageURL).Save(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &Content{
+		ID:          strconv.Itoa(entity.ID),
+		ContentType: entity.ContentType,
+		Title:       entity.Title,
+		Creator:     entity.Creator,
+		ImageURL:    entity.ImageURL,
+	}, nil
 }
 
 // Content is the resolver for the content field.
-func (r *queryResolver) Content(ctx context.Context, id string) (*ent.Content, error) {
+func (r *queryResolver) Content(ctx context.Context, id string) (*Content, error) {
 	idInt, err := strconv.Atoi(id)
 	if err != nil {
 		return nil, err
 	}
-	return r.Client.Content.Get(ctx, idInt)
+	entity, err := r.Client.Content.Get(ctx, idInt)
+	if err != nil {
+		return nil, err
+	}
+	return &Content{
+		ID:          strconv.Itoa(entity.ID),
+		ContentType: entity.ContentType,
+		Title:       entity.Title,
+		Creator:     entity.Creator,
+		ImageURL:    entity.ImageURL,
+	}, nil
 }
 
 // Contents is the resolver for the contents field.
-func (r *queryResolver) Contents(ctx context.Context) ([]*ent.Content, error) {
-	return r.Client.Content.Query().All(ctx)
+func (r *queryResolver) Contents(ctx context.Context) ([]*Content, error) {
+	entities, err := r.Client.Content.Query().All(ctx)
+	if err != nil {
+		return nil, err
+	}
+	contents := make([]*Content, len(entities))
+	for i, entity := range entities {
+		contents[i] = &Content{
+			ID:          strconv.Itoa(entity.ID),
+			ContentType: entity.ContentType,
+			Title:       entity.Title,
+			Creator:     entity.Creator,
+			ImageURL:    entity.ImageURL,
+		}
+	}
+	return contents, nil
 }
-
-// Content returns ContentResolver implementation.
-func (r *Resolver) Content() ContentResolver { return &contentResolver{r} }
 
 // Mutation returns MutationResolver implementation.
 func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
@@ -45,6 +68,5 @@ func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
 // Query returns QueryResolver implementation.
 func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
-type contentResolver struct{ *Resolver }
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }

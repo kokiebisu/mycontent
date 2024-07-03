@@ -13,7 +13,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-const defaultPort = "8080"
+const defaultPort = "4002"
 
 func main() {
 	client, err := ent.Open("postgres", "host=db port=5432 user=postgres dbname=mydb sslmode=disable password=mypassword")
@@ -35,9 +35,9 @@ func main() {
 		Client: client,
 	}}))
 
-	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
+	http.Handle("/playground", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", srv)
 
-	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
+	log.Printf("connect to http://localhost:%s/playground for GraphQL playground", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
