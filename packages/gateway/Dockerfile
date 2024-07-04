@@ -1,14 +1,14 @@
-# gateway/Dockerfile
-FROM node:16-alpine
-
+FROM node:16-alpine as Builder
 WORKDIR /app
-
-COPY packages/gateway/package*.json ./
+COPY packages/gateway/*.json ./
 RUN npm install
+COPY packages/gateway/src ./src
+RUN npm run build
 
-COPY packages/gateway/* ./
-
+FROM node:16-alpine
+COPY --from=Builder /app/dist /app/dist
+COPY --from=Builder /app/package*.json ./
+RUN npm install --only=production
 EXPOSE 4000
 
-CMD ["npx", "ts-node", "index.ts"]
-# CMD ["tail", "-f", "/dev/null"]
+CMD ["node", "/app/dist/index.js"]
