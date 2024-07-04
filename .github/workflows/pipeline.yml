@@ -1,0 +1,50 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      docker:
+        image: docker:19.03.12
+        options: --privileged
+        ports:
+          - 2375:2375
+        env:
+          DOCKER_TLS_CERTDIR: ""
+
+    strategy:
+      matrix:
+        service:
+          - gateway
+          - service-content
+          - service-user
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Log in to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push ${{ matrix.service }} image
+        uses: docker/build-push-action@v2
+        with:
+          context: ./packages/${{ matrix.service }}
+          file: ./packages/${{ matrix.service }}/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/${{ matrix.service }}:latest
