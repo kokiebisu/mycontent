@@ -28,7 +28,11 @@ async function startServer() {
 
   app.use(
     "/",
-    cors<cors.CorsRequest>({ origin: ["*"] }),
+    cors({
+      origin: "http://localhost:3000",
+      methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTION",
+      credentials: true,
+    }),
     express.json(),
     expressMiddleware(apolloServer)
   );

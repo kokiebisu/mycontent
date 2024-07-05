@@ -56,7 +56,7 @@ services:
       service-user:
         condition: service_healthy
       service-content:
-        condition: service_started
+        condition: service_healthy
     networks:
       - mycontent-network
     ports:
