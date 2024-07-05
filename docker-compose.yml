@@ -15,11 +15,18 @@ services:
       - db
     build:
       context: .
-      dockerfile: ./packages/service-user/Dockerfile
+      dockerfile: ./packages/service-user/Dockerfile.dev
     networks:
       - mycontent-network
     ports:
       - "4001:4001"
+    volumes:
+      - ./packages/service-user:/app/packages/service-user
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4001/playground"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   service-content:
     container_name: service-content
@@ -27,11 +34,18 @@ services:
       - db
     build:
       context: .
-      dockerfile: ./packages/service-content/Dockerfile
+      dockerfile: ./packages/service-content/Dockerfile.dev
     networks:
       - mycontent-network
     ports:
       - "4002:4002"
+    volumes:
+      - ./packages/service-content:/app/packages/service-content
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4002/playground"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   gateway:
     container_name: gateway
@@ -39,8 +53,10 @@ services:
       context: .
       dockerfile: ./packages/gateway/Dockerfile.dev
     depends_on:
-      - service-user
-      - service-content
+      service-user:
+        condition: service_healthy
+      service-content:
+        condition: service_started
     networks:
       - mycontent-network
     ports:

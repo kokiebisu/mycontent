@@ -7,7 +7,7 @@ type User @key(fields: "id") {
   password: String!
 }
 
-extend type Query {
+type Query {
   user(id: ID!): User!
   users: [User!]!
 }

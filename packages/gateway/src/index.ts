@@ -14,6 +14,7 @@ const gateway = new ApolloGateway({
       { name: "users", url: "http://service-user:4001/query" },
       { name: "contents", url: "http://service-content:4002/query" },
     ],
+    pollIntervalInMs: 1000,
   }),
 });
 
