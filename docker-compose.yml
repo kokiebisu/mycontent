@@ -37,7 +37,7 @@ services:
     container_name: gateway
     build:
       context: .
-      dockerfile: ./packages/gateway/Dockerfile
+      dockerfile: ./packages/gateway/Dockerfile.dev
     depends_on:
       - service-user
       - service-content
@@ -45,6 +45,8 @@ services:
       - mycontent-network
     ports:
       - "4000:4000"
+    volumes:
+      - ./packages/gateway/src:/app/src
 
 networks:
   mycontent-network:

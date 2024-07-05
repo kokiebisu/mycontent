@@ -1,0 +1,7 @@
+FROM node:16-alpine as Builder
+WORKDIR /app
+COPY packages/gateway/*.json ./
+RUN npm install
+COPY packages/gateway/src ./src
+
+CMD ["npm", "run", "dev"]
