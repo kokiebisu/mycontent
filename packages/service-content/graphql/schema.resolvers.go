@@ -43,24 +43,24 @@ func (r *queryResolver) Content(ctx context.Context, id string) (*Content, error
 	}, nil
 }
 
-// Contents is the resolver for the contents field.
-func (r *queryResolver) Contents(ctx context.Context) ([]*Content, error) {
+func (r *queryResolver) Contents(ctx context.Context) ( []*Content,  error){
 	entities, err := r.Client.Content.Query().All(ctx)
-	if err != nil {
-		return nil, err
-	}
-	contents := make([]*Content, len(entities))
-	for i, entity := range entities {
-		contents[i] = &Content{
-			ID:          strconv.Itoa(entity.ID),
-			ContentType: entity.ContentType,
-			Title:       entity.Title,
-			Creator:     entity.Creator,
-			ImageURL:    entity.ImageURL,
-		}
-	}
-	return contents, nil
+if err != nil {
+	return nil, err
 }
+contents := make([]*Content, len(entities))
+for i, entity := range entities {
+	contents[i] = &Content{
+		ID:          strconv.Itoa(entity.ID),
+		ContentType: entity.ContentType,
+		Title:       entity.Title,
+		Creator:     entity.Creator,
+		ImageURL:    entity.ImageURL,
+	}
+}
+return contents, nil
+}
+
 
 // Mutation returns MutationResolver implementation.
 func (r *Resolver) Mutation() MutationResolver { return &mutationResolver{r} }
