@@ -11,8 +11,12 @@ const httpServer = http.createServer(app);
 const gateway = new ApolloGateway({
   supergraphSdl: new IntrospectAndCompose({
     subgraphs: [
-      { name: "users", url: "http://service-user:4001/query" },
-      { name: "contents", url: "http://service-content:4002/query" },
+      {
+        name: "authentication",
+        url: "http://service-authentication:4001/query",
+      },
+      { name: "blogs", url: "http://service-blog:4002/query" },
+      { name: "users", url: "http://service-user:4003/query" },
     ],
     pollIntervalInMs: 1000,
   }),

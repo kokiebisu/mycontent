@@ -10,7 +10,7 @@ COPY . .
 
 WORKDIR /app/packages/service-blog
 
-RUN GOOS=linux GOARCH=arm64 go build -o main .
+RUN GOOS=linux GOARCH=arm64 go build -o main ./cmd/server.go
 
 FROM golang:latest
 

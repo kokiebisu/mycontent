@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+option go_package = "github.com/kokiebisu/mycontent/packages/service-blog/proto";
+
+service BlogService {
+  rpc CreateBlog(CreateBlogRequest) returns (CreateBlogResponse);
+}
+
+message CreateBlogRequest {
+  string user_id = 1;
+  string interest = 2;
+}
+
+message CreateBlogResponse {
+  string title = 1;
+  string content = 2;
+  string error = 3;
+}

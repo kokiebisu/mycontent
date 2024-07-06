@@ -39,8 +39,16 @@ services:
       dockerfile: ./packages/service-blog/Dockerfile.dev
     networks:
       - mycontent-network
+    environment:
+      GRAPHQL_PORT: "4002"
+      DB_PORT: "5432"
+      DB_HOST: "db"
+      DB_USER: "postgres"
+      DB_NAME: "mydb"
+      DB_PASSWORD: "mypassword"
     ports:
       - "4002:4002"
+      - "50051:50051"
     volumes:
       - ./packages/service-blog:/app/packages/service-blog
     healthcheck:
@@ -87,3 +95,4 @@ services:
 
 networks:
   mycontent-network:
+    driver: bridge

@@ -3,3 +3,4 @@ node_modules
 terraform.tfstate.backup
 dist
 tmp
+.env

@@ -20,10 +20,17 @@ require (
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
 	github.com/hashicorp/hcl/v2 v2.13.0 // indirect
+	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/mitchellh/go-wordwrap v0.0.0-20150314170334-ad45545899c7 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
+	github.com/sashabaranov/go-openai v1.26.2 // indirect
 	github.com/sosodev/duration v1.3.1 // indirect
 	github.com/zclconf/go-cty v1.8.0 // indirect
 	golang.org/x/mod v0.18.0 // indirect
+	golang.org/x/net v0.26.0 // indirect
+	golang.org/x/sys v0.21.0 // indirect
 	golang.org/x/text v0.16.0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240528184218-531527333157 // indirect
+	google.golang.org/grpc v1.65.0 // indirect
+	google.golang.org/protobuf v1.34.1 // indirect
 )
