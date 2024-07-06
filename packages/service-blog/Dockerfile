@@ -10,12 +10,12 @@ COPY . .
 
 WORKDIR /app/packages/service-blog
 
-RUN GOOS=linux GOARCH=arm64 go build -o main ./cmd/server.go
+RUN GOOS=linux GOARCH=arm64 go build -o server ./cmd/server/main.go
 
 FROM golang:latest
 
-COPY --from=Builder /app/packages/service-blog/main /main
+COPY --from=Builder /app/packages/service-blog/server /server
 
 EXPOSE 4002
 
-CMD ["/main"]
+CMD ["/server"]
