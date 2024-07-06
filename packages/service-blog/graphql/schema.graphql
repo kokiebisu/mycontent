@@ -1,0 +1,16 @@
+type Blog @key(fields: "id") {
+  id: ID!
+  title: String!
+  content: String!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type Query {
+  blog(id: ID!): Blog!
+  blogs: [Blog!]!
+}
+
+type Mutation {
+  deleteBlog(id: ID!): Blog!
+}
