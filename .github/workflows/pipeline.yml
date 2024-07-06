@@ -25,7 +25,8 @@ jobs:
       matrix:
         service:
           - gateway
-          - service-content
+          - service-authentication
+          - service-blog
           - service-user
 
     steps:
