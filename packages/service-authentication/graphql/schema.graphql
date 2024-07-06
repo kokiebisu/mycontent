@@ -1,0 +1,25 @@
+extend type User @key(fields: "id") {
+  id: ID! @external
+  email: String!
+  password: String!
+}
+
+type AuthPayload {
+  user: User!
+  token: String!
+}
+
+type Mutation {
+  register(input: RegisterInput): AuthPayload
+  login(input: LoginInput): AuthPayload
+}
+
+input RegisterInput {
+  email: String!
+  password: String!
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
