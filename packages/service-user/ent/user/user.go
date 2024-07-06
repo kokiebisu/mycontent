@@ -4,6 +4,9 @@ package user
 
 import (
 	"fmt"
+	"io"
+	"strconv"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 )
@@ -27,6 +30,10 @@ const (
 	FieldInterest = "interest"
 	// FieldYearsOfExperience holds the string denoting the years_of_experience field in the database.
 	FieldYearsOfExperience = "years_of_experience"
+	// FieldCreatedAt holds the string denoting the created_at field in the database.
+	FieldCreatedAt = "created_at"
+	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
+	FieldUpdatedAt = "updated_at"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 )
@@ -41,6 +48,8 @@ var Columns = []string{
 	FieldPassword,
 	FieldInterest,
 	FieldYearsOfExperience,
+	FieldCreatedAt,
+	FieldUpdatedAt,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -66,6 +75,12 @@ var (
 	PasswordValidator func(string) error
 	// YearsOfExperienceValidator is a validator for the "years_of_experience" field. It is called by the builders before save.
 	YearsOfExperienceValidator func(int) error
+	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
+	DefaultCreatedAt func() time.Time
+	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
+	DefaultUpdatedAt func() time.Time
+	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
+	UpdateDefaultUpdatedAt func() time.Time
 )
 
 // Interest defines the type for the "interest" enum field.
@@ -142,4 +157,32 @@ func ByInterest(opts ...sql.OrderTermOption) OrderOption {
 // ByYearsOfExperience orders the results by the years_of_experience field.
 func ByYearsOfExperience(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldYearsOfExperience, opts...).ToFunc()
+}
+
+// ByCreatedAt orders the results by the created_at field.
+func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
+}
+
+// ByUpdatedAt orders the results by the updated_at field.
+func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
+}
+
+// MarshalGQL implements graphql.Marshaler interface.
+func (e Interest) MarshalGQL(w io.Writer) {
+	io.WriteString(w, strconv.Quote(e.String()))
+}
+
+// UnmarshalGQL implements graphql.Unmarshaler interface.
+func (e *Interest) UnmarshalGQL(val interface{}) error {
+	str, ok := val.(string)
+	if !ok {
+		return fmt.Errorf("enum %T must be a string", val)
+	}
+	*e = Interest(str)
+	if err := InterestValidator(*e); err != nil {
+		return fmt.Errorf("%s is not a valid Interest", str)
+	}
+	return nil
 }

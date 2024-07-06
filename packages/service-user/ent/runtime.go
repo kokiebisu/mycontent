@@ -3,6 +3,8 @@
 package ent
 
 import (
+	"time"
+
 	"github.com/kokiebisu/mycontent/packages/service-user/ent/schema"
 	"github.com/kokiebisu/mycontent/packages/service-user/ent/user"
 )
@@ -14,7 +16,7 @@ func init() {
 	userFields := schema.User{}.Fields()
 	_ = userFields
 	// userDescFirstName is the schema descriptor for first_name field.
-	userDescFirstName := userFields[0].Descriptor()
+	userDescFirstName := userFields[1].Descriptor()
 	// user.FirstNameValidator is a validator for the "first_name" field. It is called by the builders before save.
 	user.FirstNameValidator = func() func(string) error {
 		validators := userDescFirstName.Validators
@@ -32,7 +34,7 @@ func init() {
 		}
 	}()
 	// userDescLastName is the schema descriptor for last_name field.
-	userDescLastName := userFields[1].Descriptor()
+	userDescLastName := userFields[2].Descriptor()
 	// user.LastNameValidator is a validator for the "last_name" field. It is called by the builders before save.
 	user.LastNameValidator = func() func(string) error {
 		validators := userDescLastName.Validators
@@ -50,7 +52,7 @@ func init() {
 		}
 	}()
 	// userDescEmail is the schema descriptor for email field.
-	userDescEmail := userFields[2].Descriptor()
+	userDescEmail := userFields[3].Descriptor()
 	// user.EmailValidator is a validator for the "email" field. It is called by the builders before save.
 	user.EmailValidator = func() func(string) error {
 		validators := userDescEmail.Validators
@@ -68,7 +70,7 @@ func init() {
 		}
 	}()
 	// userDescUsername is the schema descriptor for username field.
-	userDescUsername := userFields[3].Descriptor()
+	userDescUsername := userFields[4].Descriptor()
 	// user.UsernameValidator is a validator for the "username" field. It is called by the builders before save.
 	user.UsernameValidator = func() func(string) error {
 		validators := userDescUsername.Validators
@@ -86,7 +88,7 @@ func init() {
 		}
 	}()
 	// userDescPassword is the schema descriptor for password field.
-	userDescPassword := userFields[4].Descriptor()
+	userDescPassword := userFields[5].Descriptor()
 	// user.PasswordValidator is a validator for the "password" field. It is called by the builders before save.
 	user.PasswordValidator = func() func(string) error {
 		validators := userDescPassword.Validators
@@ -104,7 +106,17 @@ func init() {
 		}
 	}()
 	// userDescYearsOfExperience is the schema descriptor for years_of_experience field.
-	userDescYearsOfExperience := userFields[6].Descriptor()
+	userDescYearsOfExperience := userFields[7].Descriptor()
 	// user.YearsOfExperienceValidator is a validator for the "years_of_experience" field. It is called by the builders before save.
 	user.YearsOfExperienceValidator = userDescYearsOfExperience.Validators[0].(func(int) error)
+	// userDescCreatedAt is the schema descriptor for created_at field.
+	userDescCreatedAt := userFields[8].Descriptor()
+	// user.DefaultCreatedAt holds the default value on creation for the created_at field.
+	user.DefaultCreatedAt = userDescCreatedAt.Default.(func() time.Time)
+	// userDescUpdatedAt is the schema descriptor for updated_at field.
+	userDescUpdatedAt := userFields[9].Descriptor()
+	// user.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	user.DefaultUpdatedAt = userDescUpdatedAt.Default.(func() time.Time)
+	// user.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	user.UpdateDefaultUpdatedAt = userDescUpdatedAt.UpdateDefault.(func() time.Time)
 }

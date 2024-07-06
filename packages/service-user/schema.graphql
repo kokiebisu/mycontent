@@ -1,0 +1,43 @@
+type User @key(fields: "id") {
+  id: ID!
+  firstName: String!
+  lastName: String!
+  email: String!
+  username: String!
+  password: String!
+  interest: Interest!
+  yearsOfExperience: Int!
+}
+
+type Query {
+  user(id: ID!): User!
+  users: [User!]!
+}
+
+type Mutation {
+  createUser(input: CreateUserInput!): User!
+}
+enum Interest {
+  REACT
+  NODEJS
+  PYTHON
+  GO
+  RUST
+  DOCKER
+  KUBERNETES
+  AWS
+  GCP
+  AZURE
+  TERRAFORM
+  GIT
+}
+
+input CreateUserInput {
+  firstName: String!
+  lastName: String!
+  email: String!
+  username: String!
+  password: String!
+  interest: Interest!
+  yearsOfExperience: Int!
+}

@@ -18,6 +18,8 @@ var (
 		{Name: "password", Type: field.TypeString, Size: 255},
 		{Name: "interest", Type: field.TypeEnum, Enums: []string{"react", "nodejs", "python", "go", "rust", "docker", "kubernetes", "aws", "gcp", "azure", "terraform", "git"}},
 		{Name: "years_of_experience", Type: field.TypeInt},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
 	}
 	// UsersTable holds the schema information for the "users" table.
 	UsersTable = &schema.Table{

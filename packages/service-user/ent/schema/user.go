@@ -1,8 +1,13 @@
 package schema
 
 import (
+	"time"
+
+	"entgo.io/contrib/entgql"
 	"entgo.io/ent"
+	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/field"
+	"github.com/vektah/gqlparser/v2/ast"
 )
 
 // User holds the schema definition for the User entity.
@@ -15,17 +20,45 @@ var INTERESTS = []string{"react", "nodejs", "python", "go", "rust", "docker", "k
 // Fields of the User.
 func (User) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("first_name").MaxLen(255).NotEmpty(),
-		field.String("last_name").MaxLen(255).NotEmpty(),
-		field.String("email").MaxLen(255).NotEmpty(),
-		field.String("username").MaxLen(255).NotEmpty(),
-		field.String("password").MaxLen(255).NotEmpty(),
-		field.Enum("interest").Values(INTERESTS...),
-		field.Int("years_of_experience").Positive(),
+		field.Int("id").Unique().Immutable(),
+		field.String("first_name").MaxLen(255).NotEmpty().Annotations(
+			entgql.OrderField("FIRST_NAME"),
+		),
+		field.String("last_name").MaxLen(255).NotEmpty().Annotations(
+			entgql.OrderField("LAST_NAME"),
+		),
+		field.String("email").MaxLen(255).NotEmpty().Annotations(
+			entgql.OrderField("EMAIL"),
+		),
+		field.String("username").MaxLen(255).NotEmpty().Annotations(
+			entgql.OrderField("USERNAME"),
+		),
+		field.String("password").MaxLen(255).NotEmpty().Annotations(
+			entgql.OrderField("PASSWORD"),
+		),
+		field.Enum("interest").Values(INTERESTS...).Annotations(
+			entgql.OrderField("INTEREST"),
+		),
+		field.Int("years_of_experience").Positive().Annotations(
+			entgql.OrderField("YEARS_OF_EXPERIENCE"),
+		),
+		field.Time("created_at").Default(time.Now).Immutable(),
+		field.Time("updated_at").Default(time.Now).UpdateDefault(time.Now),
 	}
 }
 
 // Edges of the User.
 func (User) Edges() []ent.Edge {
 	return nil
+}
+
+func (User) Annotations() []schema.Annotation {
+	return []schema.Annotation{
+		entgql.QueryField(),
+		entgql.Mutations(entgql.MutationCreate(), entgql.MutationUpdate()),
+		entgql.Directives(entgql.NewDirective("key", &ast.Argument{
+			Name:  "fields",
+			Value: &ast.Value{Raw: "id", Kind: ast.StringValue},
+		})),
+	}
 }
