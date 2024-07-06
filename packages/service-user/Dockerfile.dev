@@ -12,6 +12,6 @@ COPY . .
 
 WORKDIR /app/packages/service-user
 
-EXPOSE 4001
+EXPOSE 4003
 
 CMD ["air", "-c", ".air.toml"]

@@ -13,7 +13,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-const defaultPort = "4001"
+const defaultPort = "4003"
 
 func main() {
 	client, err := ent.Open("postgres", "host=db port=5432 user=postgres dbname=mydb sslmode=disable password=mypassword")

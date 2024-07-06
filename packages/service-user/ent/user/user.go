@@ -13,16 +13,20 @@ const (
 	Label = "user"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
-	// FieldName holds the string denoting the name field in the database.
-	FieldName = "name"
+	// FieldFirstName holds the string denoting the first_name field in the database.
+	FieldFirstName = "first_name"
+	// FieldLastName holds the string denoting the last_name field in the database.
+	FieldLastName = "last_name"
 	// FieldEmail holds the string denoting the email field in the database.
 	FieldEmail = "email"
-	// FieldPersonalityType holds the string denoting the personality_type field in the database.
-	FieldPersonalityType = "personality_type"
 	// FieldUsername holds the string denoting the username field in the database.
 	FieldUsername = "username"
 	// FieldPassword holds the string denoting the password field in the database.
 	FieldPassword = "password"
+	// FieldInterest holds the string denoting the interest field in the database.
+	FieldInterest = "interest"
+	// FieldYearsOfExperience holds the string denoting the years_of_experience field in the database.
+	FieldYearsOfExperience = "years_of_experience"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 )
@@ -30,11 +34,13 @@ const (
 // Columns holds all SQL columns for user fields.
 var Columns = []string{
 	FieldID,
-	FieldName,
+	FieldFirstName,
+	FieldLastName,
 	FieldEmail,
-	FieldPersonalityType,
 	FieldUsername,
 	FieldPassword,
+	FieldInterest,
+	FieldYearsOfExperience,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -48,50 +54,50 @@ func ValidColumn(column string) bool {
 }
 
 var (
-	// NameValidator is a validator for the "name" field. It is called by the builders before save.
-	NameValidator func(string) error
+	// FirstNameValidator is a validator for the "first_name" field. It is called by the builders before save.
+	FirstNameValidator func(string) error
+	// LastNameValidator is a validator for the "last_name" field. It is called by the builders before save.
+	LastNameValidator func(string) error
 	// EmailValidator is a validator for the "email" field. It is called by the builders before save.
 	EmailValidator func(string) error
 	// UsernameValidator is a validator for the "username" field. It is called by the builders before save.
 	UsernameValidator func(string) error
 	// PasswordValidator is a validator for the "password" field. It is called by the builders before save.
 	PasswordValidator func(string) error
+	// YearsOfExperienceValidator is a validator for the "years_of_experience" field. It is called by the builders before save.
+	YearsOfExperienceValidator func(int) error
 )
 
-// PersonalityType defines the type for the "personality_type" enum field.
-type PersonalityType string
+// Interest defines the type for the "interest" enum field.
+type Interest string
 
-// PersonalityType values.
+// Interest values.
 const (
-	PersonalityTypeINTJ PersonalityType = "INTJ"
-	PersonalityTypeINTP PersonalityType = "INTP"
-	PersonalityTypeENTP PersonalityType = "ENTP"
-	PersonalityTypeINFJ PersonalityType = "INFJ"
-	PersonalityTypeINFP PersonalityType = "INFP"
-	PersonalityTypeENTJ PersonalityType = "ENTJ"
-	PersonalityTypeISTJ PersonalityType = "ISTJ"
-	PersonalityTypeISFJ PersonalityType = "ISFJ"
-	PersonalityTypeISTP PersonalityType = "ISTP"
-	PersonalityTypeISFP PersonalityType = "ISFP"
-	PersonalityTypeESTP PersonalityType = "ESTP"
-	PersonalityTypeESFP PersonalityType = "ESFP"
-	PersonalityTypeESTJ PersonalityType = "ESTJ"
-	PersonalityTypeENFJ PersonalityType = "ENFJ"
-	PersonalityTypeENFP PersonalityType = "ENFP"
-	PersonalityTypeESFJ PersonalityType = "ESFJ"
+	InterestReact      Interest = "react"
+	InterestNodejs     Interest = "nodejs"
+	InterestPython     Interest = "python"
+	InterestGo         Interest = "go"
+	InterestRust       Interest = "rust"
+	InterestDocker     Interest = "docker"
+	InterestKubernetes Interest = "kubernetes"
+	InterestAWS        Interest = "aws"
+	InterestGcp        Interest = "gcp"
+	InterestAzure      Interest = "azure"
+	InterestTerraform  Interest = "terraform"
+	InterestGit        Interest = "git"
 )
 
-func (pt PersonalityType) String() string {
-	return string(pt)
+func (i Interest) String() string {
+	return string(i)
 }
 
-// PersonalityTypeValidator is a validator for the "personality_type" field enum values. It is called by the builders before save.
-func PersonalityTypeValidator(pt PersonalityType) error {
-	switch pt {
-	case PersonalityTypeINTJ, PersonalityTypeINTP, PersonalityTypeENTP, PersonalityTypeINFJ, PersonalityTypeINFP, PersonalityTypeENTJ, PersonalityTypeISTJ, PersonalityTypeISFJ, PersonalityTypeISTP, PersonalityTypeISFP, PersonalityTypeESTP, PersonalityTypeESFP, PersonalityTypeESTJ, PersonalityTypeENFJ, PersonalityTypeENFP, PersonalityTypeESFJ:
+// InterestValidator is a validator for the "interest" field enum values. It is called by the builders before save.
+func InterestValidator(i Interest) error {
+	switch i {
+	case InterestReact, InterestNodejs, InterestPython, InterestGo, InterestRust, InterestDocker, InterestKubernetes, InterestAWS, InterestGcp, InterestAzure, InterestTerraform, InterestGit:
 		return nil
 	default:
-		return fmt.Errorf("user: invalid enum value for personality_type field: %q", pt)
+		return fmt.Errorf("user: invalid enum value for interest field: %q", i)
 	}
 }
 
@@ -103,19 +109,19 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
 }
 
-// ByName orders the results by the name field.
-func ByName(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldName, opts...).ToFunc()
+// ByFirstName orders the results by the first_name field.
+func ByFirstName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldFirstName, opts...).ToFunc()
+}
+
+// ByLastName orders the results by the last_name field.
+func ByLastName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldLastName, opts...).ToFunc()
 }
 
 // ByEmail orders the results by the email field.
 func ByEmail(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldEmail, opts...).ToFunc()
-}
-
-// ByPersonalityType orders the results by the personality_type field.
-func ByPersonalityType(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldPersonalityType, opts...).ToFunc()
 }
 
 // ByUsername orders the results by the username field.
@@ -126,4 +132,14 @@ func ByUsername(opts ...sql.OrderTermOption) OrderOption {
 // ByPassword orders the results by the password field.
 func ByPassword(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldPassword, opts...).ToFunc()
+}
+
+// ByInterest orders the results by the interest field.
+func ByInterest(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldInterest, opts...).ToFunc()
+}
+
+// ByYearsOfExperience orders the results by the years_of_experience field.
+func ByYearsOfExperience(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldYearsOfExperience, opts...).ToFunc()
 }

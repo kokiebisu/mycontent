@@ -16,6 +16,6 @@ FROM golang:latest
 
 COPY --from=Builder /app/packages/service-user/main /main
 
-EXPOSE 4001
+EXPOSE 4003
 
 CMD ["/main"]

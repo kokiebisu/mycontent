@@ -27,16 +27,30 @@ func (uu *UserUpdate) Where(ps ...predicate.User) *UserUpdate {
 	return uu
 }
 
-// SetName sets the "name" field.
-func (uu *UserUpdate) SetName(s string) *UserUpdate {
-	uu.mutation.SetName(s)
+// SetFirstName sets the "first_name" field.
+func (uu *UserUpdate) SetFirstName(s string) *UserUpdate {
+	uu.mutation.SetFirstName(s)
 	return uu
 }
 
-// SetNillableName sets the "name" field if the given value is not nil.
-func (uu *UserUpdate) SetNillableName(s *string) *UserUpdate {
+// SetNillableFirstName sets the "first_name" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableFirstName(s *string) *UserUpdate {
 	if s != nil {
-		uu.SetName(*s)
+		uu.SetFirstName(*s)
+	}
+	return uu
+}
+
+// SetLastName sets the "last_name" field.
+func (uu *UserUpdate) SetLastName(s string) *UserUpdate {
+	uu.mutation.SetLastName(s)
+	return uu
+}
+
+// SetNillableLastName sets the "last_name" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableLastName(s *string) *UserUpdate {
+	if s != nil {
+		uu.SetLastName(*s)
 	}
 	return uu
 }
@@ -51,20 +65,6 @@ func (uu *UserUpdate) SetEmail(s string) *UserUpdate {
 func (uu *UserUpdate) SetNillableEmail(s *string) *UserUpdate {
 	if s != nil {
 		uu.SetEmail(*s)
-	}
-	return uu
-}
-
-// SetPersonalityType sets the "personality_type" field.
-func (uu *UserUpdate) SetPersonalityType(ut user.PersonalityType) *UserUpdate {
-	uu.mutation.SetPersonalityType(ut)
-	return uu
-}
-
-// SetNillablePersonalityType sets the "personality_type" field if the given value is not nil.
-func (uu *UserUpdate) SetNillablePersonalityType(ut *user.PersonalityType) *UserUpdate {
-	if ut != nil {
-		uu.SetPersonalityType(*ut)
 	}
 	return uu
 }
@@ -94,6 +94,41 @@ func (uu *UserUpdate) SetNillablePassword(s *string) *UserUpdate {
 	if s != nil {
 		uu.SetPassword(*s)
 	}
+	return uu
+}
+
+// SetInterest sets the "interest" field.
+func (uu *UserUpdate) SetInterest(u user.Interest) *UserUpdate {
+	uu.mutation.SetInterest(u)
+	return uu
+}
+
+// SetNillableInterest sets the "interest" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableInterest(u *user.Interest) *UserUpdate {
+	if u != nil {
+		uu.SetInterest(*u)
+	}
+	return uu
+}
+
+// SetYearsOfExperience sets the "years_of_experience" field.
+func (uu *UserUpdate) SetYearsOfExperience(i int) *UserUpdate {
+	uu.mutation.ResetYearsOfExperience()
+	uu.mutation.SetYearsOfExperience(i)
+	return uu
+}
+
+// SetNillableYearsOfExperience sets the "years_of_experience" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableYearsOfExperience(i *int) *UserUpdate {
+	if i != nil {
+		uu.SetYearsOfExperience(*i)
+	}
+	return uu
+}
+
+// AddYearsOfExperience adds i to the "years_of_experience" field.
+func (uu *UserUpdate) AddYearsOfExperience(i int) *UserUpdate {
+	uu.mutation.AddYearsOfExperience(i)
 	return uu
 }
 
@@ -131,19 +166,19 @@ func (uu *UserUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (uu *UserUpdate) check() error {
-	if v, ok := uu.mutation.Name(); ok {
-		if err := user.NameValidator(v); err != nil {
-			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "User.name": %w`, err)}
+	if v, ok := uu.mutation.FirstName(); ok {
+		if err := user.FirstNameValidator(v); err != nil {
+			return &ValidationError{Name: "first_name", err: fmt.Errorf(`ent: validator failed for field "User.first_name": %w`, err)}
+		}
+	}
+	if v, ok := uu.mutation.LastName(); ok {
+		if err := user.LastNameValidator(v); err != nil {
+			return &ValidationError{Name: "last_name", err: fmt.Errorf(`ent: validator failed for field "User.last_name": %w`, err)}
 		}
 	}
 	if v, ok := uu.mutation.Email(); ok {
 		if err := user.EmailValidator(v); err != nil {
 			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "User.email": %w`, err)}
-		}
-	}
-	if v, ok := uu.mutation.PersonalityType(); ok {
-		if err := user.PersonalityTypeValidator(v); err != nil {
-			return &ValidationError{Name: "personality_type", err: fmt.Errorf(`ent: validator failed for field "User.personality_type": %w`, err)}
 		}
 	}
 	if v, ok := uu.mutation.Username(); ok {
@@ -154,6 +189,16 @@ func (uu *UserUpdate) check() error {
 	if v, ok := uu.mutation.Password(); ok {
 		if err := user.PasswordValidator(v); err != nil {
 			return &ValidationError{Name: "password", err: fmt.Errorf(`ent: validator failed for field "User.password": %w`, err)}
+		}
+	}
+	if v, ok := uu.mutation.Interest(); ok {
+		if err := user.InterestValidator(v); err != nil {
+			return &ValidationError{Name: "interest", err: fmt.Errorf(`ent: validator failed for field "User.interest": %w`, err)}
+		}
+	}
+	if v, ok := uu.mutation.YearsOfExperience(); ok {
+		if err := user.YearsOfExperienceValidator(v); err != nil {
+			return &ValidationError{Name: "years_of_experience", err: fmt.Errorf(`ent: validator failed for field "User.years_of_experience": %w`, err)}
 		}
 	}
 	return nil
@@ -171,20 +216,29 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
-	if value, ok := uu.mutation.Name(); ok {
-		_spec.SetField(user.FieldName, field.TypeString, value)
+	if value, ok := uu.mutation.FirstName(); ok {
+		_spec.SetField(user.FieldFirstName, field.TypeString, value)
+	}
+	if value, ok := uu.mutation.LastName(); ok {
+		_spec.SetField(user.FieldLastName, field.TypeString, value)
 	}
 	if value, ok := uu.mutation.Email(); ok {
 		_spec.SetField(user.FieldEmail, field.TypeString, value)
-	}
-	if value, ok := uu.mutation.PersonalityType(); ok {
-		_spec.SetField(user.FieldPersonalityType, field.TypeEnum, value)
 	}
 	if value, ok := uu.mutation.Username(); ok {
 		_spec.SetField(user.FieldUsername, field.TypeString, value)
 	}
 	if value, ok := uu.mutation.Password(); ok {
 		_spec.SetField(user.FieldPassword, field.TypeString, value)
+	}
+	if value, ok := uu.mutation.Interest(); ok {
+		_spec.SetField(user.FieldInterest, field.TypeEnum, value)
+	}
+	if value, ok := uu.mutation.YearsOfExperience(); ok {
+		_spec.SetField(user.FieldYearsOfExperience, field.TypeInt, value)
+	}
+	if value, ok := uu.mutation.AddedYearsOfExperience(); ok {
+		_spec.AddField(user.FieldYearsOfExperience, field.TypeInt, value)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, uu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -206,16 +260,30 @@ type UserUpdateOne struct {
 	mutation *UserMutation
 }
 
-// SetName sets the "name" field.
-func (uuo *UserUpdateOne) SetName(s string) *UserUpdateOne {
-	uuo.mutation.SetName(s)
+// SetFirstName sets the "first_name" field.
+func (uuo *UserUpdateOne) SetFirstName(s string) *UserUpdateOne {
+	uuo.mutation.SetFirstName(s)
 	return uuo
 }
 
-// SetNillableName sets the "name" field if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillableName(s *string) *UserUpdateOne {
+// SetNillableFirstName sets the "first_name" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableFirstName(s *string) *UserUpdateOne {
 	if s != nil {
-		uuo.SetName(*s)
+		uuo.SetFirstName(*s)
+	}
+	return uuo
+}
+
+// SetLastName sets the "last_name" field.
+func (uuo *UserUpdateOne) SetLastName(s string) *UserUpdateOne {
+	uuo.mutation.SetLastName(s)
+	return uuo
+}
+
+// SetNillableLastName sets the "last_name" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableLastName(s *string) *UserUpdateOne {
+	if s != nil {
+		uuo.SetLastName(*s)
 	}
 	return uuo
 }
@@ -230,20 +298,6 @@ func (uuo *UserUpdateOne) SetEmail(s string) *UserUpdateOne {
 func (uuo *UserUpdateOne) SetNillableEmail(s *string) *UserUpdateOne {
 	if s != nil {
 		uuo.SetEmail(*s)
-	}
-	return uuo
-}
-
-// SetPersonalityType sets the "personality_type" field.
-func (uuo *UserUpdateOne) SetPersonalityType(ut user.PersonalityType) *UserUpdateOne {
-	uuo.mutation.SetPersonalityType(ut)
-	return uuo
-}
-
-// SetNillablePersonalityType sets the "personality_type" field if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillablePersonalityType(ut *user.PersonalityType) *UserUpdateOne {
-	if ut != nil {
-		uuo.SetPersonalityType(*ut)
 	}
 	return uuo
 }
@@ -273,6 +327,41 @@ func (uuo *UserUpdateOne) SetNillablePassword(s *string) *UserUpdateOne {
 	if s != nil {
 		uuo.SetPassword(*s)
 	}
+	return uuo
+}
+
+// SetInterest sets the "interest" field.
+func (uuo *UserUpdateOne) SetInterest(u user.Interest) *UserUpdateOne {
+	uuo.mutation.SetInterest(u)
+	return uuo
+}
+
+// SetNillableInterest sets the "interest" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableInterest(u *user.Interest) *UserUpdateOne {
+	if u != nil {
+		uuo.SetInterest(*u)
+	}
+	return uuo
+}
+
+// SetYearsOfExperience sets the "years_of_experience" field.
+func (uuo *UserUpdateOne) SetYearsOfExperience(i int) *UserUpdateOne {
+	uuo.mutation.ResetYearsOfExperience()
+	uuo.mutation.SetYearsOfExperience(i)
+	return uuo
+}
+
+// SetNillableYearsOfExperience sets the "years_of_experience" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableYearsOfExperience(i *int) *UserUpdateOne {
+	if i != nil {
+		uuo.SetYearsOfExperience(*i)
+	}
+	return uuo
+}
+
+// AddYearsOfExperience adds i to the "years_of_experience" field.
+func (uuo *UserUpdateOne) AddYearsOfExperience(i int) *UserUpdateOne {
+	uuo.mutation.AddYearsOfExperience(i)
 	return uuo
 }
 
@@ -323,19 +412,19 @@ func (uuo *UserUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (uuo *UserUpdateOne) check() error {
-	if v, ok := uuo.mutation.Name(); ok {
-		if err := user.NameValidator(v); err != nil {
-			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "User.name": %w`, err)}
+	if v, ok := uuo.mutation.FirstName(); ok {
+		if err := user.FirstNameValidator(v); err != nil {
+			return &ValidationError{Name: "first_name", err: fmt.Errorf(`ent: validator failed for field "User.first_name": %w`, err)}
+		}
+	}
+	if v, ok := uuo.mutation.LastName(); ok {
+		if err := user.LastNameValidator(v); err != nil {
+			return &ValidationError{Name: "last_name", err: fmt.Errorf(`ent: validator failed for field "User.last_name": %w`, err)}
 		}
 	}
 	if v, ok := uuo.mutation.Email(); ok {
 		if err := user.EmailValidator(v); err != nil {
 			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "User.email": %w`, err)}
-		}
-	}
-	if v, ok := uuo.mutation.PersonalityType(); ok {
-		if err := user.PersonalityTypeValidator(v); err != nil {
-			return &ValidationError{Name: "personality_type", err: fmt.Errorf(`ent: validator failed for field "User.personality_type": %w`, err)}
 		}
 	}
 	if v, ok := uuo.mutation.Username(); ok {
@@ -346,6 +435,16 @@ func (uuo *UserUpdateOne) check() error {
 	if v, ok := uuo.mutation.Password(); ok {
 		if err := user.PasswordValidator(v); err != nil {
 			return &ValidationError{Name: "password", err: fmt.Errorf(`ent: validator failed for field "User.password": %w`, err)}
+		}
+	}
+	if v, ok := uuo.mutation.Interest(); ok {
+		if err := user.InterestValidator(v); err != nil {
+			return &ValidationError{Name: "interest", err: fmt.Errorf(`ent: validator failed for field "User.interest": %w`, err)}
+		}
+	}
+	if v, ok := uuo.mutation.YearsOfExperience(); ok {
+		if err := user.YearsOfExperienceValidator(v); err != nil {
+			return &ValidationError{Name: "years_of_experience", err: fmt.Errorf(`ent: validator failed for field "User.years_of_experience": %w`, err)}
 		}
 	}
 	return nil
@@ -380,20 +479,29 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			}
 		}
 	}
-	if value, ok := uuo.mutation.Name(); ok {
-		_spec.SetField(user.FieldName, field.TypeString, value)
+	if value, ok := uuo.mutation.FirstName(); ok {
+		_spec.SetField(user.FieldFirstName, field.TypeString, value)
+	}
+	if value, ok := uuo.mutation.LastName(); ok {
+		_spec.SetField(user.FieldLastName, field.TypeString, value)
 	}
 	if value, ok := uuo.mutation.Email(); ok {
 		_spec.SetField(user.FieldEmail, field.TypeString, value)
-	}
-	if value, ok := uuo.mutation.PersonalityType(); ok {
-		_spec.SetField(user.FieldPersonalityType, field.TypeEnum, value)
 	}
 	if value, ok := uuo.mutation.Username(); ok {
 		_spec.SetField(user.FieldUsername, field.TypeString, value)
 	}
 	if value, ok := uuo.mutation.Password(); ok {
 		_spec.SetField(user.FieldPassword, field.TypeString, value)
+	}
+	if value, ok := uuo.mutation.Interest(); ok {
+		_spec.SetField(user.FieldInterest, field.TypeEnum, value)
+	}
+	if value, ok := uuo.mutation.YearsOfExperience(); ok {
+		_spec.SetField(user.FieldYearsOfExperience, field.TypeInt, value)
+	}
+	if value, ok := uuo.mutation.AddedYearsOfExperience(); ok {
+		_spec.AddField(user.FieldYearsOfExperience, field.TypeInt, value)
 	}
 	_node = &User{config: uuo.config}
 	_spec.Assign = _node.assignValues

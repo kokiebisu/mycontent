@@ -2,12 +2,20 @@
 
 package graphql
 
+import (
+	"fmt"
+	"io"
+	"strconv"
+)
+
 type CreateUserInput struct {
-	Name            string `json:"name"`
-	Email           string `json:"email"`
-	PersonalityType string `json:"personality_type"`
-	Username        string `json:"username"`
-	Password        string `json:"password"`
+	FirstName         string   `json:"firstName"`
+	LastName          string   `json:"lastName"`
+	Email             string   `json:"email"`
+	Username          string   `json:"username"`
+	Password          string   `json:"password"`
+	Interest          Interest `json:"interest"`
+	YearsOfExperience int      `json:"yearsOfExperience"`
 }
 
 type Mutation struct {
@@ -17,12 +25,75 @@ type Query struct {
 }
 
 type User struct {
-	ID              string `json:"id"`
-	Name            string `json:"name"`
-	PersonalityType string `json:"personality_type"`
-	Email           string `json:"email"`
-	Username        string `json:"username"`
-	Password        string `json:"password"`
+	ID                string   `json:"id"`
+	FirstName         string   `json:"firstName"`
+	LastName          string   `json:"lastName"`
+	Email             string   `json:"email"`
+	Username          string   `json:"username"`
+	Password          string   `json:"password"`
+	Interest          Interest `json:"interest"`
+	YearsOfExperience int      `json:"yearsOfExperience"`
 }
 
 func (User) IsEntity() {}
+
+type Interest string
+
+const (
+	InterestReact      Interest = "REACT"
+	InterestNodejs     Interest = "NODEJS"
+	InterestPython     Interest = "PYTHON"
+	InterestGo         Interest = "GO"
+	InterestRust       Interest = "RUST"
+	InterestDocker     Interest = "DOCKER"
+	InterestKubernetes Interest = "KUBERNETES"
+	InterestAws        Interest = "AWS"
+	InterestGcp        Interest = "GCP"
+	InterestAzure      Interest = "AZURE"
+	InterestTerraform  Interest = "TERRAFORM"
+	InterestGit        Interest = "GIT"
+)
+
+var AllInterest = []Interest{
+	InterestReact,
+	InterestNodejs,
+	InterestPython,
+	InterestGo,
+	InterestRust,
+	InterestDocker,
+	InterestKubernetes,
+	InterestAws,
+	InterestGcp,
+	InterestAzure,
+	InterestTerraform,
+	InterestGit,
+}
+
+func (e Interest) IsValid() bool {
+	switch e {
+	case InterestReact, InterestNodejs, InterestPython, InterestGo, InterestRust, InterestDocker, InterestKubernetes, InterestAws, InterestGcp, InterestAzure, InterestTerraform, InterestGit:
+		return true
+	}
+	return false
+}
+
+func (e Interest) String() string {
+	return string(e)
+}
+
+func (e *Interest) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = Interest(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid Interest", str)
+	}
+	return nil
+}
+
+func (e Interest) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}

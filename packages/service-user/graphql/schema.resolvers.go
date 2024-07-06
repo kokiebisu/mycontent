@@ -7,20 +7,24 @@ package graphql
 import (
 	"context"
 	"strconv"
+	"strings"
 
 	"github.com/kokiebisu/mycontent/packages/service-user/ent/user"
 )
 
 // CreateUser is the resolver for the createUser field.
 func (r *mutationResolver) CreateUser(ctx context.Context, input CreateUserInput) (*User, error) {
-	entity, err := r.Client.User.Create().SetName(input.Name).SetPersonalityType(user.PersonalityType(input.PersonalityType)).SetEmail(input.Email).SetPassword(input.Password).SetUsername(input.Username).Save(ctx)
+	stringInterest := strings.ToLower(string(input.Interest))
+	entity, err := r.Client.User.Create().SetEmail(input.Email).SetPassword(input.Password).SetUsername(input.Username).SetFirstName(input.FirstName).SetLastName(input.LastName).SetInterest(user.Interest(stringInterest)).SetYearsOfExperience(input.YearsOfExperience).Save(ctx)
 	if err != nil {
 		return nil, err
 	}
 	return &User{
 		ID:              strconv.Itoa(entity.ID),
-		Name:            entity.Name,
-		PersonalityType: entity.PersonalityType.String(),
+		FirstName:       entity.FirstName,
+		LastName:        entity.LastName,
+		Interest:        Interest(strings.ToUpper(stringInterest)),
+		YearsOfExperience: entity.YearsOfExperience,
 		Email:           entity.Email,
 		Password:        entity.Password,
 		Username:        entity.Username,
@@ -38,8 +42,14 @@ func (r *queryResolver) User(ctx context.Context, id string) (*User, error) {
 		return nil, err
 	}
 	return &User{
-		ID:   strconv.Itoa(entity.ID),
-		Name: entity.Name,
+		ID:              strconv.Itoa(entity.ID),
+		FirstName:       entity.FirstName,
+		LastName:        entity.LastName,
+		Interest:        Interest(entity.Interest),
+		YearsOfExperience: entity.YearsOfExperience,
+		Email:           entity.Email,
+		Password:        entity.Password,
+		Username:        entity.Username,
 	}, nil
 }
 
@@ -53,8 +63,10 @@ func (r *queryResolver) Users(ctx context.Context) ([]*User, error) {
 	for i, entity := range entities {
 		users[i] = &User{
 			ID:              strconv.Itoa(entity.ID),
-			Name:            entity.Name,
-			PersonalityType: entity.PersonalityType.String(),
+			FirstName:       entity.FirstName,
+			LastName:        entity.LastName,
+			Interest:        Interest(entity.Interest),
+			YearsOfExperience: entity.YearsOfExperience,
 			Email:           entity.Email,
 			Password:        entity.Password,
 			Username:        entity.Username,

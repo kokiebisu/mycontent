@@ -19,21 +19,21 @@ type UserCreate struct {
 	hooks    []Hook
 }
 
-// SetName sets the "name" field.
-func (uc *UserCreate) SetName(s string) *UserCreate {
-	uc.mutation.SetName(s)
+// SetFirstName sets the "first_name" field.
+func (uc *UserCreate) SetFirstName(s string) *UserCreate {
+	uc.mutation.SetFirstName(s)
+	return uc
+}
+
+// SetLastName sets the "last_name" field.
+func (uc *UserCreate) SetLastName(s string) *UserCreate {
+	uc.mutation.SetLastName(s)
 	return uc
 }
 
 // SetEmail sets the "email" field.
 func (uc *UserCreate) SetEmail(s string) *UserCreate {
 	uc.mutation.SetEmail(s)
-	return uc
-}
-
-// SetPersonalityType sets the "personality_type" field.
-func (uc *UserCreate) SetPersonalityType(ut user.PersonalityType) *UserCreate {
-	uc.mutation.SetPersonalityType(ut)
 	return uc
 }
 
@@ -46,6 +46,18 @@ func (uc *UserCreate) SetUsername(s string) *UserCreate {
 // SetPassword sets the "password" field.
 func (uc *UserCreate) SetPassword(s string) *UserCreate {
 	uc.mutation.SetPassword(s)
+	return uc
+}
+
+// SetInterest sets the "interest" field.
+func (uc *UserCreate) SetInterest(u user.Interest) *UserCreate {
+	uc.mutation.SetInterest(u)
+	return uc
+}
+
+// SetYearsOfExperience sets the "years_of_experience" field.
+func (uc *UserCreate) SetYearsOfExperience(i int) *UserCreate {
+	uc.mutation.SetYearsOfExperience(i)
 	return uc
 }
 
@@ -83,12 +95,20 @@ func (uc *UserCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (uc *UserCreate) check() error {
-	if _, ok := uc.mutation.Name(); !ok {
-		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "User.name"`)}
+	if _, ok := uc.mutation.FirstName(); !ok {
+		return &ValidationError{Name: "first_name", err: errors.New(`ent: missing required field "User.first_name"`)}
 	}
-	if v, ok := uc.mutation.Name(); ok {
-		if err := user.NameValidator(v); err != nil {
-			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "User.name": %w`, err)}
+	if v, ok := uc.mutation.FirstName(); ok {
+		if err := user.FirstNameValidator(v); err != nil {
+			return &ValidationError{Name: "first_name", err: fmt.Errorf(`ent: validator failed for field "User.first_name": %w`, err)}
+		}
+	}
+	if _, ok := uc.mutation.LastName(); !ok {
+		return &ValidationError{Name: "last_name", err: errors.New(`ent: missing required field "User.last_name"`)}
+	}
+	if v, ok := uc.mutation.LastName(); ok {
+		if err := user.LastNameValidator(v); err != nil {
+			return &ValidationError{Name: "last_name", err: fmt.Errorf(`ent: validator failed for field "User.last_name": %w`, err)}
 		}
 	}
 	if _, ok := uc.mutation.Email(); !ok {
@@ -97,14 +117,6 @@ func (uc *UserCreate) check() error {
 	if v, ok := uc.mutation.Email(); ok {
 		if err := user.EmailValidator(v); err != nil {
 			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "User.email": %w`, err)}
-		}
-	}
-	if _, ok := uc.mutation.PersonalityType(); !ok {
-		return &ValidationError{Name: "personality_type", err: errors.New(`ent: missing required field "User.personality_type"`)}
-	}
-	if v, ok := uc.mutation.PersonalityType(); ok {
-		if err := user.PersonalityTypeValidator(v); err != nil {
-			return &ValidationError{Name: "personality_type", err: fmt.Errorf(`ent: validator failed for field "User.personality_type": %w`, err)}
 		}
 	}
 	if _, ok := uc.mutation.Username(); !ok {
@@ -121,6 +133,22 @@ func (uc *UserCreate) check() error {
 	if v, ok := uc.mutation.Password(); ok {
 		if err := user.PasswordValidator(v); err != nil {
 			return &ValidationError{Name: "password", err: fmt.Errorf(`ent: validator failed for field "User.password": %w`, err)}
+		}
+	}
+	if _, ok := uc.mutation.Interest(); !ok {
+		return &ValidationError{Name: "interest", err: errors.New(`ent: missing required field "User.interest"`)}
+	}
+	if v, ok := uc.mutation.Interest(); ok {
+		if err := user.InterestValidator(v); err != nil {
+			return &ValidationError{Name: "interest", err: fmt.Errorf(`ent: validator failed for field "User.interest": %w`, err)}
+		}
+	}
+	if _, ok := uc.mutation.YearsOfExperience(); !ok {
+		return &ValidationError{Name: "years_of_experience", err: errors.New(`ent: missing required field "User.years_of_experience"`)}
+	}
+	if v, ok := uc.mutation.YearsOfExperience(); ok {
+		if err := user.YearsOfExperienceValidator(v); err != nil {
+			return &ValidationError{Name: "years_of_experience", err: fmt.Errorf(`ent: validator failed for field "User.years_of_experience": %w`, err)}
 		}
 	}
 	return nil
@@ -149,17 +177,17 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		_node = &User{config: uc.config}
 		_spec = sqlgraph.NewCreateSpec(user.Table, sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt))
 	)
-	if value, ok := uc.mutation.Name(); ok {
-		_spec.SetField(user.FieldName, field.TypeString, value)
-		_node.Name = value
+	if value, ok := uc.mutation.FirstName(); ok {
+		_spec.SetField(user.FieldFirstName, field.TypeString, value)
+		_node.FirstName = value
+	}
+	if value, ok := uc.mutation.LastName(); ok {
+		_spec.SetField(user.FieldLastName, field.TypeString, value)
+		_node.LastName = value
 	}
 	if value, ok := uc.mutation.Email(); ok {
 		_spec.SetField(user.FieldEmail, field.TypeString, value)
 		_node.Email = value
-	}
-	if value, ok := uc.mutation.PersonalityType(); ok {
-		_spec.SetField(user.FieldPersonalityType, field.TypeEnum, value)
-		_node.PersonalityType = value
 	}
 	if value, ok := uc.mutation.Username(); ok {
 		_spec.SetField(user.FieldUsername, field.TypeString, value)
@@ -168,6 +196,14 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	if value, ok := uc.mutation.Password(); ok {
 		_spec.SetField(user.FieldPassword, field.TypeString, value)
 		_node.Password = value
+	}
+	if value, ok := uc.mutation.Interest(); ok {
+		_spec.SetField(user.FieldInterest, field.TypeEnum, value)
+		_node.Interest = value
+	}
+	if value, ok := uc.mutation.YearsOfExperience(); ok {
+		_spec.SetField(user.FieldYearsOfExperience, field.TypeInt, value)
+		_node.YearsOfExperience = value
 	}
 	return _node, _spec
 }

@@ -11,11 +11,13 @@ var (
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "name", Type: field.TypeString, Size: 255},
+		{Name: "first_name", Type: field.TypeString, Size: 255},
+		{Name: "last_name", Type: field.TypeString, Size: 255},
 		{Name: "email", Type: field.TypeString, Size: 255},
-		{Name: "personality_type", Type: field.TypeEnum, Enums: []string{"INTJ", "INTP", "ENTP", "INFJ", "INFP", "ENTJ", "ISTJ", "ISFJ", "ISTP", "ISFP", "ESTP", "ESFP", "ESTJ", "ENFJ", "ENFP", "ESFJ"}},
 		{Name: "username", Type: field.TypeString, Size: 255},
 		{Name: "password", Type: field.TypeString, Size: 255},
+		{Name: "interest", Type: field.TypeEnum, Enums: []string{"react", "nodejs", "python", "go", "rust", "docker", "kubernetes", "aws", "gcp", "azure", "terraform", "git"}},
+		{Name: "years_of_experience", Type: field.TypeInt},
 	}
 	// UsersTable holds the schema information for the "users" table.
 	UsersTable = &schema.Table{

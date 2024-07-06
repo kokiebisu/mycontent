@@ -16,17 +16,21 @@ type User struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
-	// Name holds the value of the "name" field.
-	Name string `json:"name,omitempty"`
+	// FirstName holds the value of the "first_name" field.
+	FirstName string `json:"first_name,omitempty"`
+	// LastName holds the value of the "last_name" field.
+	LastName string `json:"last_name,omitempty"`
 	// Email holds the value of the "email" field.
 	Email string `json:"email,omitempty"`
-	// PersonalityType holds the value of the "personality_type" field.
-	PersonalityType user.PersonalityType `json:"personality_type,omitempty"`
 	// Username holds the value of the "username" field.
 	Username string `json:"username,omitempty"`
 	// Password holds the value of the "password" field.
-	Password     string `json:"password,omitempty"`
-	selectValues sql.SelectValues
+	Password string `json:"password,omitempty"`
+	// Interest holds the value of the "interest" field.
+	Interest user.Interest `json:"interest,omitempty"`
+	// YearsOfExperience holds the value of the "years_of_experience" field.
+	YearsOfExperience int `json:"years_of_experience,omitempty"`
+	selectValues      sql.SelectValues
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -34,9 +38,9 @@ func (*User) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case user.FieldID:
+		case user.FieldID, user.FieldYearsOfExperience:
 			values[i] = new(sql.NullInt64)
-		case user.FieldName, user.FieldEmail, user.FieldPersonalityType, user.FieldUsername, user.FieldPassword:
+		case user.FieldFirstName, user.FieldLastName, user.FieldEmail, user.FieldUsername, user.FieldPassword, user.FieldInterest:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -59,23 +63,23 @@ func (u *User) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			u.ID = int(value.Int64)
-		case user.FieldName:
+		case user.FieldFirstName:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field name", values[i])
+				return fmt.Errorf("unexpected type %T for field first_name", values[i])
 			} else if value.Valid {
-				u.Name = value.String
+				u.FirstName = value.String
+			}
+		case user.FieldLastName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field last_name", values[i])
+			} else if value.Valid {
+				u.LastName = value.String
 			}
 		case user.FieldEmail:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field email", values[i])
 			} else if value.Valid {
 				u.Email = value.String
-			}
-		case user.FieldPersonalityType:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field personality_type", values[i])
-			} else if value.Valid {
-				u.PersonalityType = user.PersonalityType(value.String)
 			}
 		case user.FieldUsername:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -88,6 +92,18 @@ func (u *User) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field password", values[i])
 			} else if value.Valid {
 				u.Password = value.String
+			}
+		case user.FieldInterest:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field interest", values[i])
+			} else if value.Valid {
+				u.Interest = user.Interest(value.String)
+			}
+		case user.FieldYearsOfExperience:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field years_of_experience", values[i])
+			} else if value.Valid {
+				u.YearsOfExperience = int(value.Int64)
 			}
 		default:
 			u.selectValues.Set(columns[i], values[i])
@@ -125,20 +141,26 @@ func (u *User) String() string {
 	var builder strings.Builder
 	builder.WriteString("User(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", u.ID))
-	builder.WriteString("name=")
-	builder.WriteString(u.Name)
+	builder.WriteString("first_name=")
+	builder.WriteString(u.FirstName)
+	builder.WriteString(", ")
+	builder.WriteString("last_name=")
+	builder.WriteString(u.LastName)
 	builder.WriteString(", ")
 	builder.WriteString("email=")
 	builder.WriteString(u.Email)
-	builder.WriteString(", ")
-	builder.WriteString("personality_type=")
-	builder.WriteString(fmt.Sprintf("%v", u.PersonalityType))
 	builder.WriteString(", ")
 	builder.WriteString("username=")
 	builder.WriteString(u.Username)
 	builder.WriteString(", ")
 	builder.WriteString("password=")
 	builder.WriteString(u.Password)
+	builder.WriteString(", ")
+	builder.WriteString("interest=")
+	builder.WriteString(fmt.Sprintf("%v", u.Interest))
+	builder.WriteString(", ")
+	builder.WriteString("years_of_experience=")
+	builder.WriteString(fmt.Sprintf("%v", u.YearsOfExperience))
 	builder.WriteByte(')')
 	return builder.String()
 }
