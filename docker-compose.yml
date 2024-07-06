@@ -82,6 +82,8 @@ services:
       context: .
       dockerfile: ./packages/gateway/Dockerfile.dev
     depends_on:
+      service-authentication:
+        condition: service_healthy
       service-user:
         condition: service_healthy
       service-blog:
