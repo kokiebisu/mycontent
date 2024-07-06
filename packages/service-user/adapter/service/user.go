@@ -4,9 +4,9 @@ import (
 	"context"
 	"strconv"
 
+	"github.com/kokiebisu/mycontent/packages/service-authentication/graphql"
 	"github.com/kokiebisu/mycontent/packages/service-user/ent"
 	"github.com/kokiebisu/mycontent/packages/service-user/ent/user"
-	"github.com/kokiebisu/mycontent/packages/service-user/graphql"
 )
 
 type UserService struct {

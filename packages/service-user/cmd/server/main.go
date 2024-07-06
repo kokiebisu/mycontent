@@ -9,7 +9,6 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/kokiebisu/mycontent/packages/service-user/ent"
-	"github.com/kokiebisu/mycontent/packages/service-user/graphql"
 	_ "github.com/lib/pq"
 )
 
