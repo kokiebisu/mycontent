@@ -8,6 +8,46 @@ services:
       POSTGRES_DB: mydb
     networks:
       - mycontent-network
+    ports:
+      - "5433:5432"
+
+  service-authentication:
+    container_name: service-authentication
+    depends_on:
+      - db
+    build:
+      context: .
+      dockerfile: ./packages/service-authentication/Dockerfile.dev
+    networks:
+      - mycontent-network
+    ports:
+      - "4001:4001"
+    volumes:
+      - ./packages/service-authentication:/app/packages/service-authentication
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4001/playground"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  service-blog:
+    container_name: service-blog
+    depends_on:
+      - db
+    build:
+      context: .
+      dockerfile: ./packages/service-blog/Dockerfile.dev
+    networks:
+      - mycontent-network
+    ports:
+      - "4002:4002"
+    volumes:
+      - ./packages/service-blog:/app/packages/service-blog
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4002/playground"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   service-user:
     container_name: service-user
@@ -19,30 +59,11 @@ services:
     networks:
       - mycontent-network
     ports:
-      - "4001:4001"
+      - "4003:4003"
     volumes:
       - ./packages/service-user:/app/packages/service-user
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4001/playground"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
-
-  service-content:
-    container_name: service-content
-    depends_on:
-      - db
-    build:
-      context: .
-      dockerfile: ./packages/service-content/Dockerfile.dev
-    networks:
-      - mycontent-network
-    ports:
-      - "4002:4002"
-    volumes:
-      - ./packages/service-content:/app/packages/service-content
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4002/playground"]
+      test: ["CMD", "curl", "-f", "http://localhost:4003/playground"]
       interval: 5s
       timeout: 3s
       retries: 5
@@ -55,7 +76,7 @@ services:
     depends_on:
       service-user:
         condition: service_healthy
-      service-content:
+      service-blog:
         condition: service_healthy
     networks:
       - mycontent-network
