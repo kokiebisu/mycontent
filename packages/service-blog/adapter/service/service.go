@@ -5,8 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strconv"
 
 	"github.com/kokiebisu/mycontent/packages/service-blog/ent"
+	"github.com/kokiebisu/mycontent/packages/service-blog/graphql/model"
 	"github.com/kokiebisu/mycontent/packages/service-blog/port"
 	"github.com/sashabaranov/go-openai"
 )
@@ -19,7 +21,7 @@ func NewBlogService(db *ent.Client) port.BlogService {
 	return &BlogService{db: db}
 }
 
-func (s *BlogService) CreateBlog(ctx context.Context, userId string, interest string) (*ent.Blog, error) {
+func (s *BlogService) CreateBlog(ctx context.Context, userId string, interest string) (*model.Blog, error) {
 	openaiAPIKey := os.Getenv("OPENAI_API_KEY")
 	client := openai.NewClient(openaiAPIKey)
 
@@ -67,5 +69,23 @@ func (s *BlogService) CreateBlog(ctx context.Context, userId string, interest st
 		return nil, fmt.Errorf("failed to save blog: %w", err)
 	}
 
-	return blog, nil
+	blogModel := &model.Blog{
+		ID:    strconv.Itoa(blog.ID),
+		Title: blog.Title,
+		Content: blog.Content,
+	}
+
+	return blogModel, nil
+}
+
+func (s *BlogService) DeleteBlog(ctx context.Context, id string) (string, error) {
+	idInt, err := strconv.Atoi(id)
+	if err != nil {
+		return "", fmt.Errorf("failed to convert id to int: %w", err)
+	}
+	err = s.db.Blog.DeleteOneID(idInt).Exec(context.Background())
+	if err != nil {
+		return "", fmt.Errorf("failed to delete blog: %w", err)
+	}
+	return id, nil
 }

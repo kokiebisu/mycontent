@@ -14,9 +14,11 @@ type Blog struct {
 // Fields of the Content.
 func (Blog) Fields() []ent.Field {
 	return []ent.Field{
+		field.String("id").Unique(),
 		field.String("title"),
 		field.String("content"),
 		field.String("user_id"),
+		field.Enum("interest").Values("frontend", "backend", "fullstack"),
 		field.Time("created_at").Default(time.Now).UpdateDefault(time.Now),
 		field.Time("updated_at").Default(time.Now).UpdateDefault(time.Now),
 	}

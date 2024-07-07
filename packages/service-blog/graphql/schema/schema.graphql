@@ -12,5 +12,5 @@ type Query {
 }
 
 type Mutation {
-  deleteBlog(id: ID!): Blog!
+  deleteBlog(id: ID!): String!
 }

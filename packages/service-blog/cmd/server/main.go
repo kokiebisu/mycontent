@@ -13,7 +13,8 @@ import (
 	"github.com/kokiebisu/mycontent/packages/service-blog/adapter/service"
 	"github.com/kokiebisu/mycontent/packages/service-blog/config"
 	"github.com/kokiebisu/mycontent/packages/service-blog/ent"
-	"github.com/kokiebisu/mycontent/packages/service-blog/graphql"
+	"github.com/kokiebisu/mycontent/packages/service-blog/graphql/generated"
+	"github.com/kokiebisu/mycontent/packages/service-blog/graphql/resolver"
 	"github.com/kokiebisu/mycontent/packages/service-blog/proto"
 	_ "github.com/lib/pq"
 	"google.golang.org/grpc"
@@ -49,7 +50,7 @@ func main() {
 	}
 
 	go func() {
-		srv := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: &graphql.Resolver{
+		srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &resolver.Resolver{
 			Client: client,
 		}}))
 	

@@ -257,7 +257,7 @@ func (c *BlogClient) UpdateOne(b *Blog) *BlogUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *BlogClient) UpdateOneID(id int) *BlogUpdateOne {
+func (c *BlogClient) UpdateOneID(id string) *BlogUpdateOne {
 	mutation := newBlogMutation(c.config, OpUpdateOne, withBlogID(id))
 	return &BlogUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -274,7 +274,7 @@ func (c *BlogClient) DeleteOne(b *Blog) *BlogDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *BlogClient) DeleteOneID(id int) *BlogDeleteOne {
+func (c *BlogClient) DeleteOneID(id string) *BlogDeleteOne {
 	builder := c.Delete().Where(blog.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -291,12 +291,12 @@ func (c *BlogClient) Query() *BlogQuery {
 }
 
 // Get returns a Blog entity by its id.
-func (c *BlogClient) Get(ctx context.Context, id int) (*Blog, error) {
+func (c *BlogClient) Get(ctx context.Context, id string) (*Blog, error) {
 	return c.Query().Where(blog.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *BlogClient) GetX(ctx context.Context, id int) *Blog {
+func (c *BlogClient) GetX(ctx context.Context, id string) *Blog {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)

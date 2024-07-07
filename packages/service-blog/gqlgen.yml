@@ -1,27 +1,27 @@
 # Where are all the schema files located? globs are supported eg  src/**/*.graphqls
 schema:
-  - graphql/*.graphql
+  - graphql/schema/*.graphql
 
 # Where should the generated server code go?
 exec:
-  filename: graphql/generated.go
-  package: graphql
+  filename: graphql/generated/exec.go
+  package: generated
 
 # Uncomment to enable federation
 federation:
-  filename: graphql/federation.go
-  package: graphql
+  filename: graphql/generated/federation.go
+  package: generated
 
 # Where should any generated models go?
 model:
-  filename: graphql/models.go
-  package: graphql
+  filename: graphql/model/model.go
+  package: model
 
 # Where should the resolver implementations go?
 resolver:
   layout: follow-schema
-  dir: graphql
-  package: graphql
+  dir: graphql/resolver
+  package: resolver
   filename_template: "{name}.resolvers.go"
   # Optional: turn on to not generate template comments above resolvers
   # omit_template_comment: false
@@ -65,7 +65,9 @@ resolver:
 
 # gqlgen will search for any type names in the schema in these go packages
 # if they match it will use them, otherwise it will generate them.
-autobind: []
+autobind:
+  - github.com/kokiebisu/mycontent/packages/service-blog/ent
+  - github.com/kokiebisu/mycontent/packages/service-blog/ent/blog
 
 models:
   ID:

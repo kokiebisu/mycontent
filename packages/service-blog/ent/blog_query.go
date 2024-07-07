@@ -81,8 +81,8 @@ func (bq *BlogQuery) FirstX(ctx context.Context) *Blog {
 
 // FirstID returns the first Blog ID from the query.
 // Returns a *NotFoundError when no Blog ID was found.
-func (bq *BlogQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (bq *BlogQuery) FirstID(ctx context.Context) (id string, err error) {
+	var ids []string
 	if ids, err = bq.Limit(1).IDs(setContextOp(ctx, bq.ctx, "FirstID")); err != nil {
 		return
 	}
@@ -94,7 +94,7 @@ func (bq *BlogQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (bq *BlogQuery) FirstIDX(ctx context.Context) int {
+func (bq *BlogQuery) FirstIDX(ctx context.Context) string {
 	id, err := bq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -132,8 +132,8 @@ func (bq *BlogQuery) OnlyX(ctx context.Context) *Blog {
 // OnlyID is like Only, but returns the only Blog ID in the query.
 // Returns a *NotSingularError when more than one Blog ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (bq *BlogQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (bq *BlogQuery) OnlyID(ctx context.Context) (id string, err error) {
+	var ids []string
 	if ids, err = bq.Limit(2).IDs(setContextOp(ctx, bq.ctx, "OnlyID")); err != nil {
 		return
 	}
@@ -149,7 +149,7 @@ func (bq *BlogQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (bq *BlogQuery) OnlyIDX(ctx context.Context) int {
+func (bq *BlogQuery) OnlyIDX(ctx context.Context) string {
 	id, err := bq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -177,7 +177,7 @@ func (bq *BlogQuery) AllX(ctx context.Context) []*Blog {
 }
 
 // IDs executes the query and returns a list of Blog IDs.
-func (bq *BlogQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (bq *BlogQuery) IDs(ctx context.Context) (ids []string, err error) {
 	if bq.ctx.Unique == nil && bq.path != nil {
 		bq.Unique(true)
 	}
@@ -189,7 +189,7 @@ func (bq *BlogQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (bq *BlogQuery) IDsX(ctx context.Context) []int {
+func (bq *BlogQuery) IDsX(ctx context.Context) []string {
 	ids, err := bq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -364,7 +364,7 @@ func (bq *BlogQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (bq *BlogQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(blog.Table, blog.Columns, sqlgraph.NewFieldSpec(blog.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(blog.Table, blog.Columns, sqlgraph.NewFieldSpec(blog.FieldID, field.TypeString))
 	_spec.From = bq.sql
 	if unique := bq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

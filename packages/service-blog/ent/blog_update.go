@@ -70,6 +70,20 @@ func (bu *BlogUpdate) SetNillableUserID(s *string) *BlogUpdate {
 	return bu
 }
 
+// SetInterest sets the "interest" field.
+func (bu *BlogUpdate) SetInterest(b blog.Interest) *BlogUpdate {
+	bu.mutation.SetInterest(b)
+	return bu
+}
+
+// SetNillableInterest sets the "interest" field if the given value is not nil.
+func (bu *BlogUpdate) SetNillableInterest(b *blog.Interest) *BlogUpdate {
+	if b != nil {
+		bu.SetInterest(*b)
+	}
+	return bu
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (bu *BlogUpdate) SetCreatedAt(t time.Time) *BlogUpdate {
 	bu.mutation.SetCreatedAt(t)
@@ -127,8 +141,21 @@ func (bu *BlogUpdate) defaults() {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (bu *BlogUpdate) check() error {
+	if v, ok := bu.mutation.Interest(); ok {
+		if err := blog.InterestValidator(v); err != nil {
+			return &ValidationError{Name: "interest", err: fmt.Errorf(`ent: validator failed for field "Blog.interest": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (bu *BlogUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	_spec := sqlgraph.NewUpdateSpec(blog.Table, blog.Columns, sqlgraph.NewFieldSpec(blog.FieldID, field.TypeInt))
+	if err := bu.check(); err != nil {
+		return n, err
+	}
+	_spec := sqlgraph.NewUpdateSpec(blog.Table, blog.Columns, sqlgraph.NewFieldSpec(blog.FieldID, field.TypeString))
 	if ps := bu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -144,6 +171,9 @@ func (bu *BlogUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := bu.mutation.UserID(); ok {
 		_spec.SetField(blog.FieldUserID, field.TypeString, value)
+	}
+	if value, ok := bu.mutation.Interest(); ok {
+		_spec.SetField(blog.FieldInterest, field.TypeEnum, value)
 	}
 	if value, ok := bu.mutation.CreatedAt(); ok {
 		_spec.SetField(blog.FieldCreatedAt, field.TypeTime, value)
@@ -209,6 +239,20 @@ func (buo *BlogUpdateOne) SetUserID(s string) *BlogUpdateOne {
 func (buo *BlogUpdateOne) SetNillableUserID(s *string) *BlogUpdateOne {
 	if s != nil {
 		buo.SetUserID(*s)
+	}
+	return buo
+}
+
+// SetInterest sets the "interest" field.
+func (buo *BlogUpdateOne) SetInterest(b blog.Interest) *BlogUpdateOne {
+	buo.mutation.SetInterest(b)
+	return buo
+}
+
+// SetNillableInterest sets the "interest" field if the given value is not nil.
+func (buo *BlogUpdateOne) SetNillableInterest(b *blog.Interest) *BlogUpdateOne {
+	if b != nil {
+		buo.SetInterest(*b)
 	}
 	return buo
 }
@@ -283,8 +327,21 @@ func (buo *BlogUpdateOne) defaults() {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (buo *BlogUpdateOne) check() error {
+	if v, ok := buo.mutation.Interest(); ok {
+		if err := blog.InterestValidator(v); err != nil {
+			return &ValidationError{Name: "interest", err: fmt.Errorf(`ent: validator failed for field "Blog.interest": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (buo *BlogUpdateOne) sqlSave(ctx context.Context) (_node *Blog, err error) {
-	_spec := sqlgraph.NewUpdateSpec(blog.Table, blog.Columns, sqlgraph.NewFieldSpec(blog.FieldID, field.TypeInt))
+	if err := buo.check(); err != nil {
+		return _node, err
+	}
+	_spec := sqlgraph.NewUpdateSpec(blog.Table, blog.Columns, sqlgraph.NewFieldSpec(blog.FieldID, field.TypeString))
 	id, ok := buo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Blog.id" for update`)}
@@ -317,6 +374,9 @@ func (buo *BlogUpdateOne) sqlSave(ctx context.Context) (_node *Blog, err error) 
 	}
 	if value, ok := buo.mutation.UserID(); ok {
 		_spec.SetField(blog.FieldUserID, field.TypeString, value)
+	}
+	if value, ok := buo.mutation.Interest(); ok {
+		_spec.SetField(blog.FieldInterest, field.TypeEnum, value)
 	}
 	if value, ok := buo.mutation.CreatedAt(); ok {
 		_spec.SetField(blog.FieldCreatedAt, field.TypeTime, value)

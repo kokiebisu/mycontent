@@ -38,6 +38,12 @@ func (bc *BlogCreate) SetUserID(s string) *BlogCreate {
 	return bc
 }
 
+// SetInterest sets the "interest" field.
+func (bc *BlogCreate) SetInterest(b blog.Interest) *BlogCreate {
+	bc.mutation.SetInterest(b)
+	return bc
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (bc *BlogCreate) SetCreatedAt(t time.Time) *BlogCreate {
 	bc.mutation.SetCreatedAt(t)
@@ -63,6 +69,12 @@ func (bc *BlogCreate) SetNillableUpdatedAt(t *time.Time) *BlogCreate {
 	if t != nil {
 		bc.SetUpdatedAt(*t)
 	}
+	return bc
+}
+
+// SetID sets the "id" field.
+func (bc *BlogCreate) SetID(s string) *BlogCreate {
+	bc.mutation.SetID(s)
 	return bc
 }
 
@@ -122,6 +134,14 @@ func (bc *BlogCreate) check() error {
 	if _, ok := bc.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "Blog.user_id"`)}
 	}
+	if _, ok := bc.mutation.Interest(); !ok {
+		return &ValidationError{Name: "interest", err: errors.New(`ent: missing required field "Blog.interest"`)}
+	}
+	if v, ok := bc.mutation.Interest(); ok {
+		if err := blog.InterestValidator(v); err != nil {
+			return &ValidationError{Name: "interest", err: fmt.Errorf(`ent: validator failed for field "Blog.interest": %w`, err)}
+		}
+	}
 	if _, ok := bc.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Blog.created_at"`)}
 	}
@@ -142,8 +162,13 @@ func (bc *BlogCreate) sqlSave(ctx context.Context) (*Blog, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(string); ok {
+			_node.ID = id
+		} else {
+			return nil, fmt.Errorf("unexpected Blog.ID type: %T", _spec.ID.Value)
+		}
+	}
 	bc.mutation.id = &_node.ID
 	bc.mutation.done = true
 	return _node, nil
@@ -152,8 +177,12 @@ func (bc *BlogCreate) sqlSave(ctx context.Context) (*Blog, error) {
 func (bc *BlogCreate) createSpec() (*Blog, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Blog{config: bc.config}
-		_spec = sqlgraph.NewCreateSpec(blog.Table, sqlgraph.NewFieldSpec(blog.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(blog.Table, sqlgraph.NewFieldSpec(blog.FieldID, field.TypeString))
 	)
+	if id, ok := bc.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = id
+	}
 	if value, ok := bc.mutation.Title(); ok {
 		_spec.SetField(blog.FieldTitle, field.TypeString, value)
 		_node.Title = value
@@ -165,6 +194,10 @@ func (bc *BlogCreate) createSpec() (*Blog, *sqlgraph.CreateSpec) {
 	if value, ok := bc.mutation.UserID(); ok {
 		_spec.SetField(blog.FieldUserID, field.TypeString, value)
 		_node.UserID = value
+	}
+	if value, ok := bc.mutation.Interest(); ok {
+		_spec.SetField(blog.FieldInterest, field.TypeEnum, value)
+		_node.Interest = value
 	}
 	if value, ok := bc.mutation.CreatedAt(); ok {
 		_spec.SetField(blog.FieldCreatedAt, field.TypeTime, value)
@@ -222,10 +255,6 @@ func (bcb *BlogCreateBulk) Save(ctx context.Context) ([]*Blog, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})

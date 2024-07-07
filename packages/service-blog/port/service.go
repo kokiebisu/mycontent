@@ -7,5 +7,8 @@ import (
 )
 
 type BlogService interface {
-	CreateBlog(ctx context.Context, userID string, interest string) (*ent.Blog, error)
+	Get(ctx context.Context, id string) (*ent.Blog, error)
+	GetAll(ctx context.Context) ([]*ent.Blog, error)
+	Create(ctx context.Context, userID string, interest string) (*ent.Blog, error)
+	Delete(ctx context.Context, id string) (string, error)
 }

@@ -16,13 +16,15 @@ import (
 type Blog struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID string `json:"id,omitempty"`
 	// Title holds the value of the "title" field.
 	Title string `json:"title,omitempty"`
 	// Content holds the value of the "content" field.
 	Content string `json:"content,omitempty"`
 	// UserID holds the value of the "user_id" field.
 	UserID string `json:"user_id,omitempty"`
+	// Interest holds the value of the "interest" field.
+	Interest blog.Interest `json:"interest,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
@@ -35,9 +37,7 @@ func (*Blog) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case blog.FieldID:
-			values[i] = new(sql.NullInt64)
-		case blog.FieldTitle, blog.FieldContent, blog.FieldUserID:
+		case blog.FieldID, blog.FieldTitle, blog.FieldContent, blog.FieldUserID, blog.FieldInterest:
 			values[i] = new(sql.NullString)
 		case blog.FieldCreatedAt, blog.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -57,11 +57,11 @@ func (b *Blog) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case blog.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value.Valid {
+				b.ID = value.String
 			}
-			b.ID = int(value.Int64)
 		case blog.FieldTitle:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field title", values[i])
@@ -79,6 +79,12 @@ func (b *Blog) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field user_id", values[i])
 			} else if value.Valid {
 				b.UserID = value.String
+			}
+		case blog.FieldInterest:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field interest", values[i])
+			} else if value.Valid {
+				b.Interest = blog.Interest(value.String)
 			}
 		case blog.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -137,6 +143,9 @@ func (b *Blog) String() string {
 	builder.WriteString("user_id=")
 	builder.WriteString(b.UserID)
 	builder.WriteString(", ")
+	builder.WriteString("interest=")
+	builder.WriteString(fmt.Sprintf("%v", b.Interest))
+	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(b.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
@@ -145,6 +154,9 @@ func (b *Blog) String() string {
 	builder.WriteByte(')')
 	return builder.String()
 }
+
+// IsEntity returns true if this struct implements the ent.Entity interface.
+func (e *Blog) IsEntity() {}
 
 // Blogs is a parsable slice of Blog.
 type Blogs []*Blog

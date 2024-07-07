@@ -3,6 +3,7 @@
 package blog
 
 import (
+	"fmt"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
@@ -19,6 +20,8 @@ const (
 	FieldContent = "content"
 	// FieldUserID holds the string denoting the user_id field in the database.
 	FieldUserID = "user_id"
+	// FieldInterest holds the string denoting the interest field in the database.
+	FieldInterest = "interest"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
@@ -33,6 +36,7 @@ var Columns = []string{
 	FieldTitle,
 	FieldContent,
 	FieldUserID,
+	FieldInterest,
 	FieldCreatedAt,
 	FieldUpdatedAt,
 }
@@ -58,6 +62,30 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 )
 
+// Interest defines the type for the "interest" enum field.
+type Interest string
+
+// Interest values.
+const (
+	InterestFrontend  Interest = "frontend"
+	InterestBackend   Interest = "backend"
+	InterestFullstack Interest = "fullstack"
+)
+
+func (i Interest) String() string {
+	return string(i)
+}
+
+// InterestValidator is a validator for the "interest" field enum values. It is called by the builders before save.
+func InterestValidator(i Interest) error {
+	switch i {
+	case InterestFrontend, InterestBackend, InterestFullstack:
+		return nil
+	default:
+		return fmt.Errorf("blog: invalid enum value for interest field: %q", i)
+	}
+}
+
 // OrderOption defines the ordering options for the Blog queries.
 type OrderOption func(*sql.Selector)
 
@@ -79,6 +107,11 @@ func ByContent(opts ...sql.OrderTermOption) OrderOption {
 // ByUserID orders the results by the user_id field.
 func ByUserID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUserID, opts...).ToFunc()
+}
+
+// ByInterest orders the results by the interest field.
+func ByInterest(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldInterest, opts...).ToFunc()
 }
 
 // ByCreatedAt orders the results by the created_at field.

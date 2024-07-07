@@ -32,10 +32,11 @@ type BlogMutation struct {
 	config
 	op            Op
 	typ           string
-	id            *int
+	id            *string
 	title         *string
 	content       *string
 	user_id       *string
+	interest      *blog.Interest
 	created_at    *time.Time
 	updated_at    *time.Time
 	clearedFields map[string]struct{}
@@ -64,7 +65,7 @@ func newBlogMutation(c config, op Op, opts ...blogOption) *BlogMutation {
 }
 
 // withBlogID sets the ID field of the mutation.
-func withBlogID(id int) blogOption {
+func withBlogID(id string) blogOption {
 	return func(m *BlogMutation) {
 		var (
 			err   error
@@ -114,9 +115,15 @@ func (m BlogMutation) Tx() (*Tx, error) {
 	return tx, nil
 }
 
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of Blog entities.
+func (m *BlogMutation) SetID(id string) {
+	m.id = &id
+}
+
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *BlogMutation) ID() (id int, exists bool) {
+func (m *BlogMutation) ID() (id string, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -127,12 +134,12 @@ func (m *BlogMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *BlogMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *BlogMutation) IDs(ctx context.Context) ([]string, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []int{id}, nil
+			return []string{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -250,6 +257,42 @@ func (m *BlogMutation) ResetUserID() {
 	m.user_id = nil
 }
 
+// SetInterest sets the "interest" field.
+func (m *BlogMutation) SetInterest(b blog.Interest) {
+	m.interest = &b
+}
+
+// Interest returns the value of the "interest" field in the mutation.
+func (m *BlogMutation) Interest() (r blog.Interest, exists bool) {
+	v := m.interest
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldInterest returns the old "interest" field's value of the Blog entity.
+// If the Blog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BlogMutation) OldInterest(ctx context.Context) (v blog.Interest, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldInterest is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldInterest requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldInterest: %w", err)
+	}
+	return oldValue.Interest, nil
+}
+
+// ResetInterest resets all changes to the "interest" field.
+func (m *BlogMutation) ResetInterest() {
+	m.interest = nil
+}
+
 // SetCreatedAt sets the "created_at" field.
 func (m *BlogMutation) SetCreatedAt(t time.Time) {
 	m.created_at = &t
@@ -356,7 +399,7 @@ func (m *BlogMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *BlogMutation) Fields() []string {
-	fields := make([]string, 0, 5)
+	fields := make([]string, 0, 6)
 	if m.title != nil {
 		fields = append(fields, blog.FieldTitle)
 	}
@@ -365,6 +408,9 @@ func (m *BlogMutation) Fields() []string {
 	}
 	if m.user_id != nil {
 		fields = append(fields, blog.FieldUserID)
+	}
+	if m.interest != nil {
+		fields = append(fields, blog.FieldInterest)
 	}
 	if m.created_at != nil {
 		fields = append(fields, blog.FieldCreatedAt)
@@ -386,6 +432,8 @@ func (m *BlogMutation) Field(name string) (ent.Value, bool) {
 		return m.Content()
 	case blog.FieldUserID:
 		return m.UserID()
+	case blog.FieldInterest:
+		return m.Interest()
 	case blog.FieldCreatedAt:
 		return m.CreatedAt()
 	case blog.FieldUpdatedAt:
@@ -405,6 +453,8 @@ func (m *BlogMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldContent(ctx)
 	case blog.FieldUserID:
 		return m.OldUserID(ctx)
+	case blog.FieldInterest:
+		return m.OldInterest(ctx)
 	case blog.FieldCreatedAt:
 		return m.OldCreatedAt(ctx)
 	case blog.FieldUpdatedAt:
@@ -438,6 +488,13 @@ func (m *BlogMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetUserID(v)
+		return nil
+	case blog.FieldInterest:
+		v, ok := value.(blog.Interest)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetInterest(v)
 		return nil
 	case blog.FieldCreatedAt:
 		v, ok := value.(time.Time)
@@ -510,6 +567,9 @@ func (m *BlogMutation) ResetField(name string) error {
 		return nil
 	case blog.FieldUserID:
 		m.ResetUserID()
+		return nil
+	case blog.FieldInterest:
+		m.ResetInterest()
 		return nil
 	case blog.FieldCreatedAt:
 		m.ResetCreatedAt()
