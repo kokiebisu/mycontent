@@ -7,7 +7,8 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/kokiebisu/mycontent/packages/service-authentication/graphql"
+	"github.com/kokiebisu/mycontent/packages/service-authentication/graphql/generated"
+	"github.com/kokiebisu/mycontent/packages/service-authentication/graphql/resolver"
 	_ "github.com/lib/pq"
 )
 
@@ -21,7 +22,7 @@ func main() {
 		port = defaultPort
 	}
 
-	srv := handler.NewDefaultServer(graphql.NewExecutableSchema(graphql.Config{Resolvers: &graphql.Resolver{
+	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &resolver.Resolver{
 	}}))
 
 	http.Handle("/playground", playground.Handler("GraphQL playground", "/query"))
