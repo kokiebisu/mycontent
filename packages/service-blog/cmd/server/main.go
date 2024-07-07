@@ -49,9 +49,11 @@ func main() {
 		port = graphqlPort
 	}
 
+	service := service.NewBlogService(client)
+
 	go func() {
 		srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &resolver.Resolver{
-			Client: client,
+			BlogService: service,
 		}}))
 	
 		http.Handle("/playground", playground.Handler("GraphQL playground", "/query"))
@@ -67,8 +69,7 @@ func main() {
 	}
 	defer lis.Close()
 
-	svc := service.NewBlogService(client)
-	adapter := grpc_client.NewGRPCAdapter(svc)
+	adapter := grpc_client.NewGRPCAdapter(service)
 
 	grpcServer := grpc.NewServer()
 	proto.RegisterBlogServiceServer(grpcServer, adapter)

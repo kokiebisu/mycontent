@@ -5,10 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"strconv"
 
 	"github.com/kokiebisu/mycontent/packages/service-blog/ent"
-	"github.com/kokiebisu/mycontent/packages/service-blog/graphql/model"
 	"github.com/kokiebisu/mycontent/packages/service-blog/port"
 	"github.com/sashabaranov/go-openai"
 )
@@ -21,7 +19,23 @@ func NewBlogService(db *ent.Client) port.BlogService {
 	return &BlogService{db: db}
 }
 
-func (s *BlogService) CreateBlog(ctx context.Context, userId string, interest string) (*model.Blog, error) {
+func (s *BlogService) Get(ctx context.Context, id string) (*ent.Blog, error) {
+	blog, err := s.db.Blog.Get(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get blog: %w", err)
+	}
+	return blog, nil
+}
+
+func (s *BlogService) GetAll(ctx context.Context) ([]*ent.Blog, error) {
+	blogs, err := s.db.Blog.Query().All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get blogs: %w", err)
+	}
+	return blogs, nil
+}
+
+func (s *BlogService) Create(ctx context.Context, userId string, interest string) (*ent.Blog, error) {
 	openaiAPIKey := os.Getenv("OPENAI_API_KEY")
 	client := openai.NewClient(openaiAPIKey)
 
@@ -69,8 +83,8 @@ func (s *BlogService) CreateBlog(ctx context.Context, userId string, interest st
 		return nil, fmt.Errorf("failed to save blog: %w", err)
 	}
 
-	blogModel := &model.Blog{
-		ID:    strconv.Itoa(blog.ID),
+	blogModel := &ent.Blog{
+		ID:    blog.ID,
 		Title: blog.Title,
 		Content: blog.Content,
 	}
@@ -78,12 +92,8 @@ func (s *BlogService) CreateBlog(ctx context.Context, userId string, interest st
 	return blogModel, nil
 }
 
-func (s *BlogService) DeleteBlog(ctx context.Context, id string) (string, error) {
-	idInt, err := strconv.Atoi(id)
-	if err != nil {
-		return "", fmt.Errorf("failed to convert id to int: %w", err)
-	}
-	err = s.db.Blog.DeleteOneID(idInt).Exec(context.Background())
+func (s *BlogService) Delete(ctx context.Context, id string) (string, error) {
+	err := s.db.Blog.DeleteOneID(id).Exec(context.Background())
 	if err != nil {
 		return "", fmt.Errorf("failed to delete blog: %w", err)
 	}

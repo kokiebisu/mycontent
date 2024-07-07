@@ -18,7 +18,7 @@ func NewGRPCAdapter(service port.BlogService) *Adapter {
 }
 
 func (a *Adapter) CreateBlog(ctx context.Context, req *proto.CreateBlogRequest) (*proto.CreateBlogResponse, error) {
-	blog, err := a.service.CreateBlog(ctx, req.UserId, req.Interest)
+	blog, err := a.service.Create(ctx, req.UserId, req.Interest)
 	if err != nil {
 		log.Printf("Error creating blog: %v", err)
 		return &proto.CreateBlogResponse{Error: err.Error()}, nil
