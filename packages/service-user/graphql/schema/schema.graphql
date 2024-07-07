@@ -5,7 +5,7 @@ type User @key(fields: "id") {
   email: String!
   username: String!
   password: String!
-  interests: [String!]!
+  interest: Interest!
   yearsOfExperience: Int!
   createdAt: String!
   updatedAt: String!
@@ -19,7 +19,7 @@ type Query {
 type Mutation {
   createUser(input: CreateUserInput): User!
   updateUser(id: ID!, input: UpdateUserInput): User!
-  deleteUser(id: ID!): User!
+  deleteUser(id: ID!): String!
 }
 
 input CreateUserInput {
@@ -28,7 +28,7 @@ input CreateUserInput {
   email: String!
   username: String!
   password: String!
-  interests: [String!]!
+  interest: Interest!
   yearsOfExperience: Int!
 }
 
@@ -38,6 +38,21 @@ input UpdateUserInput {
   email: String!
   username: String!
   password: String!
-  interests: [String!]!
+  interest: Interest!
   yearsOfExperience: Int!
+}
+
+enum Interest {
+  REACT
+  NODEJS
+  PYTHON
+  GO
+  RUST
+  DOCKER
+  KUBERNETES
+  AWS
+  GCP
+  AZURE
+  TERRAFORM
+  GIT
 }

@@ -65,7 +65,9 @@ resolver:
 
 # gqlgen will search for any type names in the schema in these go packages
 # if they match it will use them, otherwise it will generate them.
-autobind: []
+autobind:
+  - github.com/kokiebisu/mycontent/packages/service-user/ent
+  - github.com/kokiebisu/mycontent/packages/service-user/ent/user
 
 models:
   ID:

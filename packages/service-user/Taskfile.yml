@@ -1,9 +1,9 @@
 version: "3"
 
 tasks:
-  generate:end:
+  generate:ent:
     cmds:
-      - go run -mod=mod entgo.io/ent/cmd/ent generate ./ent/schema
+      - ent generate --template ./ent/template/*.tmpl ./ent/schema
   generate:graphql:
     cmds:
-      - go run -mod=mod github.com/99designs/gqlgen generate
+      - gqlgen generate

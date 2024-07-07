@@ -2,43 +2,26 @@
 
 package model
 
+import (
+	"github.com/kokiebisu/mycontent/packages/service-user/ent/user"
+)
+
 type CreateUserInput struct {
-	FirstName         string   `json:"firstName"`
-	LastName          string   `json:"lastName"`
-	Email             string   `json:"email"`
-	Username          string   `json:"username"`
-	Password          string   `json:"password"`
-	Interests         []string `json:"interests"`
-	YearsOfExperience int      `json:"yearsOfExperience"`
-}
-
-type Mutation struct {
-}
-
-type Query struct {
+	FirstName         string        `json:"firstName"`
+	LastName          string        `json:"lastName"`
+	Email             string        `json:"email"`
+	Username          string        `json:"username"`
+	Password          string        `json:"password"`
+	Interest          user.Interest `json:"interest"`
+	YearsOfExperience int           `json:"yearsOfExperience"`
 }
 
 type UpdateUserInput struct {
-	FirstName         string   `json:"firstName"`
-	LastName          string   `json:"lastName"`
-	Email             string   `json:"email"`
-	Username          string   `json:"username"`
-	Password          string   `json:"password"`
-	Interests         []string `json:"interests"`
-	YearsOfExperience int      `json:"yearsOfExperience"`
+	FirstName         string        `json:"firstName"`
+	LastName          string        `json:"lastName"`
+	Email             string        `json:"email"`
+	Username          string        `json:"username"`
+	Password          string        `json:"password"`
+	Interest          user.Interest `json:"interest"`
+	YearsOfExperience int           `json:"yearsOfExperience"`
 }
-
-type User struct {
-	ID                string   `json:"id"`
-	FirstName         string   `json:"firstName"`
-	LastName          string   `json:"lastName"`
-	Email             string   `json:"email"`
-	Username          string   `json:"username"`
-	Password          string   `json:"password"`
-	Interests         []string `json:"interests"`
-	YearsOfExperience int      `json:"yearsOfExperience"`
-	CreatedAt         string   `json:"createdAt"`
-	UpdatedAt         string   `json:"updatedAt"`
-}
-
-func (User) IsEntity() {}
