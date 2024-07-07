@@ -31,9 +31,9 @@ func main() {
 	if port == "" {
 		port = defaultPort
 	}
-	svc := service.NewUserService(client)
+	userService := service.NewUserService(client)
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &resolver.Resolver{
-		Service: svc,
+		UserService: userService,
 	}}))
 
 	http.Handle("/playground", playground.Handler("GraphQL playground", "/query"))

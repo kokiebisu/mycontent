@@ -4,8 +4,8 @@ import (
 	"time"
 
 	"entgo.io/ent"
-	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // User holds the schema definition for the User entity.
@@ -13,12 +13,13 @@ type User struct {
 	ent.Schema
 }
 
-var INTERESTS = []string{"react", "nodejs", "python", "go", "rust", "docker", "kubernetes", "aws", "gcp", "azure", "terraform", "git"}
+var INTERESTS = []string{"REACT", "NODEJS", "PYTHON", "GO", "RUST"}
 
 // Fields of the User.
 func (User) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("id").Unique().Immutable(),
+		field.UUID("id", uuid.UUID{}).
+            Default(uuid.New),
 		field.String("first_name").MaxLen(255).NotEmpty(),
 		field.String("last_name").MaxLen(255).NotEmpty(),
 		field.String("email").MaxLen(255).NotEmpty(),
@@ -34,28 +35,4 @@ func (User) Fields() []ent.Field {
 // Edges of the User.
 func (User) Edges() []ent.Edge {
 	return nil
-}
-
-func (User) Annotations() []schema.Annotation {
-	return []schema.Annotation{
-			MethodAnnotation{},
-	}
-}
-
-// MethodAnnotation implements the schema.Annotation interface.
-type MethodAnnotation struct{}
-
-// Name implements schema.Annotation interface.
-func (MethodAnnotation) Name() string {
-    return "IsEntity"
-}
-
-// Merge implements schema.Annotation interface.
-func (MethodAnnotation) Merge(other schema.Annotation) schema.Annotation {
-    return nil
-}
-
-// Decode implements schema.Annotation interface.
-func (MethodAnnotation) Decode(data interface{}) error {
-    return nil
 }

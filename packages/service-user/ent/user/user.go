@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 )
 
 const (
@@ -79,6 +80,8 @@ var (
 	DefaultUpdatedAt func() time.Time
 	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
 	UpdateDefaultUpdatedAt func() time.Time
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
 )
 
 // Interest defines the type for the "interest" enum field.
@@ -86,18 +89,11 @@ type Interest string
 
 // Interest values.
 const (
-	InterestReact      Interest = "react"
-	InterestNodejs     Interest = "nodejs"
-	InterestPython     Interest = "python"
-	InterestGo         Interest = "go"
-	InterestRust       Interest = "rust"
-	InterestDocker     Interest = "docker"
-	InterestKubernetes Interest = "kubernetes"
-	InterestAWS        Interest = "aws"
-	InterestGcp        Interest = "gcp"
-	InterestAzure      Interest = "azure"
-	InterestTerraform  Interest = "terraform"
-	InterestGit        Interest = "git"
+	InterestREACT  Interest = "REACT"
+	InterestNODEJS Interest = "NODEJS"
+	InterestPYTHON Interest = "PYTHON"
+	InterestGO     Interest = "GO"
+	InterestRUST   Interest = "RUST"
 )
 
 func (i Interest) String() string {
@@ -107,7 +103,7 @@ func (i Interest) String() string {
 // InterestValidator is a validator for the "interest" field enum values. It is called by the builders before save.
 func InterestValidator(i Interest) error {
 	switch i {
-	case InterestReact, InterestNodejs, InterestPython, InterestGo, InterestRust, InterestDocker, InterestKubernetes, InterestAWS, InterestGcp, InterestAzure, InterestTerraform, InterestGit:
+	case InterestREACT, InterestNODEJS, InterestPYTHON, InterestGO, InterestRUST:
 		return nil
 	default:
 		return fmt.Errorf("user: invalid enum value for interest field: %q", i)

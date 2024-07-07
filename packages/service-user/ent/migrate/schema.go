@@ -10,13 +10,13 @@ import (
 var (
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeString, Unique: true},
+		{Name: "id", Type: field.TypeUUID},
 		{Name: "first_name", Type: field.TypeString, Size: 255},
 		{Name: "last_name", Type: field.TypeString, Size: 255},
 		{Name: "email", Type: field.TypeString, Size: 255},
 		{Name: "username", Type: field.TypeString, Size: 255},
 		{Name: "password", Type: field.TypeString, Size: 255},
-		{Name: "interest", Type: field.TypeEnum, Enums: []string{"react", "nodejs", "python", "go", "rust", "docker", "kubernetes", "aws", "gcp", "azure", "terraform", "git"}},
+		{Name: "interest", Type: field.TypeEnum, Enums: []string{"REACT", "NODEJS", "PYTHON", "GO", "RUST"}},
 		{Name: "years_of_experience", Type: field.TypeInt},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},

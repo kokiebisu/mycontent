@@ -44,15 +44,10 @@ input UpdateUserInput {
 
 enum Interest {
   REACT
-  NODEJS
+  NDOEJS
   PYTHON
   GO
   RUST
   DOCKER
   KUBERNETES
-  AWS
-  GCP
-  AZURE
-  TERRAFORM
-  GIT
 }

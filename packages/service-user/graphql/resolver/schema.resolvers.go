@@ -58,6 +58,11 @@ func (r *queryResolver) Users(ctx context.Context) ([]*ent.User, error) {
 	return users, nil
 }
 
+// ID is the resolver for the id field.
+func (r *userResolver) ID(ctx context.Context, obj *ent.User) (string, error) {
+	return obj.ID.String(), nil
+}
+
 // CreatedAt is the resolver for the createdAt field.
 func (r *userResolver) CreatedAt(ctx context.Context, obj *ent.User) (string, error) {
 	return obj.CreatedAt.Format(time.RFC3339), nil
