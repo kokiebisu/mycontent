@@ -11,6 +11,8 @@ type Blog struct {
 	ent.Schema
 }
 
+var INTERESTS = []string{"REACT", "NODEJS", "PYTHON", "GO", "RUST"}
+
 // Fields of the Content.
 func (Blog) Fields() []ent.Field {
 	return []ent.Field{
@@ -18,7 +20,7 @@ func (Blog) Fields() []ent.Field {
 		field.String("title"),
 		field.String("content"),
 		field.String("user_id"),
-		field.Enum("interest").Values("frontend", "backend", "fullstack"),
+		field.Enum("interest").Values(INTERESTS...),
 		field.Time("created_at").Default(time.Now).Immutable(),
 		field.Time("updated_at").Default(time.Now).UpdateDefault(time.Now),
 	}

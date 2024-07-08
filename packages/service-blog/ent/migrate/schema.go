@@ -14,7 +14,7 @@ var (
 		{Name: "title", Type: field.TypeString},
 		{Name: "content", Type: field.TypeString},
 		{Name: "user_id", Type: field.TypeString},
-		{Name: "interest", Type: field.TypeEnum, Enums: []string{"frontend", "backend", "fullstack"}},
+		{Name: "interest", Type: field.TypeEnum, Enums: []string{"REACT", "NODEJS", "PYTHON", "GO", "RUST"}},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 	}

@@ -44,7 +44,7 @@ func (s *BlogService) GetAllByUserId(ctx context.Context, userId string) ([]*ent
 	return blogs, nil
 }
 
-func (s *BlogService) Create(ctx context.Context, userId string, interest string) (*ent.Blog, error) {
+func (s *BlogService) Create(ctx context.Context, userId string, interest blog.Interest) (*ent.Blog, error) {
 	openaiAPIKey := os.Getenv("OPENAI_API_KEY")
 	client := openai.NewClient(openaiAPIKey)
 
@@ -87,6 +87,7 @@ func (s *BlogService) Create(ctx context.Context, userId string, interest string
 		SetUserID(userId).
 		SetTitle(blogData.Title).
 		SetContent(blogData.Content).
+		SetInterest(interest).
 		Save(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to save blog: %w", err)

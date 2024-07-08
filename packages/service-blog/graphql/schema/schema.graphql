@@ -1,7 +1,13 @@
+extend type User {
+  id: ID! @external
+  interest: Interest!
+}
+
 type Blog @key(fields: "id") {
   id: ID!
   title: String!
   content: String!
+  user_id: ID!
   createdAt: String!
   updatedAt: String!
 }
@@ -14,4 +20,12 @@ type Query {
 
 type Mutation {
   deleteBlog(id: ID!): String!
+}
+
+enum Interest {
+  REACT
+  NODEJS
+  PYTHON
+  GO
+  RUST
 }

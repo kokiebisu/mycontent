@@ -23,7 +23,7 @@ func main() {
 		
 	req := &proto.CreateBlogRequest{
 		UserId: "1",
-		Interest: "React",
+		Interest: "REACT",
 	}
 	_, err = client.CreateBlog(ctx, req)
 	if err != nil {

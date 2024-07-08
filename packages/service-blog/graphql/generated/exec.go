@@ -15,6 +15,8 @@ import (
 	"github.com/99designs/gqlgen/graphql/introspection"
 	"github.com/99designs/gqlgen/plugin/federation/fedruntime"
 	"github.com/kokiebisu/mycontent/packages/service-blog/ent"
+	"github.com/kokiebisu/mycontent/packages/service-blog/ent/blog"
+	"github.com/kokiebisu/mycontent/packages/service-blog/graphql/model"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -55,6 +57,7 @@ type ComplexityRoot struct {
 		ID        func(childComplexity int) int
 		Title     func(childComplexity int) int
 		UpdatedAt func(childComplexity int) int
+		UserID    func(childComplexity int) int
 	}
 
 	Entity struct {
@@ -71,6 +74,11 @@ type ComplexityRoot struct {
 		BlogsByUserID      func(childComplexity int, userID string) int
 		__resolve__service func(childComplexity int) int
 		__resolve_entities func(childComplexity int, representations []map[string]interface{}) int
+	}
+
+	User struct {
+		ID       func(childComplexity int) int
+		Interest func(childComplexity int) int
 	}
 
 	_Service struct {
@@ -148,6 +156,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Blog.UpdatedAt(childComplexity), true
 
+	case "Blog.user_id":
+		if e.complexity.Blog.UserID == nil {
+			break
+		}
+
+		return e.complexity.Blog.UserID(childComplexity), true
+
 	case "Entity.findBlogByID":
 		if e.complexity.Entity.FindBlogByID == nil {
 			break
@@ -221,6 +236,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.__resolve_entities(childComplexity, args["representations"].([]map[string]interface{})), true
+
+	case "User.id":
+		if e.complexity.User.ID == nil {
+			break
+		}
+
+		return e.complexity.User.ID(childComplexity), true
+
+	case "User.interest":
+		if e.complexity.User.Interest == nil {
+			break
+		}
+
+		return e.complexity.User.Interest(childComplexity), true
 
 	case "_Service.sdl":
 		if e.complexity._Service.SDL == nil {
@@ -333,10 +362,16 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "../schema/schema.graphql", Input: `type Blog @key(fields: "id") {
+	{Name: "../schema/schema.graphql", Input: `extend type User {
+  id: ID! @external
+  interest: Interest!
+}
+
+type Blog @key(fields: "id") {
   id: ID!
   title: String!
   content: String!
+  user_id: ID!
   createdAt: String!
   updatedAt: String!
 }
@@ -349,6 +384,14 @@ type Query {
 
 type Mutation {
   deleteBlog(id: ID!): String!
+}
+
+enum Interest {
+  REACT
+  NODEJS
+  PYTHON
+  GO
+  RUST
 }
 `, BuiltIn: false},
 	{Name: "../../federation/directives.graphql", Input: `
@@ -646,6 +689,50 @@ func (ec *executionContext) fieldContext_Blog_content(_ context.Context, field g
 	return fc, nil
 }
 
+func (ec *executionContext) _Blog_user_id(ctx context.Context, field graphql.CollectedField, obj *ent.Blog) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Blog_user_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Blog_user_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Blog",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Blog_createdAt(ctx context.Context, field graphql.CollectedField, obj *ent.Blog) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Blog_createdAt(ctx, field)
 	if err != nil {
@@ -779,6 +866,8 @@ func (ec *executionContext) fieldContext_Entity_findBlogByID(ctx context.Context
 				return ec.fieldContext_Blog_title(ctx, field)
 			case "content":
 				return ec.fieldContext_Blog_content(ctx, field)
+			case "user_id":
+				return ec.fieldContext_Blog_user_id(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Blog_createdAt(ctx, field)
 			case "updatedAt":
@@ -901,6 +990,8 @@ func (ec *executionContext) fieldContext_Query_blog(ctx context.Context, field g
 				return ec.fieldContext_Blog_title(ctx, field)
 			case "content":
 				return ec.fieldContext_Blog_content(ctx, field)
+			case "user_id":
+				return ec.fieldContext_Blog_user_id(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Blog_createdAt(ctx, field)
 			case "updatedAt":
@@ -968,6 +1059,8 @@ func (ec *executionContext) fieldContext_Query_blogs(_ context.Context, field gr
 				return ec.fieldContext_Blog_title(ctx, field)
 			case "content":
 				return ec.fieldContext_Blog_content(ctx, field)
+			case "user_id":
+				return ec.fieldContext_Blog_user_id(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Blog_createdAt(ctx, field)
 			case "updatedAt":
@@ -1024,6 +1117,8 @@ func (ec *executionContext) fieldContext_Query_blogsByUserId(ctx context.Context
 				return ec.fieldContext_Blog_title(ctx, field)
 			case "content":
 				return ec.fieldContext_Blog_content(ctx, field)
+			case "user_id":
+				return ec.fieldContext_Blog_user_id(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_Blog_createdAt(ctx, field)
 			case "updatedAt":
@@ -1273,6 +1368,94 @@ func (ec *executionContext) fieldContext_Query___schema(_ context.Context, field
 				return ec.fieldContext___Schema_directives(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Schema", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_id(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_interest(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_interest(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Interest, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(blog.Interest)
+	fc.Result = res
+	return ec.marshalNInterest2githubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑblogᚋentᚋblogᚐInterest(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_interest(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Interest does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3140,6 +3323,11 @@ func (ec *executionContext) _Blog(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "user_id":
+			out.Values[i] = ec._Blog_user_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
+			}
 		case "createdAt":
 			field := field
 
@@ -3485,6 +3673,50 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Query___schema(ctx, field)
 			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var userImplementors = []string{"User"}
+
+func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj *model.User) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, userImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("User")
+		case "id":
+			out.Values[i] = ec._User_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "interest":
+			out.Values[i] = ec._User_interest(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3950,6 +4182,22 @@ func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface
 
 func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
 	res := graphql.MarshalID(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
+func (ec *executionContext) unmarshalNInterest2githubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑblogᚋentᚋblogᚐInterest(ctx context.Context, v interface{}) (blog.Interest, error) {
+	tmp, err := graphql.UnmarshalString(v)
+	res := blog.Interest(tmp)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNInterest2githubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑblogᚋentᚋblogᚐInterest(ctx context.Context, sel ast.SelectionSet, v blog.Interest) graphql.Marshaler {
+	res := graphql.MarshalString(string(v))
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
