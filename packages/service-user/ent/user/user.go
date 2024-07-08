@@ -89,11 +89,13 @@ type Interest string
 
 // Interest values.
 const (
-	InterestREACT  Interest = "REACT"
-	InterestNODEJS Interest = "NODEJS"
-	InterestPYTHON Interest = "PYTHON"
-	InterestGO     Interest = "GO"
-	InterestRUST   Interest = "RUST"
+	InterestREACT      Interest = "REACT"
+	InterestNODEJS     Interest = "NODEJS"
+	InterestPYTHON     Interest = "PYTHON"
+	InterestGO         Interest = "GO"
+	InterestRUST       Interest = "RUST"
+	InterestDOCKER     Interest = "DOCKER"
+	InterestKUBERNETES Interest = "KUBERNETES"
 )
 
 func (i Interest) String() string {
@@ -103,7 +105,7 @@ func (i Interest) String() string {
 // InterestValidator is a validator for the "interest" field enum values. It is called by the builders before save.
 func InterestValidator(i Interest) error {
 	switch i {
-	case InterestREACT, InterestNODEJS, InterestPYTHON, InterestGO, InterestRUST:
+	case InterestREACT, InterestNODEJS, InterestPYTHON, InterestGO, InterestRUST, InterestDOCKER, InterestKUBERNETES:
 		return nil
 	default:
 		return fmt.Errorf("user: invalid enum value for interest field: %q", i)

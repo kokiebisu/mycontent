@@ -16,7 +16,7 @@ var (
 		{Name: "email", Type: field.TypeString, Size: 255},
 		{Name: "username", Type: field.TypeString, Size: 255},
 		{Name: "password", Type: field.TypeString, Size: 255},
-		{Name: "interest", Type: field.TypeEnum, Enums: []string{"REACT", "NODEJS", "PYTHON", "GO", "RUST"}},
+		{Name: "interest", Type: field.TypeEnum, Enums: []string{"REACT", "NODEJS", "PYTHON", "GO", "RUST", "DOCKER", "KUBERNETES"}},
 		{Name: "years_of_experience", Type: field.TypeInt},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},

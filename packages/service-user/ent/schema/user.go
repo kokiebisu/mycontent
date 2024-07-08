@@ -13,7 +13,7 @@ type User struct {
 	ent.Schema
 }
 
-var INTERESTS = []string{"REACT", "NODEJS", "PYTHON", "GO", "RUST"}
+var INTERESTS = []string{"REACT", "NODEJS", "PYTHON", "GO", "RUST", "DOCKER", "KUBERNETES"}
 
 // Fields of the User.
 func (User) Fields() []ent.Field {

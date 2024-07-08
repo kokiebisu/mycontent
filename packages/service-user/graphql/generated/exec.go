@@ -440,7 +440,7 @@ input UpdateUserInput {
 
 enum Interest {
   REACT
-  NDOEJS
+  NODEJS
   PYTHON
   GO
   RUST
