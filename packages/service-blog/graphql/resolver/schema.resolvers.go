@@ -49,6 +49,15 @@ func (r *queryResolver) Blogs(ctx context.Context) ([]*ent.Blog, error) {
 	return blogs, nil
 }
 
+// BlogsByUserID is the resolver for the blogsByUserId field.
+func (r *queryResolver) BlogsByUserID(ctx context.Context, userID string) ([]*ent.Blog, error) {
+	blogs, err := r.BlogService.GetAllByUserId(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return blogs, nil
+}
+
 // Blog returns generated.BlogResolver implementation.
 func (r *Resolver) Blog() generated.BlogResolver { return &blogResolver{r} }
 

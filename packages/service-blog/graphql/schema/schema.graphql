@@ -9,6 +9,7 @@ type Blog @key(fields: "id") {
 type Query {
   blog(id: ID!): Blog!
   blogs: [Blog!]!
+  blogsByUserId(userId: ID!): [Blog!]!
 }
 
 type Mutation {

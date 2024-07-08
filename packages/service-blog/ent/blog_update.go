@@ -84,12 +84,6 @@ func (bu *BlogUpdate) SetNillableInterest(b *blog.Interest) *BlogUpdate {
 	return bu
 }
 
-// SetCreatedAt sets the "created_at" field.
-func (bu *BlogUpdate) SetCreatedAt(t time.Time) *BlogUpdate {
-	bu.mutation.SetCreatedAt(t)
-	return bu
-}
-
 // SetUpdatedAt sets the "updated_at" field.
 func (bu *BlogUpdate) SetUpdatedAt(t time.Time) *BlogUpdate {
 	bu.mutation.SetUpdatedAt(t)
@@ -131,10 +125,6 @@ func (bu *BlogUpdate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (bu *BlogUpdate) defaults() {
-	if _, ok := bu.mutation.CreatedAt(); !ok {
-		v := blog.UpdateDefaultCreatedAt()
-		bu.mutation.SetCreatedAt(v)
-	}
 	if _, ok := bu.mutation.UpdatedAt(); !ok {
 		v := blog.UpdateDefaultUpdatedAt()
 		bu.mutation.SetUpdatedAt(v)
@@ -174,9 +164,6 @@ func (bu *BlogUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := bu.mutation.Interest(); ok {
 		_spec.SetField(blog.FieldInterest, field.TypeEnum, value)
-	}
-	if value, ok := bu.mutation.CreatedAt(); ok {
-		_spec.SetField(blog.FieldCreatedAt, field.TypeTime, value)
 	}
 	if value, ok := bu.mutation.UpdatedAt(); ok {
 		_spec.SetField(blog.FieldUpdatedAt, field.TypeTime, value)
@@ -257,12 +244,6 @@ func (buo *BlogUpdateOne) SetNillableInterest(b *blog.Interest) *BlogUpdateOne {
 	return buo
 }
 
-// SetCreatedAt sets the "created_at" field.
-func (buo *BlogUpdateOne) SetCreatedAt(t time.Time) *BlogUpdateOne {
-	buo.mutation.SetCreatedAt(t)
-	return buo
-}
-
 // SetUpdatedAt sets the "updated_at" field.
 func (buo *BlogUpdateOne) SetUpdatedAt(t time.Time) *BlogUpdateOne {
 	buo.mutation.SetUpdatedAt(t)
@@ -317,10 +298,6 @@ func (buo *BlogUpdateOne) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (buo *BlogUpdateOne) defaults() {
-	if _, ok := buo.mutation.CreatedAt(); !ok {
-		v := blog.UpdateDefaultCreatedAt()
-		buo.mutation.SetCreatedAt(v)
-	}
 	if _, ok := buo.mutation.UpdatedAt(); !ok {
 		v := blog.UpdateDefaultUpdatedAt()
 		buo.mutation.SetUpdatedAt(v)
@@ -377,9 +354,6 @@ func (buo *BlogUpdateOne) sqlSave(ctx context.Context) (_node *Blog, err error) 
 	}
 	if value, ok := buo.mutation.Interest(); ok {
 		_spec.SetField(blog.FieldInterest, field.TypeEnum, value)
-	}
-	if value, ok := buo.mutation.CreatedAt(); ok {
-		_spec.SetField(blog.FieldCreatedAt, field.TypeTime, value)
 	}
 	if value, ok := buo.mutation.UpdatedAt(); ok {
 		_spec.SetField(blog.FieldUpdatedAt, field.TypeTime, value)

@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/kokiebisu/mycontent/packages/service-blog/ent"
+	"github.com/kokiebisu/mycontent/packages/service-blog/ent/blog"
 	"github.com/kokiebisu/mycontent/packages/service-blog/port"
 	"github.com/sashabaranov/go-openai"
 )
@@ -29,6 +30,14 @@ func (s *BlogService) Get(ctx context.Context, id string) (*ent.Blog, error) {
 
 func (s *BlogService) GetAll(ctx context.Context) ([]*ent.Blog, error) {
 	blogs, err := s.db.Blog.Query().All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get blogs: %w", err)
+	}
+	return blogs, nil
+}
+
+func (s *BlogService) GetAllByUserId(ctx context.Context, userId string) ([]*ent.Blog, error) {
+	blogs, err := s.db.Blog.Query().Where(blog.UserIDEQ(userId)).All(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get blogs: %w", err)
 	}
