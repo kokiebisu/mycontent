@@ -20,6 +20,15 @@ func (r *entityResolver) FindBlogByID(ctx context.Context, id string) (*ent.Blog
 	return blog, nil
 }
 
+// FindIntegrationByID is the resolver for the findIntegrationByID field.
+func (r *entityResolver) FindIntegrationByID(ctx context.Context, id string) (*ent.Integration, error) {
+	integration, err := r.IntegrationService.Get(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return integration, nil
+}
+
 // Entity returns generated.EntityResolver implementation.
 func (r *Resolver) Entity() generated.EntityResolver { return &entityResolver{r} }
 

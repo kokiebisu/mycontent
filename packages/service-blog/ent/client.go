@@ -16,6 +16,7 @@ import (
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"github.com/kokiebisu/mycontent/packages/service-blog/ent/blog"
+	"github.com/kokiebisu/mycontent/packages/service-blog/ent/integration"
 )
 
 // Client is the client that holds all ent builders.
@@ -25,6 +26,8 @@ type Client struct {
 	Schema *migrate.Schema
 	// Blog is the client for interacting with the Blog builders.
 	Blog *BlogClient
+	// Integration is the client for interacting with the Integration builders.
+	Integration *IntegrationClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -37,6 +40,7 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.Blog = NewBlogClient(c.config)
+	c.Integration = NewIntegrationClient(c.config)
 }
 
 type (
@@ -127,9 +131,10 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:    ctx,
-		config: cfg,
-		Blog:   NewBlogClient(cfg),
+		ctx:         ctx,
+		config:      cfg,
+		Blog:        NewBlogClient(cfg),
+		Integration: NewIntegrationClient(cfg),
 	}, nil
 }
 
@@ -147,9 +152,10 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:    ctx,
-		config: cfg,
-		Blog:   NewBlogClient(cfg),
+		ctx:         ctx,
+		config:      cfg,
+		Blog:        NewBlogClient(cfg),
+		Integration: NewIntegrationClient(cfg),
 	}, nil
 }
 
@@ -179,12 +185,14 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	c.Blog.Use(hooks...)
+	c.Integration.Use(hooks...)
 }
 
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	c.Blog.Intercept(interceptors...)
+	c.Integration.Intercept(interceptors...)
 }
 
 // Mutate implements the ent.Mutator interface.
@@ -192,6 +200,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
 	case *BlogMutation:
 		return c.Blog.mutate(ctx, m)
+	case *IntegrationMutation:
+		return c.Integration.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
 	}
@@ -330,12 +340,145 @@ func (c *BlogClient) mutate(ctx context.Context, m *BlogMutation) (Value, error)
 	}
 }
 
+// IntegrationClient is a client for the Integration schema.
+type IntegrationClient struct {
+	config
+}
+
+// NewIntegrationClient returns a client for the Integration from the given config.
+func NewIntegrationClient(c config) *IntegrationClient {
+	return &IntegrationClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `integration.Hooks(f(g(h())))`.
+func (c *IntegrationClient) Use(hooks ...Hook) {
+	c.hooks.Integration = append(c.hooks.Integration, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `integration.Intercept(f(g(h())))`.
+func (c *IntegrationClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Integration = append(c.inters.Integration, interceptors...)
+}
+
+// Create returns a builder for creating a Integration entity.
+func (c *IntegrationClient) Create() *IntegrationCreate {
+	mutation := newIntegrationMutation(c.config, OpCreate)
+	return &IntegrationCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Integration entities.
+func (c *IntegrationClient) CreateBulk(builders ...*IntegrationCreate) *IntegrationCreateBulk {
+	return &IntegrationCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *IntegrationClient) MapCreateBulk(slice any, setFunc func(*IntegrationCreate, int)) *IntegrationCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &IntegrationCreateBulk{err: fmt.Errorf("calling to IntegrationClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*IntegrationCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &IntegrationCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Integration.
+func (c *IntegrationClient) Update() *IntegrationUpdate {
+	mutation := newIntegrationMutation(c.config, OpUpdate)
+	return &IntegrationUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *IntegrationClient) UpdateOne(i *Integration) *IntegrationUpdateOne {
+	mutation := newIntegrationMutation(c.config, OpUpdateOne, withIntegration(i))
+	return &IntegrationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *IntegrationClient) UpdateOneID(id uuid.UUID) *IntegrationUpdateOne {
+	mutation := newIntegrationMutation(c.config, OpUpdateOne, withIntegrationID(id))
+	return &IntegrationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Integration.
+func (c *IntegrationClient) Delete() *IntegrationDelete {
+	mutation := newIntegrationMutation(c.config, OpDelete)
+	return &IntegrationDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *IntegrationClient) DeleteOne(i *Integration) *IntegrationDeleteOne {
+	return c.DeleteOneID(i.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *IntegrationClient) DeleteOneID(id uuid.UUID) *IntegrationDeleteOne {
+	builder := c.Delete().Where(integration.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &IntegrationDeleteOne{builder}
+}
+
+// Query returns a query builder for Integration.
+func (c *IntegrationClient) Query() *IntegrationQuery {
+	return &IntegrationQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeIntegration},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Integration entity by its id.
+func (c *IntegrationClient) Get(ctx context.Context, id uuid.UUID) (*Integration, error) {
+	return c.Query().Where(integration.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *IntegrationClient) GetX(ctx context.Context, id uuid.UUID) *Integration {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *IntegrationClient) Hooks() []Hook {
+	return c.hooks.Integration
+}
+
+// Interceptors returns the client interceptors.
+func (c *IntegrationClient) Interceptors() []Interceptor {
+	return c.inters.Integration
+}
+
+func (c *IntegrationClient) mutate(ctx context.Context, m *IntegrationMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&IntegrationCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&IntegrationUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&IntegrationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&IntegrationDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Integration mutation op: %q", m.Op())
+	}
+}
+
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Blog []ent.Hook
+		Blog, Integration []ent.Hook
 	}
 	inters struct {
-		Blog []ent.Interceptor
+		Blog, Integration []ent.Interceptor
 	}
 )

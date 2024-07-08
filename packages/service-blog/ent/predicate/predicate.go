@@ -8,3 +8,6 @@ import (
 
 // Blog is the predicate function for blog builders.
 type Blog func(*sql.Selector)
+
+// Integration is the predicate function for integration builders.
+type Integration func(*sql.Selector)

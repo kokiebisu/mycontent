@@ -118,5 +118,6 @@ func (s *BlogService) Delete(ctx context.Context, id string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to delete blog: %w", err)
 	}
+	// TODO: Should eventually delete from all blog platforms
 	return id, nil
 }

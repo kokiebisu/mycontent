@@ -100,6 +100,26 @@ func (ec *executionContext) __resolve_entities(ctx context.Context, representati
 				list[idx[i]] = entity
 				return nil
 			}
+		case "Integration":
+			resolverName, err := entityResolverNameForIntegration(ctx, rep)
+			if err != nil {
+				return fmt.Errorf(`finding resolver for Entity "Integration": %w`, err)
+			}
+			switch resolverName {
+
+			case "findIntegrationByID":
+				id0, err := ec.unmarshalNID2string(ctx, rep["id"])
+				if err != nil {
+					return fmt.Errorf(`unmarshalling param 0 for findIntegrationByID(): %w`, err)
+				}
+				entity, err := ec.resolvers.Entity().FindIntegrationByID(ctx, id0)
+				if err != nil {
+					return fmt.Errorf(`resolving Entity "Integration": %w`, err)
+				}
+
+				list[idx[i]] = entity
+				return nil
+			}
 
 		}
 		return fmt.Errorf("%w: %s", ErrUnknownType, typeName)
@@ -194,4 +214,31 @@ func entityResolverNameForBlog(ctx context.Context, rep map[string]interface{}) 
 		return "findBlogByID", nil
 	}
 	return "", fmt.Errorf("%w for Blog", ErrTypeNotFound)
+}
+
+func entityResolverNameForIntegration(ctx context.Context, rep map[string]interface{}) (string, error) {
+	for {
+		var (
+			m   map[string]interface{}
+			val interface{}
+			ok  bool
+		)
+		_ = val
+		// if all of the KeyFields values for this resolver are null,
+		// we shouldn't use use it
+		allNull := true
+		m = rep
+		val, ok = m["id"]
+		if !ok {
+			break
+		}
+		if allNull {
+			allNull = val == nil
+		}
+		if allNull {
+			break
+		}
+		return "findIntegrationByID", nil
+	}
+	return "", fmt.Errorf("%w for Integration", ErrTypeNotFound)
 }

@@ -6,10 +6,12 @@ package resolver
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/kokiebisu/mycontent/packages/service-blog/ent"
 	"github.com/kokiebisu/mycontent/packages/service-blog/graphql/generated"
+	"github.com/kokiebisu/mycontent/packages/service-blog/graphql/model"
 )
 
 // ID is the resolver for the id field.
@@ -27,9 +29,43 @@ func (r *blogResolver) UpdatedAt(ctx context.Context, obj *ent.Blog) (string, er
 	return obj.UpdatedAt.Format(time.RFC3339), nil
 }
 
+// ID is the resolver for the id field.
+func (r *integrationResolver) ID(ctx context.Context, obj *ent.Integration) (string, error) {
+	return obj.ID.String(), nil
+}
+
+// Platform is the resolver for the platform field.
+func (r *integrationResolver) Platform(ctx context.Context, obj *ent.Integration) (model.Platform, error) {
+	return model.Platform(obj.Platform), nil
+}
+
+// UserID is the resolver for the userId field.
+func (r *integrationResolver) UserID(ctx context.Context, obj *ent.Integration) (string, error) {
+	return obj.UserID.String(), nil
+}
+
+// CreatedAt is the resolver for the createdAt field.
+func (r *integrationResolver) CreatedAt(ctx context.Context, obj *ent.Integration) (string, error) {
+	return obj.CreatedAt.Format(time.RFC3339), nil
+}
+
+// UpdatedAt is the resolver for the updatedAt field.
+func (r *integrationResolver) UpdatedAt(ctx context.Context, obj *ent.Integration) (string, error) {
+	return obj.UpdatedAt.Format(time.RFC3339), nil
+}
+
 // DeleteBlog is the resolver for the deleteBlog field.
 func (r *mutationResolver) DeleteBlog(ctx context.Context, id string) (string, error) {
 	id, err := r.BlogService.Delete(ctx, id)
+	if err != nil {
+		return "", err
+	}
+	return id, nil
+}
+
+// DeleteIntegration is the resolver for the deleteIntegration field.
+func (r *mutationResolver) DeleteIntegration(ctx context.Context, id string) (string, error) {
+	err := r.IntegrationService.Delete(ctx, id)
 	if err != nil {
 		return "", err
 	}
@@ -63,8 +99,21 @@ func (r *queryResolver) BlogsByUserID(ctx context.Context, userID string) ([]*en
 	return blogs, nil
 }
 
+// Integration is the resolver for the integration field.
+func (r *queryResolver) Integration(ctx context.Context, id string) (*ent.Integration, error) {
+	panic(fmt.Errorf("not implemented: Integration - integration"))
+}
+
+// IntegrationsByUserID is the resolver for the integrationsByUserId field.
+func (r *queryResolver) IntegrationsByUserID(ctx context.Context, userID string, platform model.Platform) ([]*ent.Integration, error) {
+	panic(fmt.Errorf("not implemented: IntegrationsByUserID - integrationsByUserId"))
+}
+
 // Blog returns generated.BlogResolver implementation.
 func (r *Resolver) Blog() generated.BlogResolver { return &blogResolver{r} }
+
+// Integration returns generated.IntegrationResolver implementation.
+func (r *Resolver) Integration() generated.IntegrationResolver { return &integrationResolver{r} }
 
 // Mutation returns generated.MutationResolver implementation.
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
@@ -73,5 +122,6 @@ func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResol
 func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
 type blogResolver struct{ *Resolver }
+type integrationResolver struct{ *Resolver }
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }

@@ -24,9 +24,25 @@ var (
 		Columns:    BlogsColumns,
 		PrimaryKey: []*schema.Column{BlogsColumns[0]},
 	}
+	// IntegrationsColumns holds the columns for the "integrations" table.
+	IntegrationsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "platform", Type: field.TypeEnum, Enums: []string{"ZENN", "QIITA", "MEDIUM"}},
+		{Name: "api_key", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "user_id", Type: field.TypeUUID},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+	}
+	// IntegrationsTable holds the schema information for the "integrations" table.
+	IntegrationsTable = &schema.Table{
+		Name:       "integrations",
+		Columns:    IntegrationsColumns,
+		PrimaryKey: []*schema.Column{IntegrationsColumns[0]},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		BlogsTable,
+		IntegrationsTable,
 	}
 )
 

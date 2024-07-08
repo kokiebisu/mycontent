@@ -3,10 +3,57 @@
 package model
 
 import (
+	"fmt"
+	"io"
+	"strconv"
+
 	"github.com/kokiebisu/mycontent/packages/service-blog/ent/blog"
 )
 
 type User struct {
 	ID       string        `json:"id"`
 	Interest blog.Interest `json:"interest"`
+}
+
+type Platform string
+
+const (
+	PlatformZenn   Platform = "ZENN"
+	PlatformQiita  Platform = "QIITA"
+	PlatformMedium Platform = "MEDIUM"
+)
+
+var AllPlatform = []Platform{
+	PlatformZenn,
+	PlatformQiita,
+	PlatformMedium,
+}
+
+func (e Platform) IsValid() bool {
+	switch e {
+	case PlatformZenn, PlatformQiita, PlatformMedium:
+		return true
+	}
+	return false
+}
+
+func (e Platform) String() string {
+	return string(e)
+}
+
+func (e *Platform) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = Platform(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid Platform", str)
+	}
+	return nil
+}
+
+func (e Platform) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }

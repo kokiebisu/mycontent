@@ -14,6 +14,8 @@ type Tx struct {
 	config
 	// Blog is the client for interacting with the Blog builders.
 	Blog *BlogClient
+	// Integration is the client for interacting with the Integration builders.
+	Integration *IntegrationClient
 
 	// lazily loaded.
 	client     *Client
@@ -146,6 +148,7 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.Blog = NewBlogClient(tx.config)
+	tx.Integration = NewIntegrationClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.
