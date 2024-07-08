@@ -30,11 +30,16 @@ func (s *UserService) Create(ctx context.Context, firstName string, lastName str
 		Interest: user.Interest,
 		YearsOfExperience: user.YearsOfExperience,
 		Username: user.Username,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
 	}, nil
 }
 
 func (s *UserService) Get(ctx context.Context, id string) (*ent.User, error) {
 	uuidParsed, err := uuid.Parse(id)
+	if err != nil {
+		return &ent.User{}, err
+	}
 	user, err := s.db.User.Get(context.Background(), uuidParsed)
 	if err != nil {
 		return &ent.User{}, err
@@ -48,6 +53,8 @@ func (s *UserService) Get(ctx context.Context, id string) (*ent.User, error) {
 		Interest: user.Interest,
 		YearsOfExperience: user.YearsOfExperience,
 		Username: user.Username,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
 	}, nil
 }
 
@@ -67,6 +74,8 @@ func (s *UserService) GetAll(ctx context.Context) ([]*ent.User, error) {
 			Interest: user.Interest(entity.Interest),
 			YearsOfExperience: entity.YearsOfExperience,
 			Username: entity.Username,
+			CreatedAt: entity.CreatedAt,
+			UpdatedAt: entity.UpdatedAt,
 		}
 	}
 	return users, nil
@@ -74,6 +83,9 @@ func (s *UserService) GetAll(ctx context.Context) ([]*ent.User, error) {
 
 func (s *UserService) Update(ctx context.Context, id string, firstName string, lastName string, email string, password string, interest user.Interest, yearsOfExperience int, username string) (*ent.User, error) {
 	uuidParsed, err := uuid.Parse(id)
+	if err != nil {
+		return &ent.User{}, err
+	}
 	user, err := s.db.User.Get(context.Background(), uuidParsed)
 	if err != nil {
 		return &ent.User{}, err
@@ -92,6 +104,8 @@ func (s *UserService) Update(ctx context.Context, id string, firstName string, l
 		Interest:          user.Interest,
 		YearsOfExperience: user.YearsOfExperience,
 		Username:          user.Username,
+		CreatedAt:         user.CreatedAt,
+		UpdatedAt:         user.UpdatedAt,
 	}, nil
 }
 

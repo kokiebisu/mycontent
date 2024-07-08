@@ -95,7 +95,9 @@ func (s *BlogService) Create(ctx context.Context, userId string, interest string
 	blogModel := &ent.Blog{
 		ID:    blog.ID,
 		Title: blog.Title,
-		Content: blog.Content,
+		Content:   blog.Content,
+		CreatedAt: blog.CreatedAt,
+		UpdatedAt: blog.UpdatedAt,
 	}
 
 	return blogModel, nil
