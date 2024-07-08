@@ -11,6 +11,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"github.com/kokiebisu/mycontent/packages/service-blog/ent/blog"
 	"github.com/kokiebisu/mycontent/packages/service-blog/ent/predicate"
 )
@@ -32,7 +33,7 @@ type BlogMutation struct {
 	config
 	op            Op
 	typ           string
-	id            *string
+	id            *uuid.UUID
 	title         *string
 	content       *string
 	user_id       *string
@@ -65,7 +66,7 @@ func newBlogMutation(c config, op Op, opts ...blogOption) *BlogMutation {
 }
 
 // withBlogID sets the ID field of the mutation.
-func withBlogID(id string) blogOption {
+func withBlogID(id uuid.UUID) blogOption {
 	return func(m *BlogMutation) {
 		var (
 			err   error
@@ -117,13 +118,13 @@ func (m BlogMutation) Tx() (*Tx, error) {
 
 // SetID sets the value of the id field. Note that this
 // operation is only accepted on creation of Blog entities.
-func (m *BlogMutation) SetID(id string) {
+func (m *BlogMutation) SetID(id uuid.UUID) {
 	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *BlogMutation) ID() (id string, exists bool) {
+func (m *BlogMutation) ID() (id uuid.UUID, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -134,12 +135,12 @@ func (m *BlogMutation) ID() (id string, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *BlogMutation) IDs(ctx context.Context) ([]string, error) {
+func (m *BlogMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []string{id}, nil
+			return []uuid.UUID{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):

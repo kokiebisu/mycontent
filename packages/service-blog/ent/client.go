@@ -9,6 +9,7 @@ import (
 	"log"
 	"reflect"
 
+	"github.com/google/uuid"
 	"github.com/kokiebisu/mycontent/packages/service-blog/ent/migrate"
 
 	"entgo.io/ent"
@@ -257,7 +258,7 @@ func (c *BlogClient) UpdateOne(b *Blog) *BlogUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *BlogClient) UpdateOneID(id string) *BlogUpdateOne {
+func (c *BlogClient) UpdateOneID(id uuid.UUID) *BlogUpdateOne {
 	mutation := newBlogMutation(c.config, OpUpdateOne, withBlogID(id))
 	return &BlogUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -274,7 +275,7 @@ func (c *BlogClient) DeleteOne(b *Blog) *BlogDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *BlogClient) DeleteOneID(id string) *BlogDeleteOne {
+func (c *BlogClient) DeleteOneID(id uuid.UUID) *BlogDeleteOne {
 	builder := c.Delete().Where(blog.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -291,12 +292,12 @@ func (c *BlogClient) Query() *BlogQuery {
 }
 
 // Get returns a Blog entity by its id.
-func (c *BlogClient) Get(ctx context.Context, id string) (*Blog, error) {
+func (c *BlogClient) Get(ctx context.Context, id uuid.UUID) (*Blog, error) {
 	return c.Query().Where(blog.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *BlogClient) GetX(ctx context.Context, id string) *Blog {
+func (c *BlogClient) GetX(ctx context.Context, id uuid.UUID) *Blog {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)

@@ -10,6 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/kokiebisu/mycontent/packages/service-blog/ent/blog"
 )
 
@@ -73,8 +74,16 @@ func (bc *BlogCreate) SetNillableUpdatedAt(t *time.Time) *BlogCreate {
 }
 
 // SetID sets the "id" field.
-func (bc *BlogCreate) SetID(s string) *BlogCreate {
-	bc.mutation.SetID(s)
+func (bc *BlogCreate) SetID(u uuid.UUID) *BlogCreate {
+	bc.mutation.SetID(u)
+	return bc
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (bc *BlogCreate) SetNillableID(u *uuid.UUID) *BlogCreate {
+	if u != nil {
+		bc.SetID(*u)
+	}
 	return bc
 }
 
@@ -121,6 +130,10 @@ func (bc *BlogCreate) defaults() {
 		v := blog.DefaultUpdatedAt()
 		bc.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := bc.mutation.ID(); !ok {
+		v := blog.DefaultID()
+		bc.mutation.SetID(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -163,10 +176,10 @@ func (bc *BlogCreate) sqlSave(ctx context.Context) (*Blog, error) {
 		return nil, err
 	}
 	if _spec.ID.Value != nil {
-		if id, ok := _spec.ID.Value.(string); ok {
-			_node.ID = id
-		} else {
-			return nil, fmt.Errorf("unexpected Blog.ID type: %T", _spec.ID.Value)
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
 		}
 	}
 	bc.mutation.id = &_node.ID
@@ -177,11 +190,11 @@ func (bc *BlogCreate) sqlSave(ctx context.Context) (*Blog, error) {
 func (bc *BlogCreate) createSpec() (*Blog, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Blog{config: bc.config}
-		_spec = sqlgraph.NewCreateSpec(blog.Table, sqlgraph.NewFieldSpec(blog.FieldID, field.TypeString))
+		_spec = sqlgraph.NewCreateSpec(blog.Table, sqlgraph.NewFieldSpec(blog.FieldID, field.TypeUUID))
 	)
 	if id, ok := bc.mutation.ID(); ok {
 		_node.ID = id
-		_spec.ID.Value = id
+		_spec.ID.Value = &id
 	}
 	if value, ok := bc.mutation.Title(); ok {
 		_spec.SetField(blog.FieldTitle, field.TypeString, value)

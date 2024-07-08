@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/google/uuid"
 	"github.com/kokiebisu/mycontent/packages/service-blog/ent"
 	"github.com/kokiebisu/mycontent/packages/service-blog/ent/blog"
 	"github.com/kokiebisu/mycontent/packages/service-blog/port"
@@ -21,7 +22,11 @@ func NewBlogService(db *ent.Client) port.BlogService {
 }
 
 func (s *BlogService) Get(ctx context.Context, id string) (*ent.Blog, error) {
-	blog, err := s.db.Blog.Get(ctx, id)
+	uuidParsed, err := uuid.Parse(id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse id: %w", err)
+	}
+	blog, err := s.db.Blog.Get(ctx, uuidParsed)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get blog: %w", err)
 	}
@@ -105,7 +110,11 @@ func (s *BlogService) Create(ctx context.Context, userId string, interest blog.I
 }
 
 func (s *BlogService) Delete(ctx context.Context, id string) (string, error) {
-	err := s.db.Blog.DeleteOneID(id).Exec(context.Background())
+	uuidParsed, err := uuid.Parse(id)
+	if err != nil {
+		return "", fmt.Errorf("failed to parse id: %w", err)
+	}
+	err = s.db.Blog.DeleteOneID(uuidParsed).Exec(context.Background())
 	if err != nil {
 		return "", fmt.Errorf("failed to delete blog: %w", err)
 	}

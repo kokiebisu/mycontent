@@ -12,6 +12,11 @@ import (
 	"github.com/kokiebisu/mycontent/packages/service-blog/graphql/generated"
 )
 
+// ID is the resolver for the id field.
+func (r *blogResolver) ID(ctx context.Context, obj *ent.Blog) (string, error) {
+	return obj.ID.String(), nil
+}
+
 // CreatedAt is the resolver for the createdAt field.
 func (r *blogResolver) CreatedAt(ctx context.Context, obj *ent.Blog) (string, error) {
 	return obj.CreatedAt.Format(time.RFC3339), nil

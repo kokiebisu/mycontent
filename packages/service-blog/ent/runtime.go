@@ -5,6 +5,7 @@ package ent
 import (
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/kokiebisu/mycontent/packages/service-blog/ent/blog"
 	"github.com/kokiebisu/mycontent/packages/service-blog/ent/schema"
 )
@@ -25,4 +26,8 @@ func init() {
 	blog.DefaultUpdatedAt = blogDescUpdatedAt.Default.(func() time.Time)
 	// blog.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	blog.UpdateDefaultUpdatedAt = blogDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// blogDescID is the schema descriptor for id field.
+	blogDescID := blogFields[0].Descriptor()
+	// blog.DefaultID holds the default value on creation for the id field.
+	blog.DefaultID = blogDescID.Default.(func() uuid.UUID)
 }

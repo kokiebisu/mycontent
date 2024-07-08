@@ -9,6 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"github.com/kokiebisu/mycontent/packages/service-blog/ent/blog"
 )
 
@@ -16,7 +17,7 @@ import (
 type Blog struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID string `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// Title holds the value of the "title" field.
 	Title string `json:"title,omitempty"`
 	// Content holds the value of the "content" field.
@@ -37,10 +38,12 @@ func (*Blog) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case blog.FieldID, blog.FieldTitle, blog.FieldContent, blog.FieldUserID, blog.FieldInterest:
+		case blog.FieldTitle, blog.FieldContent, blog.FieldUserID, blog.FieldInterest:
 			values[i] = new(sql.NullString)
 		case blog.FieldCreatedAt, blog.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
+		case blog.FieldID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -57,10 +60,10 @@ func (b *Blog) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case blog.FieldID:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
-			} else if value.Valid {
-				b.ID = value.String
+			} else if value != nil {
+				b.ID = *value
 			}
 		case blog.FieldTitle:
 			if value, ok := values[i].(*sql.NullString); !ok {

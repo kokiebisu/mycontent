@@ -87,6 +87,8 @@ type ComplexityRoot struct {
 }
 
 type BlogResolver interface {
+	ID(ctx context.Context, obj *ent.Blog) (string, error)
+
 	CreatedAt(ctx context.Context, obj *ent.Blog) (string, error)
 	UpdatedAt(ctx context.Context, obj *ent.Blog) (string, error)
 }
@@ -392,6 +394,8 @@ enum Interest {
   PYTHON
   GO
   RUST
+  DOCKER
+  KUBERNETES
 }
 `, BuiltIn: false},
 	{Name: "../../federation/directives.graphql", Input: `
@@ -571,7 +575,7 @@ func (ec *executionContext) _Blog_id(ctx context.Context, field graphql.Collecte
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
+		return ec.resolvers.Blog().ID(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -592,8 +596,8 @@ func (ec *executionContext) fieldContext_Blog_id(_ context.Context, field graphq
 	fc = &graphql.FieldContext{
 		Object:     "Blog",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
 		},
@@ -3309,10 +3313,41 @@ func (ec *executionContext) _Blog(ctx context.Context, sel ast.SelectionSet, obj
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Blog")
 		case "id":
-			out.Values[i] = ec._Blog_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Blog_id(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "title":
 			out.Values[i] = ec._Blog_title(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
