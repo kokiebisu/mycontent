@@ -76,6 +76,7 @@ type ComplexityRoot struct {
 		Interest          func(childComplexity int) int
 		LastName          func(childComplexity int) int
 		Password          func(childComplexity int) int
+		PublishTime       func(childComplexity int) int
 		UpdatedAt         func(childComplexity int) int
 		Username          func(childComplexity int) int
 		YearsOfExperience func(childComplexity int) int
@@ -101,6 +102,7 @@ type QueryResolver interface {
 type UserResolver interface {
 	ID(ctx context.Context, obj *ent.User) (string, error)
 
+	PublishTime(ctx context.Context, obj *ent.User) (string, error)
 	CreatedAt(ctx context.Context, obj *ent.User) (string, error)
 	UpdatedAt(ctx context.Context, obj *ent.User) (string, error)
 }
@@ -259,6 +261,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.Password(childComplexity), true
 
+	case "User.publishTime":
+		if e.complexity.User.PublishTime == nil {
+			break
+		}
+
+		return e.complexity.User.PublishTime(childComplexity), true
+
 	case "User.updatedAt":
 		if e.complexity.User.UpdatedAt == nil {
 			break
@@ -403,6 +412,7 @@ var sources = []*ast.Source{
   password: String!
   interest: Interest!
   yearsOfExperience: Int!
+  publishTime: String!
   createdAt: String!
   updatedAt: String!
 }
@@ -426,6 +436,7 @@ input CreateUserInput {
   password: String!
   interest: Interest!
   yearsOfExperience: Int!
+  publishTime: String!
 }
 
 input UpdateUserInput {
@@ -436,6 +447,7 @@ input UpdateUserInput {
   password: String!
   interest: Interest!
   yearsOfExperience: Int!
+  publishTime: String!
 }
 
 enum Interest {
@@ -690,6 +702,8 @@ func (ec *executionContext) fieldContext_Entity_findUserByID(ctx context.Context
 				return ec.fieldContext_User_interest(ctx, field)
 			case "yearsOfExperience":
 				return ec.fieldContext_User_yearsOfExperience(ctx, field)
+			case "publishTime":
+				return ec.fieldContext_User_publishTime(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_User_createdAt(ctx, field)
 			case "updatedAt":
@@ -767,6 +781,8 @@ func (ec *executionContext) fieldContext_Mutation_createUser(ctx context.Context
 				return ec.fieldContext_User_interest(ctx, field)
 			case "yearsOfExperience":
 				return ec.fieldContext_User_yearsOfExperience(ctx, field)
+			case "publishTime":
+				return ec.fieldContext_User_publishTime(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_User_createdAt(ctx, field)
 			case "updatedAt":
@@ -844,6 +860,8 @@ func (ec *executionContext) fieldContext_Mutation_updateUser(ctx context.Context
 				return ec.fieldContext_User_interest(ctx, field)
 			case "yearsOfExperience":
 				return ec.fieldContext_User_yearsOfExperience(ctx, field)
+			case "publishTime":
+				return ec.fieldContext_User_publishTime(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_User_createdAt(ctx, field)
 			case "updatedAt":
@@ -976,6 +994,8 @@ func (ec *executionContext) fieldContext_Query_user(ctx context.Context, field g
 				return ec.fieldContext_User_interest(ctx, field)
 			case "yearsOfExperience":
 				return ec.fieldContext_User_yearsOfExperience(ctx, field)
+			case "publishTime":
+				return ec.fieldContext_User_publishTime(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_User_createdAt(ctx, field)
 			case "updatedAt":
@@ -1053,6 +1073,8 @@ func (ec *executionContext) fieldContext_Query_users(_ context.Context, field gr
 				return ec.fieldContext_User_interest(ctx, field)
 			case "yearsOfExperience":
 				return ec.fieldContext_User_yearsOfExperience(ctx, field)
+			case "publishTime":
+				return ec.fieldContext_User_publishTime(ctx, field)
 			case "createdAt":
 				return ec.fieldContext_User_createdAt(ctx, field)
 			case "updatedAt":
@@ -1643,6 +1665,50 @@ func (ec *executionContext) fieldContext_User_yearsOfExperience(_ context.Contex
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_publishTime(ctx context.Context, field graphql.CollectedField, obj *ent.User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_publishTime(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.User().PublishTime(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_publishTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3557,7 +3623,7 @@ func (ec *executionContext) unmarshalInputCreateUserInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"firstName", "lastName", "email", "username", "password", "interest", "yearsOfExperience"}
+	fieldsInOrder := [...]string{"firstName", "lastName", "email", "username", "password", "interest", "yearsOfExperience", "publishTime"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -3613,6 +3679,13 @@ func (ec *executionContext) unmarshalInputCreateUserInput(ctx context.Context, o
 				return it, err
 			}
 			it.YearsOfExperience = data
+		case "publishTime":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("publishTime"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PublishTime = data
 		}
 	}
 
@@ -3626,7 +3699,7 @@ func (ec *executionContext) unmarshalInputUpdateUserInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"firstName", "lastName", "email", "username", "password", "interest", "yearsOfExperience"}
+	fieldsInOrder := [...]string{"firstName", "lastName", "email", "username", "password", "interest", "yearsOfExperience", "publishTime"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -3682,6 +3755,13 @@ func (ec *executionContext) unmarshalInputUpdateUserInput(ctx context.Context, o
 				return it, err
 			}
 			it.YearsOfExperience = data
+		case "publishTime":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("publishTime"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PublishTime = data
 		}
 	}
 
@@ -4057,6 +4137,42 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&out.Invalids, 1)
 			}
+		case "publishTime":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._User_publishTime(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "createdAt":
 			field := field
 

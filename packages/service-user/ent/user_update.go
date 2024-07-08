@@ -112,6 +112,20 @@ func (uu *UserUpdate) SetNillableInterest(u *user.Interest) *UserUpdate {
 	return uu
 }
 
+// SetPublishTime sets the "publish_time" field.
+func (uu *UserUpdate) SetPublishTime(t time.Time) *UserUpdate {
+	uu.mutation.SetPublishTime(t)
+	return uu
+}
+
+// SetNillablePublishTime sets the "publish_time" field if the given value is not nil.
+func (uu *UserUpdate) SetNillablePublishTime(t *time.Time) *UserUpdate {
+	if t != nil {
+		uu.SetPublishTime(*t)
+	}
+	return uu
+}
+
 // SetYearsOfExperience sets the "years_of_experience" field.
 func (uu *UserUpdate) SetYearsOfExperience(i int) *UserUpdate {
 	uu.mutation.ResetYearsOfExperience()
@@ -250,6 +264,9 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := uu.mutation.Interest(); ok {
 		_spec.SetField(user.FieldInterest, field.TypeEnum, value)
 	}
+	if value, ok := uu.mutation.PublishTime(); ok {
+		_spec.SetField(user.FieldPublishTime, field.TypeTime, value)
+	}
 	if value, ok := uu.mutation.YearsOfExperience(); ok {
 		_spec.SetField(user.FieldYearsOfExperience, field.TypeInt, value)
 	}
@@ -359,6 +376,20 @@ func (uuo *UserUpdateOne) SetInterest(u user.Interest) *UserUpdateOne {
 func (uuo *UserUpdateOne) SetNillableInterest(u *user.Interest) *UserUpdateOne {
 	if u != nil {
 		uuo.SetInterest(*u)
+	}
+	return uuo
+}
+
+// SetPublishTime sets the "publish_time" field.
+func (uuo *UserUpdateOne) SetPublishTime(t time.Time) *UserUpdateOne {
+	uuo.mutation.SetPublishTime(t)
+	return uuo
+}
+
+// SetNillablePublishTime sets the "publish_time" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillablePublishTime(t *time.Time) *UserUpdateOne {
+	if t != nil {
+		uuo.SetPublishTime(*t)
 	}
 	return uuo
 }
@@ -530,6 +561,9 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 	}
 	if value, ok := uuo.mutation.Interest(); ok {
 		_spec.SetField(user.FieldInterest, field.TypeEnum, value)
+	}
+	if value, ok := uuo.mutation.PublishTime(); ok {
+		_spec.SetField(user.FieldPublishTime, field.TypeTime, value)
 	}
 	if value, ok := uuo.mutation.YearsOfExperience(); ok {
 		_spec.SetField(user.FieldYearsOfExperience, field.TypeInt, value)

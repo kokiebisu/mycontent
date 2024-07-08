@@ -57,6 +57,12 @@ func (uc *UserCreate) SetInterest(u user.Interest) *UserCreate {
 	return uc
 }
 
+// SetPublishTime sets the "publish_time" field.
+func (uc *UserCreate) SetPublishTime(t time.Time) *UserCreate {
+	uc.mutation.SetPublishTime(t)
+	return uc
+}
+
 // SetYearsOfExperience sets the "years_of_experience" field.
 func (uc *UserCreate) SetYearsOfExperience(i int) *UserCreate {
 	uc.mutation.SetYearsOfExperience(i)
@@ -204,6 +210,9 @@ func (uc *UserCreate) check() error {
 			return &ValidationError{Name: "interest", err: fmt.Errorf(`ent: validator failed for field "User.interest": %w`, err)}
 		}
 	}
+	if _, ok := uc.mutation.PublishTime(); !ok {
+		return &ValidationError{Name: "publish_time", err: errors.New(`ent: missing required field "User.publish_time"`)}
+	}
 	if _, ok := uc.mutation.YearsOfExperience(); !ok {
 		return &ValidationError{Name: "years_of_experience", err: errors.New(`ent: missing required field "User.years_of_experience"`)}
 	}
@@ -276,6 +285,10 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 	if value, ok := uc.mutation.Interest(); ok {
 		_spec.SetField(user.FieldInterest, field.TypeEnum, value)
 		_node.Interest = value
+	}
+	if value, ok := uc.mutation.PublishTime(); ok {
+		_spec.SetField(user.FieldPublishTime, field.TypeTime, value)
+		_node.PublishTime = value
 	}
 	if value, ok := uc.mutation.YearsOfExperience(); ok {
 		_spec.SetField(user.FieldYearsOfExperience, field.TypeInt, value)

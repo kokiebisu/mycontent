@@ -26,6 +26,9 @@ func (User) Fields() []ent.Field {
 		field.String("username").MaxLen(255).NotEmpty(),
 		field.String("password").MaxLen(255).NotEmpty(),
 		field.Enum("interest").Values(INTERESTS...),
+		field.Time("publish_time").SchemaType(map[string]string{
+			"postgres": "TIME",
+		}),
 		field.Int("years_of_experience").Positive(),
 		field.Time("created_at").Default(time.Now).Immutable(),
 		field.Time("updated_at").Default(time.Now).UpdateDefault(time.Now),

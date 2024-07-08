@@ -80,6 +80,11 @@ func Password(v string) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldPassword, v))
 }
 
+// PublishTime applies equality check predicate on the "publish_time" field. It's identical to PublishTimeEQ.
+func PublishTime(v time.Time) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldPublishTime, v))
+}
+
 // YearsOfExperience applies equality check predicate on the "years_of_experience" field. It's identical to YearsOfExperienceEQ.
 func YearsOfExperience(v int) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldYearsOfExperience, v))
@@ -438,6 +443,46 @@ func InterestIn(vs ...Interest) predicate.User {
 // InterestNotIn applies the NotIn predicate on the "interest" field.
 func InterestNotIn(vs ...Interest) predicate.User {
 	return predicate.User(sql.FieldNotIn(FieldInterest, vs...))
+}
+
+// PublishTimeEQ applies the EQ predicate on the "publish_time" field.
+func PublishTimeEQ(v time.Time) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldPublishTime, v))
+}
+
+// PublishTimeNEQ applies the NEQ predicate on the "publish_time" field.
+func PublishTimeNEQ(v time.Time) predicate.User {
+	return predicate.User(sql.FieldNEQ(FieldPublishTime, v))
+}
+
+// PublishTimeIn applies the In predicate on the "publish_time" field.
+func PublishTimeIn(vs ...time.Time) predicate.User {
+	return predicate.User(sql.FieldIn(FieldPublishTime, vs...))
+}
+
+// PublishTimeNotIn applies the NotIn predicate on the "publish_time" field.
+func PublishTimeNotIn(vs ...time.Time) predicate.User {
+	return predicate.User(sql.FieldNotIn(FieldPublishTime, vs...))
+}
+
+// PublishTimeGT applies the GT predicate on the "publish_time" field.
+func PublishTimeGT(v time.Time) predicate.User {
+	return predicate.User(sql.FieldGT(FieldPublishTime, v))
+}
+
+// PublishTimeGTE applies the GTE predicate on the "publish_time" field.
+func PublishTimeGTE(v time.Time) predicate.User {
+	return predicate.User(sql.FieldGTE(FieldPublishTime, v))
+}
+
+// PublishTimeLT applies the LT predicate on the "publish_time" field.
+func PublishTimeLT(v time.Time) predicate.User {
+	return predicate.User(sql.FieldLT(FieldPublishTime, v))
+}
+
+// PublishTimeLTE applies the LTE predicate on the "publish_time" field.
+func PublishTimeLTE(v time.Time) predicate.User {
+	return predicate.User(sql.FieldLTE(FieldPublishTime, v))
 }
 
 // YearsOfExperienceEQ applies the EQ predicate on the "years_of_experience" field.

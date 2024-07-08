@@ -63,6 +63,11 @@ func (r *userResolver) ID(ctx context.Context, obj *ent.User) (string, error) {
 	return obj.ID.String(), nil
 }
 
+// PublishTime is the resolver for the publishTime field.
+func (r *userResolver) PublishTime(ctx context.Context, obj *ent.User) (string, error) {
+	return obj.PublishTime.Format(time.RFC3339), nil
+}
+
 // CreatedAt is the resolver for the createdAt field.
 func (r *userResolver) CreatedAt(ctx context.Context, obj *ent.User) (string, error) {
 	return obj.CreatedAt.Format(time.RFC3339), nil

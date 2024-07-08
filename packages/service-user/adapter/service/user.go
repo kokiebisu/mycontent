@@ -30,6 +30,7 @@ func (s *UserService) Create(ctx context.Context, firstName string, lastName str
 		Interest: user.Interest,
 		YearsOfExperience: user.YearsOfExperience,
 		Username: user.Username,
+		PublishTime: user.PublishTime,
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,
 	}, nil
@@ -53,6 +54,7 @@ func (s *UserService) Get(ctx context.Context, id string) (*ent.User, error) {
 		Interest: user.Interest,
 		YearsOfExperience: user.YearsOfExperience,
 		Username: user.Username,
+		PublishTime: user.PublishTime,
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,
 	}, nil
@@ -74,6 +76,7 @@ func (s *UserService) GetAll(ctx context.Context) ([]*ent.User, error) {
 			Interest: user.Interest(entity.Interest),
 			YearsOfExperience: entity.YearsOfExperience,
 			Username: entity.Username,
+			PublishTime: entity.PublishTime,
 			CreatedAt: entity.CreatedAt,
 			UpdatedAt: entity.UpdatedAt,
 		}
@@ -104,6 +107,7 @@ func (s *UserService) Update(ctx context.Context, id string, firstName string, l
 		Interest:          user.Interest,
 		YearsOfExperience: user.YearsOfExperience,
 		Username:          user.Username,
+		PublishTime:       user.PublishTime,
 		CreatedAt:         user.CreatedAt,
 		UpdatedAt:         user.UpdatedAt,
 	}, nil

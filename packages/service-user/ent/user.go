@@ -30,6 +30,8 @@ type User struct {
 	Password string `json:"password,omitempty"`
 	// Interest holds the value of the "interest" field.
 	Interest user.Interest `json:"interest,omitempty"`
+	// PublishTime holds the value of the "publish_time" field.
+	PublishTime time.Time `json:"publish_time,omitempty"`
 	// YearsOfExperience holds the value of the "years_of_experience" field.
 	YearsOfExperience int `json:"years_of_experience,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
@@ -48,7 +50,7 @@ func (*User) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case user.FieldFirstName, user.FieldLastName, user.FieldEmail, user.FieldUsername, user.FieldPassword, user.FieldInterest:
 			values[i] = new(sql.NullString)
-		case user.FieldCreatedAt, user.FieldUpdatedAt:
+		case user.FieldPublishTime, user.FieldCreatedAt, user.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
 		case user.FieldID:
 			values[i] = new(uuid.UUID)
@@ -108,6 +110,12 @@ func (u *User) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field interest", values[i])
 			} else if value.Valid {
 				u.Interest = user.Interest(value.String)
+			}
+		case user.FieldPublishTime:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field publish_time", values[i])
+			} else if value.Valid {
+				u.PublishTime = value.Time
 			}
 		case user.FieldYearsOfExperience:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -180,6 +188,9 @@ func (u *User) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("interest=")
 	builder.WriteString(fmt.Sprintf("%v", u.Interest))
+	builder.WriteString(", ")
+	builder.WriteString("publish_time=")
+	builder.WriteString(u.PublishTime.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("years_of_experience=")
 	builder.WriteString(fmt.Sprintf("%v", u.YearsOfExperience))

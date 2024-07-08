@@ -14,6 +14,7 @@ type CreateUserInput struct {
 	Password          string        `json:"password"`
 	Interest          user.Interest `json:"interest"`
 	YearsOfExperience int           `json:"yearsOfExperience"`
+	PublishTime       string        `json:"publishTime"`
 }
 
 type UpdateUserInput struct {
@@ -24,4 +25,5 @@ type UpdateUserInput struct {
 	Password          string        `json:"password"`
 	Interest          user.Interest `json:"interest"`
 	YearsOfExperience int           `json:"yearsOfExperience"`
+	PublishTime       string        `json:"publishTime"`
 }

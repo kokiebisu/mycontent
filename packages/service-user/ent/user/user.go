@@ -27,6 +27,8 @@ const (
 	FieldPassword = "password"
 	// FieldInterest holds the string denoting the interest field in the database.
 	FieldInterest = "interest"
+	// FieldPublishTime holds the string denoting the publish_time field in the database.
+	FieldPublishTime = "publish_time"
 	// FieldYearsOfExperience holds the string denoting the years_of_experience field in the database.
 	FieldYearsOfExperience = "years_of_experience"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
@@ -46,6 +48,7 @@ var Columns = []string{
 	FieldUsername,
 	FieldPassword,
 	FieldInterest,
+	FieldPublishTime,
 	FieldYearsOfExperience,
 	FieldCreatedAt,
 	FieldUpdatedAt,
@@ -148,6 +151,11 @@ func ByPassword(opts ...sql.OrderTermOption) OrderOption {
 // ByInterest orders the results by the interest field.
 func ByInterest(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldInterest, opts...).ToFunc()
+}
+
+// ByPublishTime orders the results by the publish_time field.
+func ByPublishTime(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPublishTime, opts...).ToFunc()
 }
 
 // ByYearsOfExperience orders the results by the years_of_experience field.

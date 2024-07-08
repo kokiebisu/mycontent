@@ -7,6 +7,7 @@ type User @key(fields: "id") {
   password: String!
   interest: Interest!
   yearsOfExperience: Int!
+  publishTime: String!
   createdAt: String!
   updatedAt: String!
 }
@@ -30,6 +31,7 @@ input CreateUserInput {
   password: String!
   interest: Interest!
   yearsOfExperience: Int!
+  publishTime: String!
 }
 
 input UpdateUserInput {
@@ -40,6 +42,7 @@ input UpdateUserInput {
   password: String!
   interest: Interest!
   yearsOfExperience: Int!
+  publishTime: String!
 }
 
 enum Interest {
