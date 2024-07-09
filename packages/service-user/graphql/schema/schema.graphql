@@ -21,17 +21,6 @@ type Mutation {
   updateUser(id: ID!, input: UpdateUserInput): User!
 }
 
-input CreateUserInput {
-  firstName: String!
-  lastName: String!
-  email: String!
-  username: String!
-  password: String!
-  interest: Interest!
-  yearsOfExperience: Int!
-  publishTime: String!
-}
-
 input UpdateUserInput {
   firstName: String!
   lastName: String!

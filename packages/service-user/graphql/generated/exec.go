@@ -276,7 +276,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
-		ec.unmarshalInputCreateUserInput,
 		ec.unmarshalInputUpdateUserInput,
 	)
 	first := true
@@ -396,17 +395,6 @@ type Query {
 
 type Mutation {
   updateUser(id: ID!, input: UpdateUserInput): User!
-}
-
-input CreateUserInput {
-  firstName: String!
-  lastName: String!
-  email: String!
-  username: String!
-  password: String!
-  interest: Interest!
-  yearsOfExperience: Int!
-  publishTime: String!
 }
 
 input UpdateUserInput {
@@ -3421,82 +3409,6 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(_ context.Context
 // endregion **************************** field.gotpl *****************************
 
 // region    **************************** input.gotpl *****************************
-
-func (ec *executionContext) unmarshalInputCreateUserInput(ctx context.Context, obj interface{}) (model.CreateUserInput, error) {
-	var it model.CreateUserInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"firstName", "lastName", "email", "username", "password", "interest", "yearsOfExperience", "publishTime"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "firstName":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("firstName"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.FirstName = data
-		case "lastName":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lastName"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.LastName = data
-		case "email":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Email = data
-		case "username":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("username"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Username = data
-		case "password":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Password = data
-		case "interest":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("interest"))
-			data, err := ec.unmarshalNInterest2githubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋsharedᚋenumᚐInterest(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Interest = data
-		case "yearsOfExperience":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("yearsOfExperience"))
-			data, err := ec.unmarshalNInt2int(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.YearsOfExperience = data
-		case "publishTime":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("publishTime"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.PublishTime = data
-		}
-	}
-
-	return it, nil
-}
 
 func (ec *executionContext) unmarshalInputUpdateUserInput(ctx context.Context, obj interface{}) (model.UpdateUserInput, error) {
 	var it model.UpdateUserInput
