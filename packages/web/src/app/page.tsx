@@ -1,19 +1,5 @@
-"use client";
-
-import "./globals.css";
-import { SignUp } from "@/components/sign-up";
-import { gql, useQuery } from "@apollo/client";
-
-const HEALTH_DATA = gql`
-  query Query {
-    health
-  }
-`;
+import { gql } from "@apollo/client";
 
 export default function Home() {
-  return (
-    <div>
-      <SignUp />
-    </div>
-  );
+  return <div>Hello World</div>;
 }

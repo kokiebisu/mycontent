@@ -15,7 +15,7 @@ import { useMutation } from "@apollo/client";
 import { SIGNUP_MUTATION } from "@/graphql/mutation";
 import { useState } from "react";
 
-export function SignUp() {
+function RegisterPage() {
   const [inputs, setInputs] = useState({
     email: "",
     firstName: "",
@@ -273,3 +273,5 @@ export function SignUp() {
     </div>
   );
 }
+
+export default RegisterPage;

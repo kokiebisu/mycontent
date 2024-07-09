@@ -1,7 +1,7 @@
 import "./globals.css";
 import ApolloWrapper from "@/lib/apollo";
 
-export default function Layout({ children }) {
+export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <ApolloWrapper>
