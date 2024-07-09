@@ -20,6 +20,8 @@ services:
       dockerfile: ./packages/service-authentication/Dockerfile.dev
     networks:
       - mycontent-network
+    environment:
+      GRAPHQL_PORT: "4001"
     ports:
       - "4001:4001"
     volumes:
@@ -66,6 +68,13 @@ services:
       dockerfile: ./packages/service-user/Dockerfile.dev
     networks:
       - mycontent-network
+    environment:
+      GRAPHQL_PORT: "4003"
+      DB_PORT: "5432"
+      DB_HOST: "db"
+      DB_USER: "postgres"
+      DB_NAME: "mydb"
+      DB_PASSWORD: "mypassword"
     ports:
       - "4003:4003"
       - "50053:50053"
