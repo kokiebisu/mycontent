@@ -3,19 +3,26 @@ package main
 import (
 	"context"
 	"log"
+	"net"
 	"net/http"
 	"os"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	grpc_client "github.com/kokiebisu/mycontent/packages/service-user/adapter/grpc"
 	"github.com/kokiebisu/mycontent/packages/service-user/adapter/service"
 	"github.com/kokiebisu/mycontent/packages/service-user/ent"
 	"github.com/kokiebisu/mycontent/packages/service-user/graphql/generated"
 	"github.com/kokiebisu/mycontent/packages/service-user/graphql/resolver"
+	"github.com/kokiebisu/mycontent/packages/service-user/proto"
 	_ "github.com/lib/pq"
+	"google.golang.org/grpc"
 )
 
-const defaultPort = "4003"
+const (
+	graphqlPort = "4003"
+	grpcPort = "50053"
+)
 
 func main() {
 	client, err := ent.Open("postgres", "host=db port=5432 user=postgres dbname=mydb sslmode=disable password=mypassword")
@@ -27,18 +34,35 @@ func main() {
 	if err := client.Schema.Create(context.Background()); err != nil {
 		log.Fatalf("failed creating schema resources: %v", err)
 	}
+
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = defaultPort
+		port = graphqlPort
 	}
+
 	userService := service.NewUserService(client)
-	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &resolver.Resolver{
-		UserService: userService,
-	}}))
 
-	http.Handle("/playground", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", srv)
+	go func() {
+		srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &resolver.Resolver{
+			UserService: userService,
+		}}))
+	
+		http.Handle("/playground", playground.Handler("GraphQL playground", "/query"))
+		http.Handle("/query", srv)
+	
+		log.Printf("connect to http://localhost:%s/playground for GraphQL playground", port)
+		log.Fatal(http.ListenAndServe(":"+port, nil))
+	}()
 
-	log.Printf("connect to http://localhost:%s/playground for GraphQL playground", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	lis, err := net.Listen("tcp", ":"+grpcPort)
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+	defer lis.Close()
+	
+
+	adapter := grpc_client.NewGRPCAdapter(userService)
+	grpcServer := grpc.NewServer()
+	proto.RegisterUserServiceServer(grpcServer, adapter)
+	grpcServer.Serve(lis)
 }
