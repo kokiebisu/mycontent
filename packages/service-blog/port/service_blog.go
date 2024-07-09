@@ -3,8 +3,8 @@ package port
 import (
 	"context"
 
-	"github.com/kokiebisu/mycontent/packages/service-blog/ent"
-	"github.com/kokiebisu/mycontent/packages/service-blog/ent/blog"
+	"github.com/kokiebisu/mycontent/packages/shared/ent"
+	"github.com/kokiebisu/mycontent/packages/shared/ent/blog"
 )
 
 type BlogService interface {

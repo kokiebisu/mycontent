@@ -8,9 +8,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/kokiebisu/mycontent/packages/service-user/ent"
 	"github.com/kokiebisu/mycontent/packages/service-user/graphql/generated"
 	"github.com/kokiebisu/mycontent/packages/service-user/graphql/model"
+	"github.com/kokiebisu/mycontent/packages/shared/ent"
 )
 
 // CreateUser is the resolver for the createUser field.

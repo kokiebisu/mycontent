@@ -5,8 +5,10 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/kokiebisu/mycontent/packages/service-user/ent"
-	"github.com/kokiebisu/mycontent/packages/service-user/ent/user"
+
+	"github.com/kokiebisu/mycontent/packages/shared/ent"
+	"github.com/kokiebisu/mycontent/packages/shared/ent/user"
+	"github.com/kokiebisu/mycontent/packages/shared/enum"
 )
 
 type UserService struct {
@@ -17,7 +19,7 @@ func NewUserService(db *ent.Client) *UserService {
 	return &UserService{db: db}
 }
 
-func (s *UserService) Create(ctx context.Context, firstName string, lastName string, email string, password string, interest user.Interest, yearsOfExperience int, username string, publishTime string) (*ent.User, error) {
+func (s *UserService) Create(ctx context.Context, firstName string, lastName string, email string, password string, interest enum.Interest, yearsOfExperience int, username string, publishTime string) (*ent.User, error) {
 	var parsedPublishTime time.Time
 	var err error
 	formats := []string{"15:04", "15", "3:04PM", "3PM"}
@@ -87,7 +89,7 @@ func (s *UserService) GetAll(ctx context.Context) ([]*ent.User, error) {
 			LastName:  entity.LastName,
 			Email:     entity.Email,
 			Password:  entity.Password,
-			Interest: user.Interest(entity.Interest),
+			Interest: enum.Interest(entity.Interest),
 			YearsOfExperience: entity.YearsOfExperience,
 			Username: entity.Username,
 			PublishTime: entity.PublishTime,
@@ -98,7 +100,7 @@ func (s *UserService) GetAll(ctx context.Context) ([]*ent.User, error) {
 	return users, nil
 }
 
-func (s *UserService) Update(ctx context.Context, id string, firstName string, lastName string, email string, password string, interest user.Interest, yearsOfExperience int, username string) (*ent.User, error) {
+func (s *UserService) Update(ctx context.Context, id string, firstName string, lastName string, email string, password string, interest enum.Interest, yearsOfExperience int, username string) (*ent.User, error) {
 	uuidParsed, err := uuid.Parse(id)
 	if err != nil {
 		return &ent.User{}, err

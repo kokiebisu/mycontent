@@ -5,9 +5,10 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/kokiebisu/mycontent/packages/service-user/ent"
-	"github.com/kokiebisu/mycontent/packages/service-user/ent/user"
+
 	"github.com/kokiebisu/mycontent/packages/service-user/proto"
+	"github.com/kokiebisu/mycontent/packages/shared/ent"
+	"github.com/kokiebisu/mycontent/packages/shared/enum"
 )
 
 type UserServiceClient struct {
@@ -18,7 +19,7 @@ func NewUserServiceClient(userClient proto.UserServiceClient) *UserServiceClient
 	return &UserServiceClient{userClient: userClient}
 }
 
-func (s *UserServiceClient) CreateUser(ctx context.Context, firstName string, lastName string, email string, username string, interest user.Interest, yearsOfExperience int, publishTime time.Time, password string) (*ent.User, error) {
+func (s *UserServiceClient) CreateUser(ctx context.Context, firstName string, lastName string, email string, username string, interest enum.Interest, yearsOfExperience int, publishTime time.Time, password string) (*ent.User, error) {
 	res, err := s.userClient.CreateUser(ctx, &proto.CreateUserRequest{
 		FirstName: firstName,
 		LastName: lastName,
@@ -66,7 +67,7 @@ func (s *UserServiceClient) GetUserByEmail(ctx context.Context, email string) (*
 		LastName: res.LastName,
 		Email: res.Email,
 		Username: res.Username,
-		Interest: user.Interest(res.Interest),
+		Interest: enum.Interest(res.Interest),
 		YearsOfExperience: int(res.YearsOfExperience),
 		PublishTime: parsedPublishTime,
 	}, nil

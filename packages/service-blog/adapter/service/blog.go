@@ -7,9 +7,10 @@ import (
 	"os"
 
 	"github.com/google/uuid"
-	"github.com/kokiebisu/mycontent/packages/service-blog/ent"
-	"github.com/kokiebisu/mycontent/packages/service-blog/ent/blog"
+
 	"github.com/kokiebisu/mycontent/packages/service-blog/port"
+	"github.com/kokiebisu/mycontent/packages/shared/ent"
+	"github.com/kokiebisu/mycontent/packages/shared/ent/blog"
 	"github.com/sashabaranov/go-openai"
 )
 

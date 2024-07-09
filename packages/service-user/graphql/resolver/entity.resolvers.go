@@ -7,8 +7,8 @@ package resolver
 import (
 	"context"
 
-	"github.com/kokiebisu/mycontent/packages/service-user/ent"
-	"github.com/kokiebisu/mycontent/packages/service-user/graphql/generated"
+	generated1 "github.com/kokiebisu/mycontent/packages/service-user/graphql/generated"
+	"github.com/kokiebisu/mycontent/packages/shared/ent"
 )
 
 // FindUserByID is the resolver for the findUserByID field.
@@ -20,7 +20,7 @@ func (r *entityResolver) FindUserByID(ctx context.Context, id string) (*ent.User
 	return user, nil
 }
 
-// Entity returns generated.EntityResolver implementation.
-func (r *Resolver) Entity() generated.EntityResolver { return &entityResolver{r} }
+// Entity returns generated1.EntityResolver implementation.
+func (r *Resolver) Entity() generated1.EntityResolver { return &entityResolver{r} }
 
 type entityResolver struct{ *Resolver }

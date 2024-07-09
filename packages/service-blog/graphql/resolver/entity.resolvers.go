@@ -7,8 +7,8 @@ package resolver
 import (
 	"context"
 
-	"github.com/kokiebisu/mycontent/packages/service-blog/ent"
-	"github.com/kokiebisu/mycontent/packages/service-blog/graphql/generated"
+	generated1 "github.com/kokiebisu/mycontent/packages/service-blog/graphql/generated"
+	"github.com/kokiebisu/mycontent/packages/shared/ent"
 )
 
 // FindBlogByID is the resolver for the findBlogByID field.
@@ -29,7 +29,7 @@ func (r *entityResolver) FindIntegrationByID(ctx context.Context, id string) (*e
 	return integration, nil
 }
 
-// Entity returns generated.EntityResolver implementation.
-func (r *Resolver) Entity() generated.EntityResolver { return &entityResolver{r} }
+// Entity returns generated1.EntityResolver implementation.
+func (r *Resolver) Entity() generated1.EntityResolver { return &entityResolver{r} }
 
 type entityResolver struct{ *Resolver }

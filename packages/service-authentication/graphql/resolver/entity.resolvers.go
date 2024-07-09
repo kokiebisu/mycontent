@@ -6,28 +6,27 @@ package resolver
 
 import (
 	"context"
-	"time"
 
 	"github.com/kokiebisu/mycontent/packages/service-authentication/graphql/generated"
-	"github.com/kokiebisu/mycontent/packages/service-authentication/graphql/model"
+	"github.com/kokiebisu/mycontent/packages/shared/ent"
 )
 
 // FindUserByID is the resolver for the findUserByID field.
-func (r *entityResolver) FindUserByID(ctx context.Context, id string) (*model.User, error) {
+func (r *entityResolver) FindUserByID(ctx context.Context, id string) (*ent.User, error) {
 	user, err := r.UserServiceClient.GetByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
-	
-	return &model.User{
-		ID: user.ID.String(),
-		FirstName: user.FirstName,
-		LastName: user.LastName,
-		Email: user.Email,
-		Username: user.Username,
-		Interest: model.Interest(user.Interest),
+
+	return &ent.User{
+		ID:                user.ID,
+		FirstName:         user.FirstName,
+		LastName:          user.LastName,
+		Email:             user.Email,
+		Username:          user.Username,
+		Interest:          user.Interest,
 		YearsOfExperience: int(user.YearsOfExperience),
-		PublishTime: user.PublishTime.Format(time.RFC3339),
+		PublishTime:       user.PublishTime,
 	}, nil
 }
 

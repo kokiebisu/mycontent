@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/kokiebisu/mycontent/packages/service-user/ent/user"
 	"github.com/kokiebisu/mycontent/packages/service-user/port"
 	"github.com/kokiebisu/mycontent/packages/service-user/proto"
+	"github.com/kokiebisu/mycontent/packages/shared/enum"
 )
 
 type Adapter struct {
@@ -19,7 +19,7 @@ func NewGRPCAdapter(userService port.UserService) *Adapter {
 }
 
 func (a *Adapter) CreateUser(ctx context.Context, req *proto.CreateUserRequest) (*proto.CreateUserResponse, error) {
-	user, err := a.UserService.Create(ctx, req.FirstName, req.LastName, req.Email, req.Username, user.Interest(req.Interest), int(req.YearsOfExperience), req.PublishTime, req.Password)
+	user, err := a.UserService.Create(ctx, req.FirstName, req.LastName, req.Email, req.Username, enum.Interest(req.Interest), int(req.YearsOfExperience), req.PublishTime, req.Password)
 	if err != nil {
 		return nil, err
 	}

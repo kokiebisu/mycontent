@@ -9,11 +9,12 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/kokiebisu/mycontent/packages/service-authentication/graphql/generated"
 	grpc_client "github.com/kokiebisu/mycontent/packages/service-blog/adapter/grpc"
 	"github.com/kokiebisu/mycontent/packages/service-blog/adapter/service"
 	"github.com/kokiebisu/mycontent/packages/service-blog/config"
-	"github.com/kokiebisu/mycontent/packages/service-blog/ent"
-	"github.com/kokiebisu/mycontent/packages/service-blog/graphql/generated"
+	"github.com/kokiebisu/mycontent/packages/shared/ent"
+
 	"github.com/kokiebisu/mycontent/packages/service-blog/graphql/resolver"
 	"github.com/kokiebisu/mycontent/packages/service-blog/proto"
 	_ "github.com/lib/pq"

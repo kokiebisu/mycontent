@@ -3,9 +3,7 @@
 package model
 
 import (
-	"fmt"
-	"io"
-	"strconv"
+	"github.com/kokiebisu/mycontent/packages/shared/enum"
 )
 
 type AuthPayload struct {
@@ -18,84 +16,13 @@ type LoginInput struct {
 	Password string `json:"password"`
 }
 
-type Mutation struct {
-}
-
-type Query struct {
-}
-
 type RegisterInput struct {
-	FirstName         string   `json:"firstName"`
-	LastName          string   `json:"lastName"`
-	Email             string   `json:"email"`
-	Username          string   `json:"username"`
-	Password          string   `json:"password"`
-	Interest          Interest `json:"interest"`
-	YearsOfExperience int      `json:"yearsOfExperience"`
-	PublishTime       string   `json:"publishTime"`
-}
-
-type User struct {
-	ID                string   `json:"id"`
-	FirstName         string   `json:"firstName"`
-	LastName          string   `json:"lastName"`
-	Email             string   `json:"email"`
-	Username          string   `json:"username"`
-	Password          string   `json:"password"`
-	Interest          Interest `json:"interest"`
-	YearsOfExperience int      `json:"yearsOfExperience"`
-	PublishTime       string   `json:"publishTime"`
-}
-
-func (User) IsEntity() {}
-
-type Interest string
-
-const (
-	InterestReact      Interest = "REACT"
-	InterestNodejs     Interest = "NODEJS"
-	InterestPython     Interest = "PYTHON"
-	InterestGo         Interest = "GO"
-	InterestRust       Interest = "RUST"
-	InterestDocker     Interest = "DOCKER"
-	InterestKubernetes Interest = "KUBERNETES"
-)
-
-var AllInterest = []Interest{
-	InterestReact,
-	InterestNodejs,
-	InterestPython,
-	InterestGo,
-	InterestRust,
-	InterestDocker,
-	InterestKubernetes,
-}
-
-func (e Interest) IsValid() bool {
-	switch e {
-	case InterestReact, InterestNodejs, InterestPython, InterestGo, InterestRust, InterestDocker, InterestKubernetes:
-		return true
-	}
-	return false
-}
-
-func (e Interest) String() string {
-	return string(e)
-}
-
-func (e *Interest) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = Interest(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid Interest", str)
-	}
-	return nil
-}
-
-func (e Interest) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
+	FirstName         string        `json:"firstName"`
+	LastName          string        `json:"lastName"`
+	Email             string        `json:"email"`
+	Username          string        `json:"username"`
+	Password          string        `json:"password"`
+	Interest          enum.Interest `json:"interest"`
+	YearsOfExperience int           `json:"yearsOfExperience"`
+	PublishTime       string        `json:"publishTime"`
 }

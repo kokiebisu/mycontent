@@ -11,6 +11,8 @@ import (
 
 	"github.com/kokiebisu/mycontent/packages/service-authentication/graphql/generated"
 	"github.com/kokiebisu/mycontent/packages/service-authentication/graphql/model"
+	"github.com/kokiebisu/mycontent/packages/shared/ent"
+	"github.com/kokiebisu/mycontent/packages/shared/enum"
 )
 
 // Register is the resolver for the register field.
@@ -20,7 +22,7 @@ func (r *mutationResolver) Register(ctx context.Context, input *model.RegisterIn
 	if err != nil {
 		return nil, err
 	}
-	if user != nil{
+	if user != nil {
 		return nil, fmt.Errorf("user already exists")
 	} else {
 		publishTime, err := time.Parse(time.RFC3339, input.PublishTime)
@@ -29,7 +31,7 @@ func (r *mutationResolver) Register(ctx context.Context, input *model.RegisterIn
 		}
 		// If the user does not exist, create the user
 		interest := input.Interest
-		user, err := r.UserServiceClient.CreateUser(ctx, input.FirstName, input.LastName, input.Email, input.Username, interest, input.YearsOfExperience, publishTime, input.Password)
+		user, err := r.UserServiceClient.CreateUser(ctx, input.FirstName, input.LastName, input.Email, input.Username, enum.Interest(interest), input.YearsOfExperience, publishTime, input.Password)
 		if err != nil {
 			return nil, err
 		}
@@ -68,7 +70,21 @@ func (r *mutationResolver) Login(ctx context.Context, input *model.LoginInput) (
 	}
 }
 
+// ID is the resolver for the id field.
+func (r *userResolver) ID(ctx context.Context, obj *ent.User) (string, error) {
+	panic(fmt.Errorf("not implemented: ID - id"))
+}
+
+// PublishTime is the resolver for the publishTime field.
+func (r *userResolver) PublishTime(ctx context.Context, obj *ent.User) (string, error) {
+	panic(fmt.Errorf("not implemented: PublishTime - publishTime"))
+}
+
 // Mutation returns generated.MutationResolver implementation.
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
 
+// User returns generated.UserResolver implementation.
+func (r *Resolver) User() generated.UserResolver { return &userResolver{r} }
+
 type mutationResolver struct{ *Resolver }
+type userResolver struct{ *Resolver }

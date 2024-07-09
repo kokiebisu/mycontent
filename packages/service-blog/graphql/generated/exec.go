@@ -14,9 +14,9 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
 	"github.com/99designs/gqlgen/plugin/federation/fedruntime"
-	"github.com/kokiebisu/mycontent/packages/service-blog/ent"
-	"github.com/kokiebisu/mycontent/packages/service-blog/ent/blog"
-	"github.com/kokiebisu/mycontent/packages/service-blog/graphql/model"
+	"github.com/kokiebisu/mycontent/packages/shared/ent"
+	"github.com/kokiebisu/mycontent/packages/shared/ent/blog"
+	"github.com/kokiebisu/mycontent/packages/shared/enum"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -46,6 +46,7 @@ type ResolverRoot interface {
 	Integration() IntegrationResolver
 	Mutation() MutationResolver
 	Query() QueryResolver
+	User() UserResolver
 }
 
 type DirectiveRoot struct {
@@ -85,7 +86,7 @@ type ComplexityRoot struct {
 		Blogs                func(childComplexity int) int
 		BlogsByUserID        func(childComplexity int, userID string) int
 		Integration          func(childComplexity int, id string) int
-		IntegrationsByUserID func(childComplexity int, userID string, platform model.Platform) int
+		IntegrationsByUserID func(childComplexity int, userID string, platform enum.Platform) int
 		__resolve__service   func(childComplexity int) int
 		__resolve_entities   func(childComplexity int, representations []map[string]interface{}) int
 	}
@@ -112,7 +113,7 @@ type EntityResolver interface {
 }
 type IntegrationResolver interface {
 	ID(ctx context.Context, obj *ent.Integration) (string, error)
-	Platform(ctx context.Context, obj *ent.Integration) (model.Platform, error)
+	Platform(ctx context.Context, obj *ent.Integration) (enum.Platform, error)
 
 	UserID(ctx context.Context, obj *ent.Integration) (string, error)
 	CreatedAt(ctx context.Context, obj *ent.Integration) (string, error)
@@ -127,7 +128,11 @@ type QueryResolver interface {
 	Blogs(ctx context.Context) ([]*ent.Blog, error)
 	BlogsByUserID(ctx context.Context, userID string) ([]*ent.Blog, error)
 	Integration(ctx context.Context, id string) (*ent.Integration, error)
-	IntegrationsByUserID(ctx context.Context, userID string, platform model.Platform) ([]*ent.Integration, error)
+	IntegrationsByUserID(ctx context.Context, userID string, platform enum.Platform) ([]*ent.Integration, error)
+}
+type UserResolver interface {
+	ID(ctx context.Context, obj *ent.User) (string, error)
+	Interest(ctx context.Context, obj *ent.User) (blog.Interest, error)
 }
 
 type executableSchema struct {
@@ -334,7 +339,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.IntegrationsByUserID(childComplexity, args["userId"].(string), args["platform"].(model.Platform)), true
+		return e.complexity.Query.IntegrationsByUserID(childComplexity, args["userId"].(string), args["platform"].(enum.Platform)), true
 
 	case "Query._service":
 		if e.complexity.Query.__resolve__service == nil {
@@ -715,10 +720,10 @@ func (ec *executionContext) field_Query_integrationsByUserId_args(ctx context.Co
 		}
 	}
 	args["userId"] = arg0
-	var arg1 model.Platform
+	var arg1 enum.Platform
 	if tmp, ok := rawArgs["platform"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("platform"))
-		arg1, err = ec.unmarshalNPlatform2githubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑblogᚋgraphqlᚋmodelᚐPlatform(ctx, tmp)
+		arg1, err = ec.unmarshalNPlatform2githubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋsharedᚋenumᚐPlatform(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1057,7 +1062,7 @@ func (ec *executionContext) _Entity_findBlogByID(ctx context.Context, field grap
 	}
 	res := resTmp.(*ent.Blog)
 	fc.Result = res
-	return ec.marshalNBlog2ᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑblogᚋentᚐBlog(ctx, field.Selections, res)
+	return ec.marshalNBlog2ᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋsharedᚋentᚐBlog(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Entity_findBlogByID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1126,7 +1131,7 @@ func (ec *executionContext) _Entity_findIntegrationByID(ctx context.Context, fie
 	}
 	res := resTmp.(*ent.Integration)
 	fc.Result = res
-	return ec.marshalNIntegration2ᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑblogᚋentᚐIntegration(ctx, field.Selections, res)
+	return ec.marshalNIntegration2ᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋsharedᚋentᚐIntegration(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Entity_findIntegrationByID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1237,9 +1242,9 @@ func (ec *executionContext) _Integration_platform(ctx context.Context, field gra
 		}
 		return graphql.Null
 	}
-	res := resTmp.(model.Platform)
+	res := resTmp.(enum.Platform)
 	fc.Result = res
-	return ec.marshalNPlatform2githubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑblogᚋgraphqlᚋmodelᚐPlatform(ctx, field.Selections, res)
+	return ec.marshalNPlatform2githubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋsharedᚋenumᚐPlatform(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Integration_platform(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1569,7 +1574,7 @@ func (ec *executionContext) _Query_blog(ctx context.Context, field graphql.Colle
 	}
 	res := resTmp.(*ent.Blog)
 	fc.Result = res
-	return ec.marshalNBlog2ᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑblogᚋentᚐBlog(ctx, field.Selections, res)
+	return ec.marshalNBlog2ᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋsharedᚋentᚐBlog(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_blog(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1638,7 +1643,7 @@ func (ec *executionContext) _Query_blogs(ctx context.Context, field graphql.Coll
 	}
 	res := resTmp.([]*ent.Blog)
 	fc.Result = res
-	return ec.marshalNBlog2ᚕᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑblogᚋentᚐBlogᚄ(ctx, field.Selections, res)
+	return ec.marshalNBlog2ᚕᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋsharedᚋentᚐBlogᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_blogs(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1696,7 +1701,7 @@ func (ec *executionContext) _Query_blogsByUserId(ctx context.Context, field grap
 	}
 	res := resTmp.([]*ent.Blog)
 	fc.Result = res
-	return ec.marshalNBlog2ᚕᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑblogᚋentᚐBlogᚄ(ctx, field.Selections, res)
+	return ec.marshalNBlog2ᚕᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋsharedᚋentᚐBlogᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_blogsByUserId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1765,7 +1770,7 @@ func (ec *executionContext) _Query_integration(ctx context.Context, field graphq
 	}
 	res := resTmp.(*ent.Integration)
 	fc.Result = res
-	return ec.marshalNIntegration2ᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑblogᚋentᚐIntegration(ctx, field.Selections, res)
+	return ec.marshalNIntegration2ᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋsharedᚋentᚐIntegration(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_integration(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1820,7 +1825,7 @@ func (ec *executionContext) _Query_integrationsByUserId(ctx context.Context, fie
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().IntegrationsByUserID(rctx, fc.Args["userId"].(string), fc.Args["platform"].(model.Platform))
+		return ec.resolvers.Query().IntegrationsByUserID(rctx, fc.Args["userId"].(string), fc.Args["platform"].(enum.Platform))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1834,7 +1839,7 @@ func (ec *executionContext) _Query_integrationsByUserId(ctx context.Context, fie
 	}
 	res := resTmp.([]*ent.Integration)
 	fc.Result = res
-	return ec.marshalNIntegration2ᚕᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑblogᚋentᚐIntegrationᚄ(ctx, field.Selections, res)
+	return ec.marshalNIntegration2ᚕᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋsharedᚋentᚐIntegrationᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_integrationsByUserId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2107,7 +2112,7 @@ func (ec *executionContext) fieldContext_Query___schema(_ context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _User_id(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+func (ec *executionContext) _User_id(ctx context.Context, field graphql.CollectedField, obj *ent.User) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_User_id(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -2121,7 +2126,7 @@ func (ec *executionContext) _User_id(ctx context.Context, field graphql.Collecte
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
+		return ec.resolvers.User().ID(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2142,8 +2147,8 @@ func (ec *executionContext) fieldContext_User_id(_ context.Context, field graphq
 	fc = &graphql.FieldContext{
 		Object:     "User",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type ID does not have child fields")
 		},
@@ -2151,7 +2156,7 @@ func (ec *executionContext) fieldContext_User_id(_ context.Context, field graphq
 	return fc, nil
 }
 
-func (ec *executionContext) _User_interest(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+func (ec *executionContext) _User_interest(ctx context.Context, field graphql.CollectedField, obj *ent.User) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_User_interest(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -2165,7 +2170,7 @@ func (ec *executionContext) _User_interest(ctx context.Context, field graphql.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Interest, nil
+		return ec.resolvers.User().Interest(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2179,15 +2184,15 @@ func (ec *executionContext) _User_interest(ctx context.Context, field graphql.Co
 	}
 	res := resTmp.(blog.Interest)
 	fc.Result = res
-	return ec.marshalNInterest2githubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑblogᚋentᚋblogᚐInterest(ctx, field.Selections, res)
+	return ec.marshalNInterest2githubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋsharedᚋentᚋblogᚐInterest(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_User_interest(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "User",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Interest does not have child fields")
 		},
@@ -4760,7 +4765,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 
 var userImplementors = []string{"User"}
 
-func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj *model.User) graphql.Marshaler {
+func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj *ent.User) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, userImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -4770,15 +4775,77 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("User")
 		case "id":
-			out.Values[i] = ec._User_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._User_id(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "interest":
-			out.Values[i] = ec._User_interest(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._User_interest(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -5164,11 +5231,11 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) marshalNBlog2githubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑblogᚋentᚐBlog(ctx context.Context, sel ast.SelectionSet, v ent.Blog) graphql.Marshaler {
+func (ec *executionContext) marshalNBlog2githubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋsharedᚋentᚐBlog(ctx context.Context, sel ast.SelectionSet, v ent.Blog) graphql.Marshaler {
 	return ec._Blog(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNBlog2ᚕᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑblogᚋentᚐBlogᚄ(ctx context.Context, sel ast.SelectionSet, v []*ent.Blog) graphql.Marshaler {
+func (ec *executionContext) marshalNBlog2ᚕᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋsharedᚋentᚐBlogᚄ(ctx context.Context, sel ast.SelectionSet, v []*ent.Blog) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -5192,7 +5259,7 @@ func (ec *executionContext) marshalNBlog2ᚕᚖgithubᚗcomᚋkokiebisuᚋmycont
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNBlog2ᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑblogᚋentᚐBlog(ctx, sel, v[i])
+			ret[i] = ec.marshalNBlog2ᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋsharedᚋentᚐBlog(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -5212,7 +5279,7 @@ func (ec *executionContext) marshalNBlog2ᚕᚖgithubᚗcomᚋkokiebisuᚋmycont
 	return ret
 }
 
-func (ec *executionContext) marshalNBlog2ᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑblogᚋentᚐBlog(ctx context.Context, sel ast.SelectionSet, v *ent.Blog) graphql.Marshaler {
+func (ec *executionContext) marshalNBlog2ᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋsharedᚋentᚐBlog(ctx context.Context, sel ast.SelectionSet, v *ent.Blog) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -5252,11 +5319,11 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 	return res
 }
 
-func (ec *executionContext) marshalNIntegration2githubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑblogᚋentᚐIntegration(ctx context.Context, sel ast.SelectionSet, v ent.Integration) graphql.Marshaler {
+func (ec *executionContext) marshalNIntegration2githubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋsharedᚋentᚐIntegration(ctx context.Context, sel ast.SelectionSet, v ent.Integration) graphql.Marshaler {
 	return ec._Integration(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNIntegration2ᚕᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑblogᚋentᚐIntegrationᚄ(ctx context.Context, sel ast.SelectionSet, v []*ent.Integration) graphql.Marshaler {
+func (ec *executionContext) marshalNIntegration2ᚕᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋsharedᚋentᚐIntegrationᚄ(ctx context.Context, sel ast.SelectionSet, v []*ent.Integration) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -5280,7 +5347,7 @@ func (ec *executionContext) marshalNIntegration2ᚕᚖgithubᚗcomᚋkokiebisu�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNIntegration2ᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑblogᚋentᚐIntegration(ctx, sel, v[i])
+			ret[i] = ec.marshalNIntegration2ᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋsharedᚋentᚐIntegration(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -5300,7 +5367,7 @@ func (ec *executionContext) marshalNIntegration2ᚕᚖgithubᚗcomᚋkokiebisu�
 	return ret
 }
 
-func (ec *executionContext) marshalNIntegration2ᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑblogᚋentᚐIntegration(ctx context.Context, sel ast.SelectionSet, v *ent.Integration) graphql.Marshaler {
+func (ec *executionContext) marshalNIntegration2ᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋsharedᚋentᚐIntegration(ctx context.Context, sel ast.SelectionSet, v *ent.Integration) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -5310,13 +5377,13 @@ func (ec *executionContext) marshalNIntegration2ᚖgithubᚗcomᚋkokiebisuᚋmy
 	return ec._Integration(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNInterest2githubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑblogᚋentᚋblogᚐInterest(ctx context.Context, v interface{}) (blog.Interest, error) {
+func (ec *executionContext) unmarshalNInterest2githubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋsharedᚋentᚋblogᚐInterest(ctx context.Context, v interface{}) (blog.Interest, error) {
 	tmp, err := graphql.UnmarshalString(v)
 	res := blog.Interest(tmp)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNInterest2githubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑblogᚋentᚋblogᚐInterest(ctx context.Context, sel ast.SelectionSet, v blog.Interest) graphql.Marshaler {
+func (ec *executionContext) marshalNInterest2githubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋsharedᚋentᚋblogᚐInterest(ctx context.Context, sel ast.SelectionSet, v blog.Interest) graphql.Marshaler {
 	res := graphql.MarshalString(string(v))
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -5326,14 +5393,20 @@ func (ec *executionContext) marshalNInterest2githubᚗcomᚋkokiebisuᚋmyconten
 	return res
 }
 
-func (ec *executionContext) unmarshalNPlatform2githubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑblogᚋgraphqlᚋmodelᚐPlatform(ctx context.Context, v interface{}) (model.Platform, error) {
-	var res model.Platform
-	err := res.UnmarshalGQL(v)
+func (ec *executionContext) unmarshalNPlatform2githubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋsharedᚋenumᚐPlatform(ctx context.Context, v interface{}) (enum.Platform, error) {
+	tmp, err := graphql.UnmarshalString(v)
+	res := enum.Platform(tmp)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNPlatform2githubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑblogᚋgraphqlᚋmodelᚐPlatform(ctx context.Context, sel ast.SelectionSet, v model.Platform) graphql.Marshaler {
-	return v
+func (ec *executionContext) marshalNPlatform2githubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋsharedᚋenumᚐPlatform(ctx context.Context, sel ast.SelectionSet, v enum.Platform) graphql.Marshaler {
+	res := graphql.MarshalString(string(v))
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {

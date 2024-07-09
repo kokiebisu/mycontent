@@ -14,9 +14,9 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
 	"github.com/99designs/gqlgen/plugin/federation/fedruntime"
-	"github.com/kokiebisu/mycontent/packages/service-user/ent"
-	"github.com/kokiebisu/mycontent/packages/service-user/ent/user"
 	"github.com/kokiebisu/mycontent/packages/service-user/graphql/model"
+	"github.com/kokiebisu/mycontent/packages/shared/ent"
+	"github.com/kokiebisu/mycontent/packages/shared/enum"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -675,7 +675,7 @@ func (ec *executionContext) _Entity_findUserByID(ctx context.Context, field grap
 	}
 	res := resTmp.(*ent.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑuserᚋentᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋsharedᚋentᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Entity_findUserByID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -754,7 +754,7 @@ func (ec *executionContext) _Mutation_createUser(ctx context.Context, field grap
 	}
 	res := resTmp.(*ent.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑuserᚋentᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋsharedᚋentᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_createUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -833,7 +833,7 @@ func (ec *executionContext) _Mutation_updateUser(ctx context.Context, field grap
 	}
 	res := resTmp.(*ent.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑuserᚋentᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋsharedᚋentᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_updateUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -967,7 +967,7 @@ func (ec *executionContext) _Query_user(ctx context.Context, field graphql.Colle
 	}
 	res := resTmp.(*ent.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑuserᚋentᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋsharedᚋentᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_user(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1046,7 +1046,7 @@ func (ec *executionContext) _Query_users(ctx context.Context, field graphql.Coll
 	}
 	res := resTmp.([]*ent.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚕᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑuserᚋentᚐUserᚄ(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚕᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋsharedᚋentᚐUserᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_users(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1608,9 +1608,9 @@ func (ec *executionContext) _User_interest(ctx context.Context, field graphql.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.(user.Interest)
+	res := resTmp.(enum.Interest)
 	fc.Result = res
-	return ec.marshalNInterest2githubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑuserᚋentᚋuserᚐInterest(ctx, field.Selections, res)
+	return ec.marshalNInterest2githubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋsharedᚋenumᚐInterest(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_User_interest(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3667,7 +3667,7 @@ func (ec *executionContext) unmarshalInputCreateUserInput(ctx context.Context, o
 			it.Password = data
 		case "interest":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("interest"))
-			data, err := ec.unmarshalNInterest2githubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑuserᚋentᚋuserᚐInterest(ctx, v)
+			data, err := ec.unmarshalNInterest2githubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋsharedᚋenumᚐInterest(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -3743,7 +3743,7 @@ func (ec *executionContext) unmarshalInputUpdateUserInput(ctx context.Context, o
 			it.Password = data
 		case "interest":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("interest"))
-			data, err := ec.unmarshalNInterest2githubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑuserᚋentᚋuserᚐInterest(ctx, v)
+			data, err := ec.unmarshalNInterest2githubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋsharedᚋenumᚐInterest(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4675,13 +4675,13 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
-func (ec *executionContext) unmarshalNInterest2githubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑuserᚋentᚋuserᚐInterest(ctx context.Context, v interface{}) (user.Interest, error) {
+func (ec *executionContext) unmarshalNInterest2githubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋsharedᚋenumᚐInterest(ctx context.Context, v interface{}) (enum.Interest, error) {
 	tmp, err := graphql.UnmarshalString(v)
-	res := user.Interest(tmp)
+	res := enum.Interest(tmp)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNInterest2githubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑuserᚋentᚋuserᚐInterest(ctx context.Context, sel ast.SelectionSet, v user.Interest) graphql.Marshaler {
+func (ec *executionContext) marshalNInterest2githubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋsharedᚋenumᚐInterest(ctx context.Context, sel ast.SelectionSet, v enum.Interest) graphql.Marshaler {
 	res := graphql.MarshalString(string(v))
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -4706,11 +4706,11 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
-func (ec *executionContext) marshalNUser2githubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑuserᚋentᚐUser(ctx context.Context, sel ast.SelectionSet, v ent.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2githubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋsharedᚋentᚐUser(ctx context.Context, sel ast.SelectionSet, v ent.User) graphql.Marshaler {
 	return ec._User(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑuserᚋentᚐUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*ent.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋsharedᚋentᚐUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*ent.User) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -4734,7 +4734,7 @@ func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋkokiebisuᚋmycont
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNUser2ᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑuserᚋentᚐUser(ctx, sel, v[i])
+			ret[i] = ec.marshalNUser2ᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋsharedᚋentᚐUser(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -4754,7 +4754,7 @@ func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋkokiebisuᚋmycont
 	return ret
 }
 
-func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑuserᚋentᚐUser(ctx context.Context, sel ast.SelectionSet, v *ent.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋsharedᚋentᚐUser(ctx context.Context, sel ast.SelectionSet, v *ent.User) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")

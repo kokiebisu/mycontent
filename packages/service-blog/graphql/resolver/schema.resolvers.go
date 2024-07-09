@@ -9,9 +9,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/kokiebisu/mycontent/packages/service-blog/ent"
 	"github.com/kokiebisu/mycontent/packages/service-blog/graphql/generated"
-	"github.com/kokiebisu/mycontent/packages/service-blog/graphql/model"
+	"github.com/kokiebisu/mycontent/packages/shared/ent"
+	"github.com/kokiebisu/mycontent/packages/shared/ent/blog"
+	"github.com/kokiebisu/mycontent/packages/shared/enum"
 )
 
 // ID is the resolver for the id field.
@@ -35,8 +36,8 @@ func (r *integrationResolver) ID(ctx context.Context, obj *ent.Integration) (str
 }
 
 // Platform is the resolver for the platform field.
-func (r *integrationResolver) Platform(ctx context.Context, obj *ent.Integration) (model.Platform, error) {
-	return model.Platform(obj.Platform), nil
+func (r *integrationResolver) Platform(ctx context.Context, obj *ent.Integration) (enum.Platform, error) {
+	return enum.Platform(obj.Platform), nil
 }
 
 // UserID is the resolver for the userId field.
@@ -105,8 +106,18 @@ func (r *queryResolver) Integration(ctx context.Context, id string) (*ent.Integr
 }
 
 // IntegrationsByUserID is the resolver for the integrationsByUserId field.
-func (r *queryResolver) IntegrationsByUserID(ctx context.Context, userID string, platform model.Platform) ([]*ent.Integration, error) {
+func (r *queryResolver) IntegrationsByUserID(ctx context.Context, userID string, platform enum.Platform) ([]*ent.Integration, error) {
 	panic(fmt.Errorf("not implemented: IntegrationsByUserID - integrationsByUserId"))
+}
+
+// ID is the resolver for the id field.
+func (r *userResolver) ID(ctx context.Context, obj *ent.User) (string, error) {
+	panic(fmt.Errorf("not implemented: ID - id"))
+}
+
+// Interest is the resolver for the interest field.
+func (r *userResolver) Interest(ctx context.Context, obj *ent.User) (blog.Interest, error) {
+	panic(fmt.Errorf("not implemented: Interest - interest"))
 }
 
 // Blog returns generated.BlogResolver implementation.
@@ -121,7 +132,11 @@ func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResol
 // Query returns generated.QueryResolver implementation.
 func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
+// User returns generated.UserResolver implementation.
+func (r *Resolver) User() generated.UserResolver { return &userResolver{r} }
+
 type blogResolver struct{ *Resolver }
 type integrationResolver struct{ *Resolver }
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
+type userResolver struct{ *Resolver }

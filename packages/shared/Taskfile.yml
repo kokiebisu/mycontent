@@ -1,0 +1,12 @@
+version: "3"
+
+tasks:
+  generate:ent:
+    cmds:
+      - ent generate --template ./ent/template/*.tmpl ./ent/schema
+  generate:graphql:
+    cmds:
+      - gqlgen generate
+  generate:proto:
+    cmds:
+      - protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative ./proto/user.proto

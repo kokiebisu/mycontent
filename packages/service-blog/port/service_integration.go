@@ -3,7 +3,7 @@ package port
 import (
 	"context"
 
-	"github.com/kokiebisu/mycontent/packages/service-blog/ent"
+	"github.com/kokiebisu/mycontent/packages/shared/ent"
 )
 
 type IntegrationService interface {
