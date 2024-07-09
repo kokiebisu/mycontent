@@ -1,7 +1,6 @@
 version: "3"
 
 tasks:
-  generate:
+  generate:graphql:
     cmds:
-      - ent generate --template ./ent/template/*.tmpl ./ent/schema
       - gqlgen generate

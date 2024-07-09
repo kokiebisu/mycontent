@@ -1,7 +1,10 @@
 version: "3"
 
 tasks:
-  generate:
+  generate:schema:
     cmds:
       - ent generate --template ./ent/template/*.tmpl ./ent/schema
       - gqlgen generate
+  generate:proto:
+    cmds:
+      - protoc --go_out=./proto --go_opt=paths=source_relative --go-grpc_out=./proto --go-grpc_opt=paths=source_relative ./proto/blog.proto
