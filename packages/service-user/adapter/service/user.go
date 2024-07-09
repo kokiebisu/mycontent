@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/kokiebisu/mycontent/packages/service-user/ent"
@@ -16,8 +17,22 @@ func NewUserService(db *ent.Client) *UserService {
 	return &UserService{db: db}
 }
 
-func (s *UserService) Create(ctx context.Context, firstName string, lastName string, email string, password string, interest user.Interest, yearsOfExperience int, username string) (*ent.User, error) {
-	user, err := s.db.User.Create().SetFirstName(firstName).SetLastName(lastName).SetEmail(email).SetPassword(password).SetInterest(interest).SetYearsOfExperience(yearsOfExperience).SetUsername(username).SetID(uuid.New()).Save(context.Background())
+func (s *UserService) Create(ctx context.Context, firstName string, lastName string, email string, password string, interest user.Interest, yearsOfExperience int, username string, publishTime string) (*ent.User, error) {
+	var parsedPublishTime time.Time
+	var err error
+	// Try parsing with different formats
+	formats := []string{"15:04", "15", "3:04PM", "3PM"}
+	for _, format := range formats {
+		parsedPublishTime, err = time.Parse(format, publishTime)
+		if err == nil {
+			break
+		}
+	}
+
+	if err != nil {
+		return &ent.User{}, err
+	}
+	user, err := s.db.User.Create().SetFirstName(firstName).SetLastName(lastName).SetEmail(email).SetPassword(password).SetInterest(interest).SetYearsOfExperience(yearsOfExperience).SetUsername(username).SetPublishTime(parsedPublishTime).SetID(uuid.New()).Save(context.Background())
 	if err != nil {
 		return &ent.User{}, err
 	}
