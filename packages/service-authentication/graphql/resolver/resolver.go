@@ -1,5 +1,3 @@
 package resolver
 
-type Resolver struct{
-
-}
+type Resolver struct{}
