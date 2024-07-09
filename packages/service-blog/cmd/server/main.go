@@ -9,14 +9,14 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/kokiebisu/mycontent/packages/service-authentication/graphql/generated"
 	grpc_client "github.com/kokiebisu/mycontent/packages/service-blog/adapter/grpc"
 	"github.com/kokiebisu/mycontent/packages/service-blog/adapter/service"
 	"github.com/kokiebisu/mycontent/packages/service-blog/config"
+	"github.com/kokiebisu/mycontent/packages/service-blog/graphql/generated"
 	"github.com/kokiebisu/mycontent/packages/shared/ent"
+	"github.com/kokiebisu/mycontent/packages/shared/proto"
 
 	"github.com/kokiebisu/mycontent/packages/service-blog/graphql/resolver"
-	"github.com/kokiebisu/mycontent/packages/service-blog/proto"
 	_ "github.com/lib/pq"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -50,12 +50,11 @@ func main() {
 		port = graphqlPort
 	}
 
-	service := service.NewBlogService(client)
+	blogService := service.NewBlogService(client)
+	integrationService := service.NewIntegrationService(client)
 
 	go func() {
-		srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &resolver.Resolver{
-			BlogService: service,
-		}}))
+		srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &resolver.Resolver{ BlogService: blogService, IntegrationService: integrationService }}))
 	
 		http.Handle("/playground", playground.Handler("GraphQL playground", "/query"))
 		http.Handle("/query", srv)
@@ -70,7 +69,7 @@ func main() {
 	}
 	defer lis.Close()
 
-	adapter := grpc_client.NewGRPCAdapter(service)
+	adapter := grpc_client.NewGRPCAdapter(blogService)
 
 	grpcServer := grpc.NewServer()
 	proto.RegisterBlogServiceServer(grpcServer, adapter)

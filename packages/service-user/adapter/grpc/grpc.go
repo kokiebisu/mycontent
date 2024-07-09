@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/kokiebisu/mycontent/packages/service-user/port"
-	"github.com/kokiebisu/mycontent/packages/service-user/proto"
 	"github.com/kokiebisu/mycontent/packages/shared/enum"
+	"github.com/kokiebisu/mycontent/packages/shared/proto"
 )
 
 type Adapter struct {

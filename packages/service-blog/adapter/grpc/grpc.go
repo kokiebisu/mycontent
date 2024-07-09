@@ -5,8 +5,9 @@ import (
 	"log"
 
 	"github.com/kokiebisu/mycontent/packages/service-blog/port"
-	"github.com/kokiebisu/mycontent/packages/service-blog/proto"
+
 	"github.com/kokiebisu/mycontent/packages/shared/ent/blog"
+	"github.com/kokiebisu/mycontent/packages/shared/proto"
 )
 
 type Adapter struct {

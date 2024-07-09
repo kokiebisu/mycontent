@@ -4,6 +4,3 @@ tasks:
   generate:graphql:
     cmds:
       - gqlgen generate
-  generate:proto:
-    cmds:
-      - protoc --go_out=./proto --go_opt=paths=source_relative --go-grpc_out=./proto --go-grpc_opt=paths=source_relative ./proto/blog.proto

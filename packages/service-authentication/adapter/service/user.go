@@ -6,9 +6,9 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/kokiebisu/mycontent/packages/service-user/proto"
 	"github.com/kokiebisu/mycontent/packages/shared/ent"
 	"github.com/kokiebisu/mycontent/packages/shared/enum"
+	"github.com/kokiebisu/mycontent/packages/shared/proto"
 )
 
 type UserService struct {
