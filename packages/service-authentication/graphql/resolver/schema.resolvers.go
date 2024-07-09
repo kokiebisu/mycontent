@@ -7,6 +7,7 @@ package resolver
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/kokiebisu/mycontent/packages/service-authentication/graphql/generated"
 	"github.com/kokiebisu/mycontent/packages/service-authentication/graphql/model"
@@ -14,12 +15,57 @@ import (
 
 // Register is the resolver for the register field.
 func (r *mutationResolver) Register(ctx context.Context, input *model.RegisterInput) (*model.AuthPayload, error) {
-	panic(fmt.Errorf("not implemented: Register - register"))
+	// Check if the user already exists
+	user, err := r.UserServiceClient.GetUserByEmail(ctx, input.Email)
+	if err != nil {
+		return nil, err
+	}
+	if user != nil{
+		return nil, fmt.Errorf("user already exists")
+	} else {
+		publishTime, err := time.Parse(time.RFC3339, input.PublishTime)
+		if err != nil {
+			return nil, err
+		}
+		// If the user does not exist, create the user
+		interest := input.Interest
+		user, err := r.UserServiceClient.CreateUser(ctx, input.FirstName, input.LastName, input.Email, input.Username, interest, input.YearsOfExperience, publishTime, input.Password)
+		if err != nil {
+			return nil, err
+		}
+		// Generate a JWT token for the user
+		token, err := r.TokenService.GenerateToken(ctx, user.ID.String())
+		if err != nil {
+			return nil, err
+		}
+		// Return the token
+		return &model.AuthPayload{UserID: user.ID.String(), AuthToken: token}, nil
+	}
 }
 
 // Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, input *model.LoginInput) (*model.AuthPayload, error) {
-	panic(fmt.Errorf("not implemented: Login - login"))
+	// Check if the user exists
+	user, err := r.UserServiceClient.GetUserByEmail(ctx, input.Email)
+	if err != nil {
+		return nil, err
+	}
+	if user != nil {
+		user, err := r.UserServiceClient.GetUserByEmail(ctx, input.Email)
+		if err != nil {
+			return nil, err
+		}
+		if user.Password != input.Password {
+			return nil, fmt.Errorf("incorrect password")
+		}
+		token, err := r.TokenService.GenerateToken(ctx, user.ID.String())
+		if err != nil {
+			return nil, err
+		}
+		return &model.AuthPayload{UserID: user.ID.String(), AuthToken: token}, nil
+	} else {
+		return nil, fmt.Errorf("user does not exist")
+	}
 }
 
 // Mutation returns generated.MutationResolver implementation.

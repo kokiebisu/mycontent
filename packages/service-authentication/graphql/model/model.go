@@ -2,9 +2,15 @@
 
 package model
 
+import (
+	"fmt"
+	"io"
+	"strconv"
+)
+
 type AuthPayload struct {
-	User  *User  `json:"user"`
-	Token string `json:"token"`
+	UserID    string `json:"userId"`
+	AuthToken string `json:"authToken"`
 }
 
 type LoginInput struct {
@@ -19,14 +25,77 @@ type Query struct {
 }
 
 type RegisterInput struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	FirstName         string   `json:"firstName"`
+	LastName          string   `json:"lastName"`
+	Email             string   `json:"email"`
+	Username          string   `json:"username"`
+	Password          string   `json:"password"`
+	Interest          Interest `json:"interest"`
+	YearsOfExperience int      `json:"yearsOfExperience"`
+	PublishTime       string   `json:"publishTime"`
 }
 
 type User struct {
-	ID       string `json:"id"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	ID                string   `json:"id"`
+	FirstName         string   `json:"firstName"`
+	LastName          string   `json:"lastName"`
+	Email             string   `json:"email"`
+	Username          string   `json:"username"`
+	Password          string   `json:"password"`
+	Interest          Interest `json:"interest"`
+	YearsOfExperience int      `json:"yearsOfExperience"`
+	PublishTime       string   `json:"publishTime"`
 }
 
 func (User) IsEntity() {}
+
+type Interest string
+
+const (
+	InterestReact      Interest = "REACT"
+	InterestNodejs     Interest = "NODEJS"
+	InterestPython     Interest = "PYTHON"
+	InterestGo         Interest = "GO"
+	InterestRust       Interest = "RUST"
+	InterestDocker     Interest = "DOCKER"
+	InterestKubernetes Interest = "KUBERNETES"
+)
+
+var AllInterest = []Interest{
+	InterestReact,
+	InterestNodejs,
+	InterestPython,
+	InterestGo,
+	InterestRust,
+	InterestDocker,
+	InterestKubernetes,
+}
+
+func (e Interest) IsValid() bool {
+	switch e {
+	case InterestReact, InterestNodejs, InterestPython, InterestGo, InterestRust, InterestDocker, InterestKubernetes:
+		return true
+	}
+	return false
+}
+
+func (e Interest) String() string {
+	return string(e)
+}
+
+func (e *Interest) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = Interest(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid Interest", str)
+	}
+	return nil
+}
+
+func (e Interest) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}

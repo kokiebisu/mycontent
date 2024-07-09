@@ -1,12 +1,18 @@
 extend type User @key(fields: "id") {
   id: ID! @external
+  firstName: String!
+  lastName: String!
   email: String!
+  username: String!
   password: String!
+  interest: Interest!
+  yearsOfExperience: Int!
+  publishTime: String!
 }
 
 type AuthPayload {
-  user: User!
-  token: String!
+  userId: String!
+  authToken: String!
 }
 
 type Mutation {
@@ -15,11 +21,27 @@ type Mutation {
 }
 
 input RegisterInput {
+  firstName: String!
+  lastName: String!
   email: String!
+  username: String!
   password: String!
+  interest: Interest!
+  yearsOfExperience: Int!
+  publishTime: String!
 }
 
 input LoginInput {
   email: String!
   password: String!
+}
+
+enum Interest {
+  REACT
+  NODEJS
+  PYTHON
+  GO
+  RUST
+  DOCKER
+  KUBERNETES
 }
