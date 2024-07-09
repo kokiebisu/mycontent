@@ -23,7 +23,7 @@ import (
 
 const (
 	graphqlPort = "4002"
-	grpcPort = "50051"
+	grpcPort = "50052"
 )
 
 func main() {

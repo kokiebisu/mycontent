@@ -48,7 +48,7 @@ services:
       DB_PASSWORD: "mypassword"
     ports:
       - "4002:4002"
-      - "50051:50051"
+      - "50052:50052"
     volumes:
       - ./packages/service-blog:/app/packages/service-blog
     healthcheck:
@@ -68,6 +68,7 @@ services:
       - mycontent-network
     ports:
       - "4003:4003"
+      - "50053:50053"
     volumes:
       - ./packages/service-user:/app/packages/service-user
     healthcheck:
