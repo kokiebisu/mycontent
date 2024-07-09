@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -31,4 +32,22 @@ func (s *TokenService) ValidateToken(ctx context.Context, token string) (bool, e
 		return false, err
 	}
 	return true, nil
+}
+
+func (s *TokenService) InvalidateToken(ctx context.Context, token string) error {
+	_, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
+		return []byte(s.secret), nil
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *TokenService) GetToken(ctx context.Context) (string, error) {
+	token, ok := ctx.Value("authToken").(string)
+	if !ok {
+		return "", errors.New("token not found")
+	}
+	return token, nil
 }

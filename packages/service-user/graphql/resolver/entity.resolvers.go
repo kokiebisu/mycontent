@@ -7,7 +7,7 @@ package resolver
 import (
 	"context"
 
-	generated "github.com/kokiebisu/mycontent/packages/service-user/graphql/generated"
+	"github.com/kokiebisu/mycontent/packages/service-user/graphql/generated"
 	"github.com/kokiebisu/mycontent/packages/shared/ent"
 )
 

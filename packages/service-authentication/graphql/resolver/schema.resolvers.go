@@ -70,14 +70,29 @@ func (r *mutationResolver) Login(ctx context.Context, input *model.LoginInput) (
 	}
 }
 
+// Logout is the resolver for the logout field.
+func (r *mutationResolver) Logout(ctx context.Context) (*model.LogoutPayload, error) {
+	// Retrieve the token from the context
+	token, err := r.TokenService.GetToken(ctx)
+	if err != nil {
+		return nil, err
+	}
+	// Invalidate the token
+	err = r.TokenService.InvalidateToken(ctx, token)
+	if err != nil {
+		return nil, err
+	}
+	return &model.LogoutPayload{Message: "Logout successful"}, nil
+}
+
 // ID is the resolver for the id field.
 func (r *userResolver) ID(ctx context.Context, obj *ent.User) (string, error) {
-	panic(fmt.Errorf("not implemented: ID - id"))
+	return obj.ID.String(), nil
 }
 
 // PublishTime is the resolver for the publishTime field.
 func (r *userResolver) PublishTime(ctx context.Context, obj *ent.User) (string, error) {
-	panic(fmt.Errorf("not implemented: PublishTime - publishTime"))
+	return obj.PublishTime.Format(time.RFC3339), nil
 }
 
 // Mutation returns generated.MutationResolver implementation.

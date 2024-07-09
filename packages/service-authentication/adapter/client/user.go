@@ -72,3 +72,33 @@ func (s *UserServiceClient) GetUserByEmail(ctx context.Context, email string) (*
 		PublishTime: parsedPublishTime,
 	}, nil
 }
+
+
+func (s *UserServiceClient) GetUserById(ctx context.Context, id string) (*ent.User, error) {
+	res, err := s.userClient.GetById(ctx, &proto.GetByIdRequest{
+		Id: id,
+	})
+	if err != nil {
+		return nil, err
+	}
+	parsedId, err := uuid.Parse(res.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ent.User{
+		ID: parsedId,
+	}, nil
+}
+
+
+func (s *UserServiceClient) DeleteUser(ctx context.Context, id string) (string, error) {
+	res, err := s.userClient.DeleteUser(ctx, &proto.DeleteUserRequest{
+		Id: id,
+	})
+	if err != nil {
+		return "", err
+	}
+
+	return res.Id, nil
+}

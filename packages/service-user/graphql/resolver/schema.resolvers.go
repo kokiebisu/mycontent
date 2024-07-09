@@ -13,15 +13,6 @@ import (
 	"github.com/kokiebisu/mycontent/packages/shared/ent"
 )
 
-// CreateUser is the resolver for the createUser field.
-func (r *mutationResolver) CreateUser(ctx context.Context, input *model.CreateUserInput) (*ent.User, error) {
-	user, err := r.UserService.Create(ctx, input.FirstName, input.LastName, input.Email, input.Password, input.Interest, input.YearsOfExperience, input.Username, input.PublishTime)
-	if err != nil {
-		return nil, err
-	}
-	return user, nil
-}
-
 // UpdateUser is the resolver for the updateUser field.
 func (r *mutationResolver) UpdateUser(ctx context.Context, id string, input *model.UpdateUserInput) (*ent.User, error) {
 	user, err := r.UserService.Update(ctx, id, input.FirstName, input.LastName, input.Email, input.Password, input.Interest, input.YearsOfExperience, input.Username)
@@ -29,15 +20,6 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, id string, input *mod
 		return nil, err
 	}
 	return user, nil
-}
-
-// DeleteUser is the resolver for the deleteUser field.
-func (r *mutationResolver) DeleteUser(ctx context.Context, id string) (string, error) {
-	id, err := r.UserService.Delete(ctx, id)
-	if err != nil {
-		return "", err
-	}
-	return id, nil
 }
 
 // User is the resolver for the user field.

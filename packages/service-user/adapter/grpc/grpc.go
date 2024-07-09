@@ -52,3 +52,11 @@ func (a *Adapter) GetUserByEmail(ctx context.Context, req *proto.GetUserByEmailR
 		PublishTime: user.PublishTime.Format(time.RFC3339),
 	}, nil
 }
+
+func (a *Adapter) DeleteUser(ctx context.Context, req *proto.DeleteUserRequest) (*proto.DeleteUserResponse, error) {
+	userId, err := a.UserService.Delete(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+	return &proto.DeleteUserResponse{Id: userId}, nil
+}

@@ -16,6 +16,10 @@ type LoginInput struct {
 	Password string `json:"password"`
 }
 
+type LogoutPayload struct {
+	Message string `json:"message"`
+}
+
 type RegisterInput struct {
 	FirstName         string        `json:"firstName"`
 	LastName          string        `json:"lastName"`
