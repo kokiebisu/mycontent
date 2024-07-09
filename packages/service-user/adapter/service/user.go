@@ -20,7 +20,6 @@ func NewUserService(db *ent.Client) *UserService {
 func (s *UserService) Create(ctx context.Context, firstName string, lastName string, email string, password string, interest user.Interest, yearsOfExperience int, username string, publishTime string) (*ent.User, error) {
 	var parsedPublishTime time.Time
 	var err error
-	// Try parsing with different formats
 	formats := []string{"15:04", "15", "3:04PM", "3PM"}
 	for _, format := range formats {
 		parsedPublishTime, err = time.Parse(format, publishTime)
@@ -137,4 +136,12 @@ func (s *UserService) Delete(ctx context.Context, id string) (string, error) {
 		return "", err
 	}
 	return id, nil
+}
+
+func (s *UserService) GetByEmail(ctx context.Context, email string) (*ent.User, error) {
+	user, err := s.db.User.Query().Where(user.Email(email)).First(context.Background())
+	if err != nil || user == nil {
+		return nil, err
+	}
+	return user, nil
 }
