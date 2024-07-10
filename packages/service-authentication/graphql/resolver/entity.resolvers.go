@@ -13,7 +13,7 @@ import (
 
 // FindUserByID is the resolver for the findUserByID field.
 func (r *entityResolver) FindUserByID(ctx context.Context, id string) (*ent.User, error) {
-	user, err := r.UserServiceClient.GetByID(ctx, id)
+	user, err := r.UserServiceClient.GetUserById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
