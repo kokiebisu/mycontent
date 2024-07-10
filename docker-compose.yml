@@ -13,8 +13,6 @@ services:
 
   service-authentication:
     container_name: service-authentication
-    depends_on:
-      - db
     build:
       context: .
       dockerfile: ./packages/service-authentication/Dockerfile.dev
@@ -22,6 +20,12 @@ services:
       - mycontent-network
     environment:
       GRAPHQL_PORT: "4001"
+      USER_GRPC_PORT: "50053"
+    depends_on:
+      service-user:
+        condition: service_healthy
+      service-blog:
+        condition: service_healthy
     ports:
       - "4001:4001"
     volumes:
@@ -43,6 +47,7 @@ services:
       - mycontent-network
     environment:
       GRAPHQL_PORT: "4002"
+      BLOG_GRPC_PORT: "50052"
       DB_PORT: "5432"
       DB_HOST: "db"
       DB_USER: "postgres"
@@ -70,6 +75,7 @@ services:
       - mycontent-network
     environment:
       GRAPHQL_PORT: "4003"
+      USER_GRPC_PORT: "50053"
       DB_PORT: "5432"
       DB_HOST: "db"
       DB_USER: "postgres"

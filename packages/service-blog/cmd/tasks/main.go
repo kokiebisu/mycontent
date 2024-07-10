@@ -12,7 +12,11 @@ import (
 )
 
 func main() {
-	conn, err := grpc.NewClient("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	blogGrpcPort := os.Getenv("BLOG_GRPC_PORT")
+	if blogGrpcPort == "" {
+		log.Fatal("BLOG_GRPC_PORT is not set")
+	}
+	conn, err := grpc.NewClient("localhost:"+blogGrpcPort, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("Failed to dial: %v", err)
 	}

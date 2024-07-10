@@ -22,11 +22,6 @@ import (
 	"google.golang.org/grpc/reflection"
 )
 
-const (
-	graphqlPort = "4002"
-	grpcPort = "50052"
-)
-
 func main() {
 	config.LoadEnv()
 	dbHost := os.Getenv("DB_HOST")
@@ -45,15 +40,14 @@ func main() {
 		log.Fatalf("failed creating schema resources: %v", err)
 	}
 
-	port := os.Getenv("GRAPHQL_PORT")
-	if port == "" {
-		port = graphqlPort
-	}
-
 	blogService := service.NewBlogService(client)
 	integrationService := service.NewIntegrationService(client)
 
 	go func() {
+		port := os.Getenv("GRAPHQL_PORT")
+		if port == "" {
+			log.Fatal("GRAPHQL_PORT is not set")
+		}
 		srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &resolver.Resolver{ BlogService: blogService, IntegrationService: integrationService }}))
 	
 		http.Handle("/playground", playground.Handler("GraphQL playground", "/query"))
@@ -63,20 +57,24 @@ func main() {
 		log.Fatal(http.ListenAndServe(":"+port, nil))
 	}()
 
-	lis, err := net.Listen("tcp", ":"+grpcPort)
+	blogGrpcPort := os.Getenv("BLOG_GRPC_PORT")
+	if blogGrpcPort == "" {
+		log.Fatal("BLOG_GRPC_PORT is not set")
+	}
+
+	lis, err := net.Listen("tcp", ":"+blogGrpcPort)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	defer lis.Close()
 
 	adapter := grpc_client.NewGRPCAdapter(blogService)
-
 	grpcServer := grpc.NewServer()
 	proto.RegisterBlogServiceServer(grpcServer, adapter)
 
 	reflection.Register(grpcServer)
 
-	log.Printf("gRPC server listening on port %s", grpcPort)
+	log.Printf("gRPC server listening on port %s", blogGrpcPort)
 
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)

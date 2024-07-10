@@ -17,11 +17,7 @@ import (
 	"github.com/kokiebisu/mycontent/packages/shared/proto"
 	_ "github.com/lib/pq"
 	"google.golang.org/grpc"
-)
-
-const (
-	graphqlPort = "4003"
-	grpcPort = "50053"
+	"google.golang.org/grpc/reflection"
 )
 
 func main() {
@@ -41,14 +37,14 @@ func main() {
 		log.Fatalf("failed creating schema resources: %v", err)
 	}
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = graphqlPort
-	}
-
 	userService := service.NewUserService(client)
 
 	go func() {
+		graphqlPort := os.Getenv("GRAPHQL_PORT")
+		if graphqlPort == "" {
+			log.Fatal("GRAPHQL_PORT is not set")
+		}
+
 		srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &resolver.Resolver{
 			UserService: userService,
 		}}))
@@ -56,11 +52,16 @@ func main() {
 		http.Handle("/playground", playground.Handler("GraphQL playground", "/query"))
 		http.Handle("/query", srv)
 	
-		log.Printf("connect to http://localhost:%s/playground for GraphQL playground", port)
-		log.Fatal(http.ListenAndServe(":"+port, nil))
+		log.Printf("connect to http://localhost:%s/playground for GraphQL playground", graphqlPort)
+		log.Fatal(http.ListenAndServe(":"+graphqlPort, nil))
 	}()
 
-	lis, err := net.Listen("tcp", ":"+grpcPort)
+	userGrpcPort := os.Getenv("USER_GRPC_PORT")
+	if userGrpcPort == "" {
+		log.Fatal("USER_GRPC_PORT is not set")
+	}
+
+	lis, err := net.Listen("tcp", ":"+userGrpcPort)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
@@ -70,5 +71,12 @@ func main() {
 	adapter := grpc_client.NewGRPCAdapter(userService)
 	grpcServer := grpc.NewServer()
 	proto.RegisterUserServiceServer(grpcServer, adapter)
-	grpcServer.Serve(lis)
+
+	reflection.Register(grpcServer)
+
+	log.Printf("gRPC server listening on port %s", userGrpcPort)
+
+	if err := grpcServer.Serve(lis); err != nil {
+		log.Fatalf("failed to serve: %v", err)
+	}
 }
