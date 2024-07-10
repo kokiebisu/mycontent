@@ -39,8 +39,28 @@ func (s *UserServiceClient) CreateUser(ctx context.Context, firstName string, la
 		return nil, err
 	}
 
+	parsedCreatedAt, err := time.Parse(time.RFC3339, res.CreatedAt)
+	if err != nil {
+		return nil, err
+	}
+
+	parsedUpdatedAt, err := time.Parse(time.RFC3339, res.UpdatedAt)
+	if err != nil {
+		return nil, err
+	}
+
 	return &ent.User{
 		ID: parsedId,
+		FirstName: res.FirstName,
+		LastName: res.LastName,
+		Email: res.Email,
+		Username: res.Username,
+		Interest: enum.Interest(res.Interest),
+		YearsOfExperience: int(res.YearsOfExperience),
+		PublishTime: publishTime,
+		Password: password,
+		CreatedAt: parsedCreatedAt,
+		UpdatedAt: parsedUpdatedAt,
 	}, nil
 }
 

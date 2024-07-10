@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 
+	"entgo.io/ent/dialect/sql/schema"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	grpc_client "github.com/kokiebisu/mycontent/packages/service-user/adapter/grpc"
@@ -33,7 +34,7 @@ func main() {
 	}
 	defer client.Close()
 
-	if err := client.Schema.Create(context.Background()); err != nil {
+	if err := client.Schema.Create(context.Background(), schema.WithDropIndex(true), schema.WithDropColumn(true)); err != nil {
 		log.Fatalf("failed creating schema resources: %v", err)
 	}
 

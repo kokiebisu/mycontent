@@ -19,7 +19,7 @@ func NewGRPCAdapter(userService port.UserService) *Adapter {
 }
 
 func (a *Adapter) CreateUser(ctx context.Context, req *proto.CreateUserRequest) (*proto.CreateUserResponse, error) {
-	user, err := a.UserService.Create(ctx, req.FirstName, req.LastName, req.Email, req.Username, enum.Interest(req.Interest), int(req.YearsOfExperience), req.PublishTime, req.Password)
+	user, err := a.UserService.Create(ctx, req.FirstName, req.LastName, req.Email, req.Password, enum.Interest(req.Interest), int(req.YearsOfExperience), req.Username, req.PublishTime)
 	if err != nil {
 		return nil, err
 	}
@@ -33,6 +33,8 @@ func (a *Adapter) CreateUser(ctx context.Context, req *proto.CreateUserRequest) 
 		Interest: user.Interest.String(),
 		YearsOfExperience: int32(user.YearsOfExperience),
 		PublishTime: user.PublishTime.Format(time.RFC3339),
+		CreatedAt: user.CreatedAt.Format(time.RFC3339),
+		UpdatedAt: user.UpdatedAt.Format(time.RFC3339),
 	}, nil
 }
 
@@ -50,6 +52,8 @@ func (a *Adapter) GetUserByEmail(ctx context.Context, req *proto.GetUserByEmailR
 		Interest: user.Interest.String(),
 		YearsOfExperience: int32(user.YearsOfExperience),
 		PublishTime: user.PublishTime.Format(time.RFC3339),
+		CreatedAt: user.CreatedAt.Format(time.RFC3339),
+		UpdatedAt: user.UpdatedAt.Format(time.RFC3339),
 	}, nil
 }
 

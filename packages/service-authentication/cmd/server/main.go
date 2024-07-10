@@ -8,6 +8,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/kokiebisu/mycontent/packages/service-authentication/adapter/client"
+	"github.com/kokiebisu/mycontent/packages/service-authentication/adapter/service"
 	"github.com/kokiebisu/mycontent/packages/service-authentication/graphql/generated"
 	"github.com/kokiebisu/mycontent/packages/service-authentication/graphql/resolver"
 	"github.com/kokiebisu/mycontent/packages/shared/proto"
@@ -15,6 +16,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
+
+const SECRET_KEY = "secret"
 
 func main() {
 	userGrpcPort := os.Getenv("USER_GRPC_PORT")
@@ -29,9 +32,11 @@ func main() {
 
 	userClient := proto.NewUserServiceClient(conn)
 	userServiceClient := client.NewUserServiceClient(userClient)
+	tokenService := service.NewTokenService(SECRET_KEY)
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &resolver.Resolver{
 		UserServiceClient: userServiceClient,
+		TokenService: tokenService,
 	}}))
 
 	http.Handle("/playground", playground.Handler("GraphQL playground", "/query"))

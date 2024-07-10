@@ -30,6 +30,8 @@ message CreateUserResponse {
   string interest = 6;
   int32 years_of_experience = 7;
   string publish_time = 8;
+  string created_at = 9;
+  string updated_at = 10;
 }
 
 // GetUserByEmail 
@@ -46,6 +48,8 @@ message GetUserByEmailResponse {
   string interest = 6;
   int32 years_of_experience = 7;
   string publish_time = 8;
+  string created_at = 9;
+  string updated_at = 10;
 }
 
 // DeleteUser
@@ -71,4 +75,6 @@ message GetByIdResponse {
   string interest = 6;
   int32 years_of_experience = 7;
   string publish_time = 8;
+  string created_at = 9;
+  string updated_at = 10;
 }

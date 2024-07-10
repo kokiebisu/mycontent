@@ -7,42 +7,42 @@ package resolver
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/kokiebisu/mycontent/packages/service-authentication/graphql/generated"
 	"github.com/kokiebisu/mycontent/packages/service-authentication/graphql/model"
+	"github.com/kokiebisu/mycontent/packages/service-authentication/utils"
 	"github.com/kokiebisu/mycontent/packages/shared/ent"
 	"github.com/kokiebisu/mycontent/packages/shared/enum"
 )
 
 // Register is the resolver for the register field.
 func (r *mutationResolver) Register(ctx context.Context, input *model.RegisterInput) (*model.AuthPayload, error) {
-	// Check if the user already exists
 	user, err := r.UserServiceClient.GetUserByEmail(ctx, input.Email)
-	if err != nil {
-		return nil, err
-	}
-	if user != nil {
+	if err == nil && user != nil {
 		return nil, fmt.Errorf("user already exists")
-	} else {
-		publishTime, err := time.Parse(time.RFC3339, input.PublishTime)
-		if err != nil {
-			return nil, err
-		}
-		// If the user does not exist, create the user
-		interest := input.Interest
-		user, err := r.UserServiceClient.CreateUser(ctx, input.FirstName, input.LastName, input.Email, input.Username, enum.Interest(interest), input.YearsOfExperience, publishTime, input.Password)
-		if err != nil {
-			return nil, err
-		}
-		// Generate a JWT token for the user
-		token, err := r.TokenService.GenerateToken(ctx, user.ID.String())
-		if err != nil {
-			return nil, err
-		}
-		// Return the token
-		return &model.AuthPayload{UserID: user.ID.String(), AuthToken: token}, nil
 	}
+	if err != nil && !strings.Contains(err.Error(), "user not found") {
+		return nil, fmt.Errorf("error fetching user by email: %w", err)
+	}
+
+	publishTime, err := utils.ParseTime(input.PublishTime)
+	if err != nil {
+		return nil, fmt.Errorf("invalid publish time format: %w", err)
+	}
+
+	user, err = r.UserServiceClient.CreateUser(ctx, input.FirstName, input.LastName, input.Email, input.Username, enum.Interest(input.Interest), input.YearsOfExperience, publishTime, input.Password)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create user: %w", err)
+	}
+
+	token, err := r.TokenService.GenerateToken(ctx, user.ID.String())
+	if err != nil {
+		return nil, fmt.Errorf("failed to generate token: %w", err)
+	}
+
+	return &model.AuthPayload{UserID: user.ID.String(), AuthToken: token}, nil
 }
 
 // Login is the resolver for the login field.
