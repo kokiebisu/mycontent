@@ -1,0 +1,7 @@
+mutation DeleteBlog($id: ID!) {
+  deleteBlog(id: $id)
+}
+
+mutation DeleteIntegration($id: ID!) {
+  deleteIntegration(id: $id)
+}

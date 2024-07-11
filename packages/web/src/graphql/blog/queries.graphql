@@ -1,0 +1,37 @@
+query GetBlog($id: ID!) {
+  blog(id: $id) {
+    id
+    title
+    content
+  }
+}
+
+query GetBlogs {
+  blogs {
+    id
+    title
+    content
+  }
+}
+
+query GetBlogsByUserId($userId: ID!) {
+  blogsByUserId(userId: $userId) {
+    id
+    title
+    content
+  }
+}
+
+query GetIntegration($id: ID!) {
+  integration(id: $id) {
+    id
+    platform
+  }
+}
+
+query GetIntegrationsByUserId($userId: ID!, $platform: Platform!) {
+  integrationsByUserId(userId: $userId, platform: $platform) {
+    id
+    platform
+  }
+}
