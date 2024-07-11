@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt"
+	"github.com/google/uuid"
+	"github.com/kokiebisu/mycontent/packages/shared/enum"
 )
 
 type TokenService struct {
@@ -16,9 +18,10 @@ func NewTokenService(secret string) *TokenService {
 	return &TokenService{secret: secret}
 }
 
-func (s *TokenService) GenerateToken(ctx context.Context, userId string) (string, error) {
+func (s *TokenService) GenerateToken(ctx context.Context, userId uuid.UUID, role enum.Role) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"user_id": userId,
+		"user_id": userId.String(),
+		"role": role.String(),
 		"exp":    time.Now().Add(time.Hour * 24).Unix(),
 	})
 	return token.SignedString([]byte(s.secret))

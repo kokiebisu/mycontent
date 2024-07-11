@@ -37,7 +37,7 @@ func (r *mutationResolver) Register(ctx context.Context, input *model.RegisterIn
 		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
 
-	token, err := r.TokenService.GenerateToken(ctx, user.ID.String())
+	token, err := r.TokenService.GenerateToken(ctx, user.ID, enum.User)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate token: %w", err)
 	}
@@ -60,7 +60,7 @@ func (r *mutationResolver) Login(ctx context.Context, input *model.LoginInput) (
 		if user.Password != input.Password {
 			return nil, fmt.Errorf("incorrect password")
 		}
-		token, err := r.TokenService.GenerateToken(ctx, user.ID.String())
+		token, err := r.TokenService.GenerateToken(ctx, user.ID, enum.User)
 		if err != nil {
 			return nil, err
 		}

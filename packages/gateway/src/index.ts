@@ -34,10 +34,9 @@ const gateway = new ApolloGateway({
           const token = context.authorization.split(" ")[1];
           const validatedUser = decryptToken(token, SECRET);
           if (validatedUser) {
-            const { user_id: userID } = validatedUser;
+            const { user_id: userID, role } = validatedUser;
             request.http?.headers.set("X-USER-ID", userID);
-            // request.http?.headers.set("X-USER-ROLES", userRoles);
-            console.log("Gateway forwarded authorization header");
+            request.http?.headers.set("X-ROLE", role);
           }
         }
       },

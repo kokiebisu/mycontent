@@ -74,8 +74,8 @@ func main() {
 				} else {
 					ctx = context.WithValue(ctx, "userID", "guest")
 				}
-
-				// ctx = context.WithValue(ctx, "userRoles", userRoles)
+				role := r.Header.Get("X-ROLE")
+				ctx = context.WithValue(ctx, "role", role)
 
 				next.ServeHTTP(w, r.WithContext(ctx))
 			})
