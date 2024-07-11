@@ -11,9 +11,10 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { useMutation } from "@apollo/client";
-import { SIGNUP_MUTATION } from "@/graphql/mutation";
+import { useRegisterMutation } from "@/graphql/authentication";
 import { useState } from "react";
+import { Interest } from "@/graphql/types";
+import { isValidEnumValue } from "@/utils/enum";
 
 function RegisterPage() {
   const [inputs, setInputs] = useState({
@@ -26,7 +27,8 @@ function RegisterPage() {
     username: "",
     yearsOfExperience: 0,
   });
-  const [signup, { data, loading, error }] = useMutation(SIGNUP_MUTATION);
+
+  const [registerMutation, { data, loading, error }] = useRegisterMutation();
 
   const interests = [
     { value: "REACT", label: "React" },
@@ -35,14 +37,18 @@ function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!isValidEnumValue(inputs.interest, Interest)) {
+      return;
+    }
     try {
       const formattedInputs = {
         ...inputs,
+        interest: inputs.interest,
         yearsOfExperience: parseInt(inputs.yearsOfExperience.toString(), 10),
         publishTime: inputs.publishTime.split(":")[0], // Extract only the hour
       };
 
-      await signup({
+      await registerMutation({
         variables: {
           input: formattedInputs,
         },
