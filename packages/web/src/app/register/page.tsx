@@ -15,8 +15,11 @@ import { useRegisterMutation } from "@/graphql/authentication";
 import { useState } from "react";
 import { Interest } from "@/graphql/types";
 import { isValidEnumValue } from "@/utils/enum";
+import { useRouter } from "next/navigation";
 
 function RegisterPage() {
+  const router = useRouter();
+
   const [inputs, setInputs] = useState({
     email: "",
     firstName: "",
@@ -48,11 +51,24 @@ function RegisterPage() {
         publishTime: inputs.publishTime.split(":")[0], // Extract only the hour
       };
 
-      await registerMutation({
+      const result = await registerMutation({
         variables: {
           input: formattedInputs,
         },
       });
+      if (result.data && result.data.register) {
+        const { authToken } = result.data.register;
+        if (authToken) {
+          // Set auth token to local storage
+          localStorage.setItem("authToken", authToken);
+          // Redirect to home page
+          router.push("/");
+        } else {
+          throw new Error("No auth token returned from register mutation");
+        }
+      } else {
+        throw new Error("No data returned from register mutation");
+      }
     } catch (err) {
       console.error(err);
     }
