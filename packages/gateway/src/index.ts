@@ -1,9 +1,15 @@
 import { ApolloServer } from "@apollo/server";
-import { ApolloGateway, IntrospectAndCompose } from "@apollo/gateway";
+import {
+  ApolloGateway,
+  IntrospectAndCompose,
+  RemoteGraphQLDataSource,
+} from "@apollo/gateway";
 import { expressMiddleware } from "@apollo/server/express4";
 import express from "express";
 import http from "http";
 import cors from "cors";
+import { decryptToken } from "./utils";
+import { SECRET } from "./config";
 
 const app = express();
 const httpServer = http.createServer(app);
@@ -20,6 +26,23 @@ const gateway = new ApolloGateway({
     ],
     pollIntervalInMs: 1000,
   }),
+  buildService: ({ url }) => {
+    return new RemoteGraphQLDataSource({
+      url,
+      willSendRequest({ request, context }) {
+        if (context.authorization) {
+          const token = context.authorization.split(" ")[1];
+          const validatedUser = decryptToken(token, SECRET);
+          if (validatedUser) {
+            const { user_id: userID } = validatedUser;
+            request.http?.headers.set("X-USER-ID", userID);
+            // request.http?.headers.set("X-USER-ROLES", userRoles);
+            console.log("Gateway forwarded authorization header");
+          }
+        }
+      },
+    });
+  },
 });
 
 const apolloServer = new ApolloServer({
@@ -38,7 +61,11 @@ async function startServer() {
       credentials: true,
     }),
     express.json(),
-    expressMiddleware(apolloServer)
+    expressMiddleware(apolloServer, {
+      context: async ({ req }) => ({
+        authorization: req.headers.authorization,
+      }),
+    })
   );
 
   await new Promise<void>((resolve) =>

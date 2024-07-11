@@ -22,6 +22,16 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, id string, input *mod
 	return user, nil
 }
 
+// Me is the resolver for the me field.
+func (r *queryResolver) Me(ctx context.Context) (*ent.User, error) {
+	userID := ctx.Value("userID").(string)
+	user, err := r.UserService.Get(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
 // User is the resolver for the user field.
 func (r *queryResolver) User(ctx context.Context, id string) (*ent.User, error) {
 	user, err := r.UserService.Get(ctx, id)

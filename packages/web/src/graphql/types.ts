@@ -109,6 +109,7 @@ export type Query = {
   blogsByUserId: Array<Blog>;
   integration: Integration;
   integrationsByUserId: Array<Integration>;
+  me: User;
   user: User;
   users: Array<User>;
 };

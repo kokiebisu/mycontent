@@ -1,11 +1,14 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"io"
 	"log"
 	"net"
 	"net/http"
 	"os"
+	"strings"
 
 	"entgo.io/ent/dialect/sql/schema"
 	"github.com/99designs/gqlgen/graphql/handler"
@@ -46,12 +49,44 @@ func main() {
 			log.Fatal("GRAPHQL_PORT is not set")
 		}
 
+		authMiddleware := func(next http.Handler) http.Handler {
+			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				// Allow introspection queries without authentication
+				if r.URL.Path == "/query" && r.Method == "POST" {
+					body, err := io.ReadAll(r.Body)
+					if err != nil {
+						http.Error(w, "Error reading request body", http.StatusInternalServerError)
+						return
+					}
+					if strings.Contains(string(body), "__schema") {
+						newRequest := r.Clone(r.Context())
+						newRequest.Body = io.NopCloser(bytes.NewBuffer(body))
+						next.ServeHTTP(w, newRequest)
+						return
+					}
+					r.Body = io.NopCloser(bytes.NewBuffer(body))
+				}
+
+				ctx := r.Context()
+				userID := r.Header.Get("X-User-ID")
+				if userID != "" {
+					ctx = context.WithValue(ctx, "userID", userID)
+				} else {
+					ctx = context.WithValue(ctx, "userID", "guest")
+				}
+
+				// ctx = context.WithValue(ctx, "userRoles", userRoles)
+
+				next.ServeHTTP(w, r.WithContext(ctx))
+			})
+		}
+
 		srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &resolver.Resolver{
 			UserService: userService,
 		}}))
 	
 		http.Handle("/playground", playground.Handler("GraphQL playground", "/query"))
-		http.Handle("/query", srv)
+		http.Handle("/query", authMiddleware(srv))
 	
 		log.Printf("connect to http://localhost:%s/playground for GraphQL playground", graphqlPort)
 		log.Fatal(http.ListenAndServe(":"+graphqlPort, nil))

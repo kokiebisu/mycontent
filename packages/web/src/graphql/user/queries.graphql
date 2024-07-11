@@ -15,3 +15,10 @@ query GetUsers {
     lastName
   }
 }
+
+query Me {
+  me {
+    id
+    email
+  }
+}
