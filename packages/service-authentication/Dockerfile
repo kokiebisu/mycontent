@@ -10,7 +10,7 @@ COPY . .
 
 WORKDIR /app/packages/service-authentication
 
-RUN GOOS=linux GOARCH=arm64 go build -o main .
+RUN GOOS=linux GOARCH=arm64 go build -o server ./cmd/server/main.go
 
 FROM golang:latest
 
