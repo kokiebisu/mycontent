@@ -15,14 +15,9 @@ type AuthPayload {
   authToken: String!
 }
 
-type LogoutPayload {
-  message: String!
-}
-
 type Mutation {
   register(input: RegisterInput): AuthPayload
   login(input: LoginInput): AuthPayload
-  logout: LogoutPayload
 }
 
 input RegisterInput {

@@ -68,13 +68,13 @@ func main() {
 				}
 
 				ctx := r.Context()
-				userID := r.Header.Get("X-User-ID")
+				userID := r.Header.Get("x-user-id")
 				if userID != "" {
 					ctx = context.WithValue(ctx, "userID", userID)
 				} else {
 					ctx = context.WithValue(ctx, "userID", "guest")
 				}
-				role := r.Header.Get("X-ROLE")
+				role := r.Header.Get("x-role")
 				ctx = context.WithValue(ctx, "role", role)
 
 				next.ServeHTTP(w, r.WithContext(ctx))

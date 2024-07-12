@@ -35,8 +35,8 @@ const gateway = new ApolloGateway({
           const validatedUser = decryptToken(token, SECRET);
           if (validatedUser) {
             const { user_id: userID, role } = validatedUser;
-            request.http?.headers.set("X-USER-ID", userID);
-            request.http?.headers.set("X-ROLE", role);
+            request.http?.headers.set("x-user-id", userID);
+            request.http?.headers.set("x-role", role);
           }
         }
       },
