@@ -53,10 +53,6 @@ func (r *mutationResolver) Login(ctx context.Context, input *model.LoginInput) (
 		return nil, err
 	}
 	if user != nil {
-		user, err := r.UserServiceClient.GetUserByEmail(ctx, input.Email)
-		if err != nil {
-			return nil, err
-		}
 		if user.Password != input.Password {
 			return nil, fmt.Errorf("incorrect password")
 		}

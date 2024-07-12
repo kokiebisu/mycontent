@@ -49,6 +49,7 @@ func (a *Adapter) GetUserByEmail(ctx context.Context, req *proto.GetUserByEmailR
 		LastName: user.LastName,
 		Email: user.Email,
 		Username: user.Username,
+		Password: user.Password,
 		Interest: user.Interest.String(),
 		YearsOfExperience: int32(user.YearsOfExperience),
 		PublishTime: user.PublishTime.Format(time.RFC3339),

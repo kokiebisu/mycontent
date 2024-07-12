@@ -33,7 +33,7 @@ func main() {
 
 	client, err := ent.Open("postgres", "host=" + dbHost + " port=" + dbPort + " user=" + dbUser + " dbname=" + dbName + " sslmode=disable password=" + dbPassword)
 	if err != nil {
-		log.Fatalf("failed openidfgdng connection to postgres: %v", err)
+		log.Fatalf("failed opening connection to postgres: %v", err)
 	}
 	defer client.Close()
 

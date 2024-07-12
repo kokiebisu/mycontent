@@ -80,16 +80,27 @@ func (s *UserServiceClient) GetUserByEmail(ctx context.Context, email string) (*
 	if err != nil {
 		return nil, err
 	}
+	parsedCreatedAt, err := time.Parse(time.RFC3339, res.CreatedAt)
+	if err != nil {
+		return nil, err
+	}
+	parsedUpdatedAt, err := time.Parse(time.RFC3339, res.UpdatedAt)
+	if err != nil {
+		return nil, err
+	}
 
 	return &ent.User{
 		ID: parsedId,
 		FirstName: res.FirstName,
 		LastName: res.LastName,
 		Email: res.Email,
+		Password: res.Password,
 		Username: res.Username,
 		Interest: enum.Interest(res.Interest),
 		YearsOfExperience: int(res.YearsOfExperience),
 		PublishTime: parsedPublishTime,
+		CreatedAt: parsedCreatedAt,
+		UpdatedAt: parsedUpdatedAt,
 	}, nil
 }
 

@@ -31,7 +31,7 @@ function RegisterPage() {
     yearsOfExperience: 0,
   });
 
-  const [registerMutation, { data, loading, error }] = useRegisterMutation();
+  const [register, { data, loading, error }] = useRegisterMutation();
 
   const interests = [
     { value: "REACT", label: "React" },
@@ -51,7 +51,7 @@ function RegisterPage() {
         publishTime: inputs.publishTime.split(":")[0], // Extract only the hour
       };
 
-      const result = await registerMutation({
+      const result = await register({
         variables: {
           input: formattedInputs,
         },
@@ -84,7 +84,7 @@ function RegisterPage() {
           <p className="mt-2 text-center text-sm text-muted-foreground">
             Or{" "}
             <Link
-              href="#"
+              href="/login"
               className="font-medium text-primary hover:underline"
               prefetch={false}
             >

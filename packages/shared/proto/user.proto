@@ -44,12 +44,13 @@ message GetUserByEmailResponse {
   string first_name = 2;
   string last_name = 3;
   string email = 4;
-  string username = 5;
-  string interest = 6;
-  int32 years_of_experience = 7;
-  string publish_time = 8;
-  string created_at = 9;
-  string updated_at = 10;
+  string password = 5;
+  string username = 6;
+  string interest = 7;
+  int32 years_of_experience = 8;
+  string publish_time = 9;
+  string created_at = 10;
+  string updated_at = 11;
 }
 
 // DeleteUser
