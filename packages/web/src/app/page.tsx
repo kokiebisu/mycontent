@@ -1,10 +1,11 @@
 "use client";
 
+import Dashboard from "@/components/dashboard";
 import { useMeQuery } from "@/graphql/user";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-export default function Home() {
+const Home = () => {
   const router = useRouter();
   const { data, loading, error, client } = useMeQuery();
 
@@ -30,8 +31,9 @@ export default function Home() {
 
   return (
     <div>
-      <h1>Hello World {data?.me.email}</h1>
-      <button onClick={handleLogout}>Logout</button>
+      <Dashboard onLogout={handleLogout} />
     </div>
   );
-}
+};
+
+export default Home;
