@@ -19,10 +19,18 @@ const gateway = new ApolloGateway({
     subgraphs: [
       {
         name: "authentication",
-        url: "http://service-authentication:4001/query",
+        url:
+          process.env.AUTHENTICATION_SERVICE_URL ||
+          "http://service-authentication:4001/query",
       },
-      { name: "blogs", url: "http://service-blog:4002/query" },
-      { name: "users", url: "http://service-user:4003/query" },
+      {
+        name: "blogs",
+        url: process.env.BLOG_SERVICE_URL || "http://service-blog:4002/query",
+      },
+      {
+        name: "users",
+        url: process.env.USER_SERVICE_URL || "http://service-user:4003/query",
+      },
     ],
     pollIntervalInMs: 1000,
   }),
@@ -68,9 +76,13 @@ async function startServer() {
   );
 
   await new Promise<void>((resolve) =>
-    httpServer.listen({ port: 4000 }, resolve)
+    httpServer.listen({ port: process.env.GRAPHQL_PORT || 4000 }, resolve)
   );
-  console.log(`🚀 Server ready at http://localhost:4000/graphql`);
+  console.log(
+    `🚀 Server ready at http://localhost:${
+      process.env.GRAPHQL_PORT || 4000
+    }/graphql`
+  );
 }
 
 startServer().catch((err) => {
