@@ -29,18 +29,14 @@ function LoginPage() {
           },
         },
       });
-      console.log("ENTERED1");
-      console.log(result.errors);
 
       if (!result.data?.login) {
         throw new Error("Failed to login");
       }
-      console.log("ENTERED2");
 
       if (result.data?.login.authToken) {
         localStorage.setItem("authToken", result.data.login.authToken);
       }
-      console.log("ENTERED3");
 
       router.push("/");
     } catch (err) {
