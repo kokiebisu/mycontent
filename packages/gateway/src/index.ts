@@ -17,20 +17,20 @@ const httpServer = http.createServer(app);
 const gateway = new ApolloGateway({
   supergraphSdl: new IntrospectAndCompose({
     subgraphs: [
-      {
-        name: "authentication",
-        url:
-          process.env.AUTHENTICATION_SERVICE_URL ||
-          "http://service-authentication:4001/query",
-      },
+      // {
+      //   name: "authentication",
+      //   url:
+      //     process.env.AUTHENTICATION_SERVICE_URL ||
+      //     "http://service-authentication:4001/query",
+      // },
       {
         name: "blogs",
         url: process.env.BLOG_SERVICE_URL || "http://service-blog:4002/query",
       },
-      {
-        name: "users",
-        url: process.env.USER_SERVICE_URL || "http://service-user:4003/query",
-      },
+      // {
+      //   name: "users",
+      //   url: process.env.USER_SERVICE_URL || "http://service-user:4003/query",
+      // },
     ],
     pollIntervalInMs: 1000,
   }),
