@@ -1,6 +1,6 @@
-# Create ECS service for the user service
-resource "aws_ecs_service" "user" {
-  name             = "user"
+# Create ECS service for the blog service
+resource "aws_ecs_service" "blog" {
+  name             = "blog"
   cluster          = aws_ecs_cluster.main.id
   desired_count    = 1
   launch_type      = "FARGATE"
@@ -13,18 +13,18 @@ resource "aws_ecs_service" "user" {
   }
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.user_graphql.arn
-    container_name   = "service-user"
-    container_port   = 4003
+    target_group_arn = aws_lb_target_group.blog_graphql.arn
+    container_name   = "service-blog"
+    container_port   = 4002
   }
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.user_grpc.arn
-    container_name   = "service-user"
-    container_port   = 50053
+    target_group_arn = aws_lb_target_group.blog_grpc.arn
+    container_name   = "service-blog"
+    container_port   = 50052
   }
 
-  task_definition = aws_ecs_task_definition.user.arn
+  task_definition = aws_ecs_task_definition.blog.arn
 
   lifecycle {
     ignore_changes = [task_definition, desired_count]
@@ -36,9 +36,9 @@ resource "aws_ecs_service" "user" {
   }
 }
 
-# Create task definition for the user service
-resource "aws_ecs_task_definition" "user" {
-  family                   = "user"
+# Create task definition for the blog service
+resource "aws_ecs_task_definition" "blog" {
+  family                   = "blog"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = "256"
@@ -46,26 +46,26 @@ resource "aws_ecs_task_definition" "user" {
 
   container_definitions = jsonencode([
     {
-      name  = "service-user"
-      image = local.service_images["service-user"]
+      name  = "service-blog"
+      image = local.service_images["service-blog"]
       portMappings = [
         {
-          containerPort = 4003
-          hostPort      = 4003
+          containerPort = 4002
+          hostPort      = 4002
         },
         {
-          containerPort = 50053
-          hostPort      = 50053
+          containerPort = 50052
+          hostPort      = 50052
         }
       ]
       environment = [
         {
           name = "GRAPHQL_PORT",
-          value = "4003"
+          value = "4002"
         },
         {
-          name = "USER_GRPC_PORT",
-          value = "50053"
+          name = "BLOG_GRPC_PORT",
+          value = "50052"
         },
         {
           name = "DB_PORT",
@@ -91,7 +91,7 @@ resource "aws_ecs_task_definition" "user" {
       logConfiguration = {
         logDriver = "awslogs"
         options = {
-          awslogs-group         = aws_cloudwatch_log_group.user.name
+          awslogs-group         = aws_cloudwatch_log_group.blog.name
           awslogs-region        = data.aws_region.current.name
           awslogs-stream-prefix = "ecs"
         }
@@ -111,9 +111,8 @@ resource "aws_ecs_task_definition" "user" {
   }
 }
 
-# Create CloudWatch log groups for the new services
-resource "aws_cloudwatch_log_group" "user" {
-  name              = "/ecs/${local.namespace}/user"
+resource "aws_cloudwatch_log_group" "blog" {
+  name              = "/ecs/${local.namespace}/blog"
   retention_in_days = 30
 
   tags = {
@@ -121,15 +120,15 @@ resource "aws_cloudwatch_log_group" "user" {
   }
 }
 
-resource "aws_lb_target_group" "user_graphql" {
-  name        = "${local.namespace}-user-graphql-tg"
-  port        = 4003
+resource "aws_lb_target_group" "blog_graphql" {
+  name        = "${local.namespace}-blog-graphql-tg"
+  port        = 4002
   protocol    = "TCP"
   vpc_id      = data.aws_vpc.default.id
   target_type = "ip"
 
   health_check {
-    protocol            = "HTTP"
+    protocol = "HTTP"
     path = "/playground"
     healthy_threshold   = 2
     unhealthy_threshold = 10
@@ -138,15 +137,15 @@ resource "aws_lb_target_group" "user_graphql" {
   }
 }
 
-resource "aws_lb_target_group" "user_grpc" {
-  name        = "${local.namespace}-user-grpc-tg"
-  port        = 50053
+resource "aws_lb_target_group" "blog_grpc" {
+  name        = "${local.namespace}-blog-grpc-tg"
+  port        = 50052
   protocol    = "TCP"
   vpc_id      = data.aws_vpc.default.id
   target_type = "ip"
 
   health_check {
-    protocol            = "TCP"
+    protocol = "TCP"
     healthy_threshold   = 2
     unhealthy_threshold = 10
     timeout             = 30
@@ -154,24 +153,24 @@ resource "aws_lb_target_group" "user_grpc" {
   }
 }
 
-resource "aws_lb_listener" "user_graphql" {
+resource "aws_lb_listener" "blog_graphql" {
   load_balancer_arn = aws_lb.internal.arn
-  port              = "4003"
+  port              = "4002"
   protocol          = "TCP"
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.user_graphql.arn
+    target_group_arn = aws_lb_target_group.blog_graphql.arn
   }
 }
 
-resource "aws_lb_listener" "user_grpc" {
+resource "aws_lb_listener" "blog_grpc" {
   load_balancer_arn = aws_lb.internal.arn
-  port              = "50053"
+  port              = "50052"
   protocol          = "TCP"
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.user_grpc.arn
+    target_group_arn = aws_lb_target_group.blog_grpc.arn
   }
 }
