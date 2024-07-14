@@ -21,6 +21,7 @@ services:
     environment:
       GRAPHQL_PORT: "4001"
       USER_GRPC_PORT: "50053"
+      USER_SERVICE_HOST: "service-user"
     depends_on:
       service-user:
         condition: service_healthy
@@ -97,6 +98,10 @@ services:
     build:
       context: .
       dockerfile: ./packages/gateway/Dockerfile.dev
+    environment:
+      AUTHENTICATION_SERVICE_HOST: "http://service-authentication"
+      USER_SERVICE_HOST: "http://service-user"
+      BLOG_SERVICE_HOST: "http://service-blog"
     depends_on:
       service-authentication:
         condition: service_healthy
