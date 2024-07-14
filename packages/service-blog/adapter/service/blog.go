@@ -52,6 +52,10 @@ func (s *BlogService) GetAllByUserId(ctx context.Context, userId string) ([]*ent
 
 func (s *BlogService) Create(ctx context.Context, userId string, interest blog.Interest) (*ent.Blog, error) {
 	openaiAPIKey := os.Getenv("OPENAI_API_KEY")
+	if openaiAPIKey == "" {
+		openaiAPIKey = "TEMPORARY SECRET"
+	}
+	fmt.Println("OPEN AI KEY: ", openaiAPIKey)
 	client := openai.NewClient(openaiAPIKey)
 
 	req := openai.ChatCompletionRequest{

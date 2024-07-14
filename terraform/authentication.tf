@@ -1,6 +1,6 @@
-# Create ECS service for the user service
-resource "aws_ecs_service" "user" {
-  name             = "user"
+# Create ECS service for the authentication service
+resource "aws_ecs_service" "authentication" {
+  name             = "authentication"
   cluster          = aws_ecs_cluster.main.id
   desired_count    = 1
   launch_type      = "FARGATE"
@@ -12,7 +12,7 @@ resource "aws_ecs_service" "user" {
     subnets          = data.aws_subnets.default.ids
   }
 
-  task_definition = aws_ecs_task_definition.user.arn
+  task_definition = aws_ecs_task_definition.authentication.arn
 
   lifecycle {
     ignore_changes = [task_definition, desired_count]
@@ -20,7 +20,7 @@ resource "aws_ecs_service" "user" {
   }
 
   service_registries {
-    registry_arn = aws_service_discovery_service.user.arn
+    registry_arn = aws_service_discovery_service.authentication.arn
   }
 
   tags = {
@@ -28,8 +28,8 @@ resource "aws_ecs_service" "user" {
   }
 }
 
-resource "aws_service_discovery_service" "user" {
-  name = "user"
+resource "aws_service_discovery_service" "authentication" {
+  name = "authentication"
 
   dns_config {
     namespace_id = aws_service_discovery_private_dns_namespace.internal.id
@@ -45,9 +45,9 @@ resource "aws_service_discovery_service" "user" {
   }
 }
 
-# Create task definition for the user service
-resource "aws_ecs_task_definition" "user" {
-  family                   = "user"
+# Create task definition for the authentication service
+resource "aws_ecs_task_definition" "authentication" {
+  family                   = "authentication"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = "256"
@@ -55,52 +55,32 @@ resource "aws_ecs_task_definition" "user" {
 
   container_definitions = jsonencode([
     {
-      name  = "service-user"
-      image = local.service_images["service-user"]
+      name  = "service-authentication"
+      image = local.service_images["service-authentication"]
       portMappings = [
         {
-          containerPort = 4003
-          hostPort      = 4003
-        },
-        {
-          containerPort = 50053
-          hostPort      = 50053
+          containerPort = 4001
+          hostPort      = 4001
         }
       ]
       environment = [
         {
           name = "GRAPHQL_PORT",
-          value = "4003"
+          value = "4001"
         },
         {
           name = "USER_GRPC_PORT",
           value = "50053"
         },
         {
-          name = "DB_PORT",
-          value = "5432"
-        },
-        {
-          name = "DB_HOST",
-          value = aws_db_instance.default.address
-        },
-        {
-          name = "DB_USER",
-          value = "postgres"
-        },
-        {
-          name = "DB_NAME",
-          value = "mydb"
-        },
-        {
-          name = "DB_PASSWORD",
-          value = "mypassword"
+          name = "USER_SERVICE_HOST",
+          value = "user.mycontent.internal"
         }
       ]
       logConfiguration = {
         logDriver = "awslogs"
         options = {
-          awslogs-group         = aws_cloudwatch_log_group.user.name
+          awslogs-group         = aws_cloudwatch_log_group.authentication.name
           awslogs-region        = data.aws_region.current.name
           awslogs-stream-prefix = "ecs"
         }
@@ -120,9 +100,8 @@ resource "aws_ecs_task_definition" "user" {
   }
 }
 
-# Create CloudWatch log groups for the new services
-resource "aws_cloudwatch_log_group" "user" {
-  name              = "/ecs/${local.namespace}/user"
+resource "aws_cloudwatch_log_group" "authentication" {
+  name              = "/ecs/${local.namespace}/authentication"
   retention_in_days = 30
 
   tags = {

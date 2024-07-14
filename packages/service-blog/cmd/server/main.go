@@ -12,7 +12,6 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	grpc_client "github.com/kokiebisu/mycontent/packages/service-blog/adapter/grpc"
 	"github.com/kokiebisu/mycontent/packages/service-blog/adapter/service"
-	"github.com/kokiebisu/mycontent/packages/service-blog/config"
 	"github.com/kokiebisu/mycontent/packages/service-blog/graphql/generated"
 	"github.com/kokiebisu/mycontent/packages/shared/ent"
 	"github.com/kokiebisu/mycontent/packages/shared/proto"
@@ -24,7 +23,7 @@ import (
 )
 
 func main() {
-	config.LoadEnv()
+	// config.LoadEnv()
 	dbHost := os.Getenv("DB_HOST")
 	dbPort := os.Getenv("DB_PORT")
 	dbUser := os.Getenv("DB_USER")

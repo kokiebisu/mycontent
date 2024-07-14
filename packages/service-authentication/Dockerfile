@@ -10,12 +10,12 @@ COPY . .
 
 WORKDIR /app/packages/service-authentication
 
-RUN GOOS=linux GOARCH=arm64 go build -o main .
+RUN GOOS=linux GOARCH=arm64 go build -o server ./cmd/server/main.go
 
 FROM golang:latest
 
-COPY --from=Builder /app/packages/service-authentication/main /main
+COPY --from=Builder /app/packages/service-authentication/server /server
 
 EXPOSE 4001
 
-CMD ["/main"]
+CMD ["/server"]

@@ -1,6 +1,6 @@
-# Create ECS service for the user service
-resource "aws_ecs_service" "user" {
-  name             = "user"
+# Create ECS service for the blog service
+resource "aws_ecs_service" "blog" {
+  name             = "blog"
   cluster          = aws_ecs_cluster.main.id
   desired_count    = 1
   launch_type      = "FARGATE"
@@ -12,7 +12,7 @@ resource "aws_ecs_service" "user" {
     subnets          = data.aws_subnets.default.ids
   }
 
-  task_definition = aws_ecs_task_definition.user.arn
+  task_definition = aws_ecs_task_definition.blog.arn
 
   lifecycle {
     ignore_changes = [task_definition, desired_count]
@@ -20,7 +20,7 @@ resource "aws_ecs_service" "user" {
   }
 
   service_registries {
-    registry_arn = aws_service_discovery_service.user.arn
+    registry_arn = aws_service_discovery_service.blog.arn
   }
 
   tags = {
@@ -28,8 +28,8 @@ resource "aws_ecs_service" "user" {
   }
 }
 
-resource "aws_service_discovery_service" "user" {
-  name = "user"
+resource "aws_service_discovery_service" "blog" {
+  name = "blog"
 
   dns_config {
     namespace_id = aws_service_discovery_private_dns_namespace.internal.id
@@ -45,9 +45,9 @@ resource "aws_service_discovery_service" "user" {
   }
 }
 
-# Create task definition for the user service
-resource "aws_ecs_task_definition" "user" {
-  family                   = "user"
+# Create task definition for the blog service
+resource "aws_ecs_task_definition" "blog" {
+  family                   = "blog"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = "256"
@@ -55,26 +55,26 @@ resource "aws_ecs_task_definition" "user" {
 
   container_definitions = jsonencode([
     {
-      name  = "service-user"
-      image = local.service_images["service-user"]
+      name  = "service-blog"
+      image = local.service_images["service-blog"]
       portMappings = [
         {
-          containerPort = 4003
-          hostPort      = 4003
+          containerPort = 4002
+          hostPort      = 4002
         },
         {
-          containerPort = 50053
-          hostPort      = 50053
+          containerPort = 50052
+          hostPort      = 50052
         }
       ]
       environment = [
         {
           name = "GRAPHQL_PORT",
-          value = "4003"
+          value = "4002"
         },
         {
-          name = "USER_GRPC_PORT",
-          value = "50053"
+          name = "BLOG_GRPC_PORT",
+          value = "50052"
         },
         {
           name = "DB_PORT",
@@ -100,7 +100,7 @@ resource "aws_ecs_task_definition" "user" {
       logConfiguration = {
         logDriver = "awslogs"
         options = {
-          awslogs-group         = aws_cloudwatch_log_group.user.name
+          awslogs-group         = aws_cloudwatch_log_group.blog.name
           awslogs-region        = data.aws_region.current.name
           awslogs-stream-prefix = "ecs"
         }
@@ -120,9 +120,8 @@ resource "aws_ecs_task_definition" "user" {
   }
 }
 
-# Create CloudWatch log groups for the new services
-resource "aws_cloudwatch_log_group" "user" {
-  name              = "/ecs/${local.namespace}/user"
+resource "aws_cloudwatch_log_group" "blog" {
+  name              = "/ecs/${local.namespace}/blog"
   retention_in_days = 30
 
   tags = {
