@@ -19,17 +19,22 @@ const gateway = new ApolloGateway({
     subgraphs: [
       {
         name: "authentication",
-        url:
+        url: `${
           process.env.AUTHENTICATION_SERVICE_URL ||
-          "http://service-authentication:4001/query",
+          "http://service-authentication"
+        }:4001/query`,
       },
       {
         name: "blogs",
-        url: process.env.BLOG_SERVICE_URL || "http://service-blog:4002/query",
+        url: `${
+          process.env.BLOG_SERVICE_URL || "http://service-blog"
+        }:4002/query`,
       },
       {
         name: "users",
-        url: process.env.USER_SERVICE_URL || "http://service-user:4003/query",
+        url: `${
+          process.env.USER_SERVICE_URL || "http://service-user"
+        }:4003/query`,
       },
     ],
     pollIntervalInMs: 1000,

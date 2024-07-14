@@ -25,7 +25,7 @@ func main() {
 	if userGrpcPort == "" {
 		log.Fatal("USER_GRPC_PORT is not set")
 	}
-	conn, err := grpc.NewClient(fmt.Sprintf("%s:%s", os.Getenv("USER_SERVICE_URL"), userGrpcPort), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient(fmt.Sprintf("%s:%s", os.Getenv("USER_SERVICE_HOST"), userGrpcPort), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("Failed to dial: %v", err)
 	}
