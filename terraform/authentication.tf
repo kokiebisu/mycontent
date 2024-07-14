@@ -14,19 +14,34 @@ resource "aws_ecs_service" "authentication" {
 
   task_definition = aws_ecs_task_definition.authentication.arn
 
-  load_balancer {
-    target_group_arn = aws_lb_target_group.authentication.arn
-    container_name   = "service-authentication"
-    container_port   = 4001
-  }
-
   lifecycle {
     ignore_changes = [task_definition, desired_count]
     create_before_destroy = true
   }
 
+  service_registries {
+    registry_arn = aws_service_discovery_service.authentication.arn
+  }
+
   tags = {
     Environment = "production"
+  }
+}
+
+resource "aws_service_discovery_service" "authentication" {
+  name = "authentication"
+
+  dns_config {
+    namespace_id = aws_service_discovery_private_dns_namespace.internal.id
+    
+    dns_records {
+      ttl  = 10
+      type = "A"
+    }
+  }
+
+  health_check_custom_config {
+    failure_threshold = 1
   }
 }
 
@@ -58,8 +73,8 @@ resource "aws_ecs_task_definition" "authentication" {
           value = "50053"
         },
         {
-          name = "USER_SERVICE_URL",
-          value = "${aws_lb.internal.dns_name}:4003"
+          name = "USER_SERVICE_HOST",
+          value = "user.mycontent.internal"
         }
       ]
       logConfiguration = {
@@ -93,32 +108,3 @@ resource "aws_cloudwatch_log_group" "authentication" {
     Environment = "production"
   }
 }
-
-# Create target groups for each service
-resource "aws_lb_target_group" "authentication" {
-  name        = "${local.namespace}-auth-tg"
-  port        = 4001
-  protocol    = "TCP"
-  vpc_id      = data.aws_vpc.default.id
-  target_type = "ip"
-
-  health_check {
-    path                = "/playground"
-    healthy_threshold   = 2
-    unhealthy_threshold = 10
-    timeout             = 30
-    interval            = 60
-  }
-}
-
-resource "aws_lb_listener" "authentication" {
-  load_balancer_arn = aws_lb.internal.arn
-  port              = "4001"
-  protocol          = "TCP"
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.authentication.arn
-  }
-}
-

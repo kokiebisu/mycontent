@@ -25,8 +25,29 @@ resource "aws_ecs_service" "gateway" {
     create_before_destroy = true
   }
 
+  service_registries {
+    registry_arn = aws_service_discovery_service.gateway.arn
+  }
+
   tags = {
     Environment = "production"
+  }
+}
+
+resource "aws_service_discovery_service" "gateway" {
+  name = "gateway"
+
+  dns_config {
+    namespace_id = aws_service_discovery_private_dns_namespace.internal.id
+    
+    dns_records {
+      ttl  = 10
+      type = "A"
+    }
+  }
+
+  health_check_custom_config {
+    failure_threshold = 1
   }
 }
 
@@ -45,15 +66,15 @@ resource "aws_ecs_task_definition" "gateway" {
       environment = [
         {
           name  = "AUTHENTICATION_SERVICE_URL"
-          value = "http://${aws_lb.internal.dns_name}:4001/query"
-        },
-        {
-          name  = "USER_SERVICE_URL"
-          value = "http://${aws_lb.internal.dns_name}:4003/query"
+          value = "http://authentication.mycontent.internal"
         },
         {
           name  = "BLOG_SERVICE_URL"
-          value = "http://${aws_lb.internal.dns_name}:4002/query"
+          value = "http://blog.mycontent.internal"
+        },
+        {
+          name  = "USER_SERVICE_URL"
+          value = "http://user.mycontent.internal"
         },
         {
           name = "GRAPHQL_PORT",

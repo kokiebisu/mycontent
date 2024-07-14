@@ -12,18 +12,6 @@ resource "aws_ecs_service" "blog" {
     subnets          = data.aws_subnets.default.ids
   }
 
-  load_balancer {
-    target_group_arn = aws_lb_target_group.blog_graphql.arn
-    container_name   = "service-blog"
-    container_port   = 4002
-  }
-
-  load_balancer {
-    target_group_arn = aws_lb_target_group.blog_grpc.arn
-    container_name   = "service-blog"
-    container_port   = 50052
-  }
-
   task_definition = aws_ecs_task_definition.blog.arn
 
   lifecycle {
@@ -31,8 +19,29 @@ resource "aws_ecs_service" "blog" {
     create_before_destroy = true
   }
 
+  service_registries {
+    registry_arn = aws_service_discovery_service.blog.arn
+  }
+
   tags = {
     Environment = "production"
+  }
+}
+
+resource "aws_service_discovery_service" "blog" {
+  name = "blog"
+
+  dns_config {
+    namespace_id = aws_service_discovery_private_dns_namespace.internal.id
+    
+    dns_records {
+      ttl  = 10
+      type = "A"
+    }
+  }
+
+  health_check_custom_config {
+    failure_threshold = 1
   }
 }
 
@@ -117,60 +126,5 @@ resource "aws_cloudwatch_log_group" "blog" {
 
   tags = {
     Environment = "production"
-  }
-}
-
-resource "aws_lb_target_group" "blog_graphql" {
-  name        = "${local.namespace}-blog-graphql-tg"
-  port        = 4002
-  protocol    = "TCP"
-  vpc_id      = data.aws_vpc.default.id
-  target_type = "ip"
-
-  health_check {
-    protocol = "HTTP"
-    path = "/playground"
-    healthy_threshold   = 2
-    unhealthy_threshold = 10
-    timeout             = 30
-    interval            = 60
-  }
-}
-
-resource "aws_lb_target_group" "blog_grpc" {
-  name        = "${local.namespace}-blog-grpc-tg"
-  port        = 50052
-  protocol    = "TCP"
-  vpc_id      = data.aws_vpc.default.id
-  target_type = "ip"
-
-  health_check {
-    protocol = "TCP"
-    healthy_threshold   = 2
-    unhealthy_threshold = 10
-    timeout             = 30
-    interval            = 60
-  }
-}
-
-resource "aws_lb_listener" "blog_graphql" {
-  load_balancer_arn = aws_lb.internal.arn
-  port              = "4002"
-  protocol          = "TCP"
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.blog_graphql.arn
-  }
-}
-
-resource "aws_lb_listener" "blog_grpc" {
-  load_balancer_arn = aws_lb.internal.arn
-  port              = "50052"
-  protocol          = "TCP"
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.blog_grpc.arn
   }
 }
