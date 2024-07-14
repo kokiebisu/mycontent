@@ -16,6 +16,8 @@ import (
 	"github.com/kokiebisu/mycontent/packages/shared/ent"
 	"github.com/kokiebisu/mycontent/packages/shared/proto"
 
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/kokiebisu/mycontent/packages/service-blog/graphql/resolver"
 	_ "github.com/lib/pq"
 	"google.golang.org/grpc"
@@ -30,25 +32,28 @@ func main() {
 	dbName := os.Getenv("DB_NAME")
 	dbPassword := os.Getenv("DB_PASSWORD")
 
-	client, err := ent.Open("postgres", "host=" + dbHost + " port=" + dbPort + " user=" + dbUser + " dbname=" + dbName + " sslmode=disable password=" + dbPassword)
+	dbClient, err := ent.Open("postgres", "host=" + dbHost + " port=" + dbPort + " user=" + dbUser + " dbname=" + dbName + " sslmode=disable password=" + dbPassword)
 	if err != nil {
 		log.Fatalf("failed opening connection to postgres: %v", err)
 	}
-	defer client.Close()
+	defer dbClient.Close()
 
-	if err := client.Schema.Create(context.Background(), schema.WithDropIndex(true), schema.WithDropColumn(true),); err != nil {
+	if err := dbClient.Schema.Create(context.Background(), schema.WithDropIndex(true), schema.WithDropColumn(true),); err != nil {
 		log.Fatalf("failed creating schema resources: %v", err)
 	}
+	cfg, err := config.LoadDefaultConfig(context.TODO())
+	s3Client := s3.NewFromConfig(cfg)
 
-	blogService := service.NewBlogService(client)
-	integrationService := service.NewIntegrationService(client)
+	blogService := service.NewBlogService(dbClient)
+	integrationService := service.NewIntegrationService(dbClient)
+	storageService := service.NewStorageService(s3Client)
 
 	go func() {
 		port := os.Getenv("GRAPHQL_PORT")
 		if port == "" {
 			log.Fatal("GRAPHQL_PORT is not set")
 		}
-		srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &resolver.Resolver{ BlogService: blogService, IntegrationService: integrationService }}))
+		srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &resolver.Resolver{ BlogService: blogService, IntegrationService: integrationService, StorageService: storageService }}))
 	
 		http.Handle("/playground", playground.Handler("GraphQL playground", "/query"))
 		http.Handle("/query", srv)

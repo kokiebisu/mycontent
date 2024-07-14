@@ -14,6 +14,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
 	"github.com/99designs/gqlgen/plugin/federation/fedruntime"
+	"github.com/kokiebisu/mycontent/packages/service-blog/graphql/model"
 	"github.com/kokiebisu/mycontent/packages/shared/ent"
 	"github.com/kokiebisu/mycontent/packages/shared/ent/blog"
 	"github.com/kokiebisu/mycontent/packages/shared/enum"
@@ -77,8 +78,14 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		DeleteBlog        func(childComplexity int, id string) int
-		DeleteIntegration func(childComplexity int, id string) int
+		CreatePresignedURL func(childComplexity int, input model.CreatePresignedURLInput) int
+		DeleteBlog         func(childComplexity int, id string) int
+		DeleteIntegration  func(childComplexity int, id string) int
+	}
+
+	PresignedUrlResponse struct {
+		Key func(childComplexity int) int
+		URL func(childComplexity int) int
 	}
 
 	Query struct {
@@ -122,6 +129,7 @@ type IntegrationResolver interface {
 type MutationResolver interface {
 	DeleteBlog(ctx context.Context, id string) (string, error)
 	DeleteIntegration(ctx context.Context, id string) (string, error)
+	CreatePresignedURL(ctx context.Context, input model.CreatePresignedURLInput) (*model.PresignedURLResponse, error)
 }
 type QueryResolver interface {
 	Blog(ctx context.Context, id string) (*ent.Blog, error)
@@ -262,6 +270,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Integration.UserID(childComplexity), true
 
+	case "Mutation.createPresignedUrl":
+		if e.complexity.Mutation.CreatePresignedURL == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createPresignedUrl_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreatePresignedURL(childComplexity, args["input"].(model.CreatePresignedURLInput)), true
+
 	case "Mutation.deleteBlog":
 		if e.complexity.Mutation.DeleteBlog == nil {
 			break
@@ -285,6 +305,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.DeleteIntegration(childComplexity, args["id"].(string)), true
+
+	case "PresignedUrlResponse.key":
+		if e.complexity.PresignedUrlResponse.Key == nil {
+			break
+		}
+
+		return e.complexity.PresignedUrlResponse.Key(childComplexity), true
+
+	case "PresignedUrlResponse.url":
+		if e.complexity.PresignedUrlResponse.URL == nil {
+			break
+		}
+
+		return e.complexity.PresignedUrlResponse.URL(childComplexity), true
 
 	case "Query.blog":
 		if e.complexity.Query.Blog == nil {
@@ -388,7 +422,9 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
-	inputUnmarshalMap := graphql.BuildUnmarshalerMap()
+	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputCreatePresignedUrlInput,
+	)
 	first := true
 
 	switch rc.Operation.Operation {
@@ -519,6 +555,18 @@ type Query {
 type Mutation {
   deleteBlog(id: ID!): String!
   deleteIntegration(id: ID!): String!
+  createPresignedUrl(input: CreatePresignedUrlInput!): PresignedUrlResponse!
+}
+
+input CreatePresignedUrlInput {
+  bucketName: String!
+  fileName: String!
+  fileType: String!
+}
+
+type PresignedUrlResponse {
+  url: String!
+  key: String!
 }
 
 enum Interest {
@@ -600,6 +648,21 @@ func (ec *executionContext) field_Entity_findIntegrationByID_args(ctx context.Co
 		}
 	}
 	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_createPresignedUrl_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.CreatePresignedURLInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNCreatePresignedUrlInput2githubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑblogᚋgraphqlᚋmodelᚐCreatePresignedURLInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
 	return args, nil
 }
 
@@ -1542,6 +1605,155 @@ func (ec *executionContext) fieldContext_Mutation_deleteIntegration(ctx context.
 	if fc.Args, err = ec.field_Mutation_deleteIntegration_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_createPresignedUrl(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createPresignedUrl(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreatePresignedURL(rctx, fc.Args["input"].(model.CreatePresignedURLInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.PresignedURLResponse)
+	fc.Result = res
+	return ec.marshalNPresignedUrlResponse2ᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑblogᚋgraphqlᚋmodelᚐPresignedURLResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createPresignedUrl(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "url":
+				return ec.fieldContext_PresignedUrlResponse_url(ctx, field)
+			case "key":
+				return ec.fieldContext_PresignedUrlResponse_key(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type PresignedUrlResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createPresignedUrl_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PresignedUrlResponse_url(ctx context.Context, field graphql.CollectedField, obj *model.PresignedURLResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PresignedUrlResponse_url(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.URL, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PresignedUrlResponse_url(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PresignedUrlResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _PresignedUrlResponse_key(ctx context.Context, field graphql.CollectedField, obj *model.PresignedURLResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_PresignedUrlResponse_key(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Key, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_PresignedUrlResponse_key(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "PresignedUrlResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
 	}
 	return fc, nil
 }
@@ -4014,6 +4226,47 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(_ context.Context
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputCreatePresignedUrlInput(ctx context.Context, obj interface{}) (model.CreatePresignedURLInput, error) {
+	var it model.CreatePresignedURLInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"bucketName", "fileName", "fileType"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "bucketName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("bucketName"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.BucketName = data
+		case "fileName":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fileName"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FileName = data
+		case "fileType":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fileType"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FileType = data
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -4533,6 +4786,57 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_deleteIntegration(ctx, field)
 			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createPresignedUrl":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createPresignedUrl(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var presignedUrlResponseImplementors = []string{"PresignedUrlResponse"}
+
+func (ec *executionContext) _PresignedUrlResponse(ctx context.Context, sel ast.SelectionSet, obj *model.PresignedURLResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, presignedUrlResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("PresignedUrlResponse")
+		case "url":
+			out.Values[i] = ec._PresignedUrlResponse_url(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "key":
+			out.Values[i] = ec._PresignedUrlResponse_key(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -5304,6 +5608,11 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
+func (ec *executionContext) unmarshalNCreatePresignedUrlInput2githubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑblogᚋgraphqlᚋmodelᚐCreatePresignedURLInput(ctx context.Context, v interface{}) (model.CreatePresignedURLInput, error) {
+	res, err := ec.unmarshalInputCreatePresignedUrlInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
 	res, err := graphql.UnmarshalID(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -5407,6 +5716,20 @@ func (ec *executionContext) marshalNPlatform2githubᚗcomᚋkokiebisuᚋmyconten
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalNPresignedUrlResponse2githubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑblogᚋgraphqlᚋmodelᚐPresignedURLResponse(ctx context.Context, sel ast.SelectionSet, v model.PresignedURLResponse) graphql.Marshaler {
+	return ec._PresignedUrlResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNPresignedUrlResponse2ᚖgithubᚗcomᚋkokiebisuᚋmycontentᚋpackagesᚋserviceᚑblogᚋgraphqlᚋmodelᚐPresignedURLResponse(ctx context.Context, sel ast.SelectionSet, v *model.PresignedURLResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._PresignedUrlResponse(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {

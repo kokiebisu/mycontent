@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/kokiebisu/mycontent/packages/service-blog/graphql/generated"
+	"github.com/kokiebisu/mycontent/packages/service-blog/graphql/model"
 	"github.com/kokiebisu/mycontent/packages/shared/ent"
 	"github.com/kokiebisu/mycontent/packages/shared/ent/blog"
 	"github.com/kokiebisu/mycontent/packages/shared/enum"
@@ -73,6 +74,15 @@ func (r *mutationResolver) DeleteIntegration(ctx context.Context, id string) (st
 	return id, nil
 }
 
+// CreatePresignedURL is the resolver for the createPresignedUrl field.
+func (r *mutationResolver) CreatePresignedURL(ctx context.Context, input model.CreatePresignedURLInput) (*model.PresignedURLResponse, error) {
+	url, err := r.StorageService.CreatePresignedUrl(ctx, input.BucketName, input.FileName, input.FileType)
+	if err != nil {
+		return nil, err
+	}
+	return &model.PresignedURLResponse{URL: url}, nil
+}
+
 // Blog is the resolver for the blog field.
 func (r *queryResolver) Blog(ctx context.Context, id string) (*ent.Blog, error) {
 	blog, err := r.BlogService.Get(ctx, id)
@@ -112,12 +122,12 @@ func (r *queryResolver) IntegrationsByUserID(ctx context.Context, userID string,
 
 // ID is the resolver for the id field.
 func (r *userResolver) ID(ctx context.Context, obj *ent.User) (string, error) {
-	panic(fmt.Errorf("not implemented: ID - id"))
+	return obj.ID.String(), nil
 }
 
 // Interest is the resolver for the interest field.
 func (r *userResolver) Interest(ctx context.Context, obj *ent.User) (blog.Interest, error) {
-	panic(fmt.Errorf("not implemented: Interest - interest"))
+	return blog.Interest(obj.Interest), nil
 }
 
 // Blog returns generated.BlogResolver implementation.

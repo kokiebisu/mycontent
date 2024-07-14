@@ -32,6 +32,18 @@ type Query {
 type Mutation {
   deleteBlog(id: ID!): String!
   deleteIntegration(id: ID!): String!
+  createPresignedUrl(input: CreatePresignedUrlInput!): PresignedUrlResponse!
+}
+
+input CreatePresignedUrlInput {
+  bucketName: String!
+  fileName: String!
+  fileType: String!
+}
+
+type PresignedUrlResponse {
+  url: String!
+  key: String!
 }
 
 enum Interest {

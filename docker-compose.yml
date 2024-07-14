@@ -49,6 +49,7 @@ services:
     environment:
       GRAPHQL_PORT: "4002"
       BLOG_GRPC_PORT: "50052"
+      S3_HOST: "http://localhost:4566"
       DB_PORT: "5432"
       DB_HOST: "db"
       DB_USER: "postgres"
@@ -115,6 +116,14 @@ services:
       - "4000:4000"
     volumes:
       - ./packages/gateway/src:/app/src
+
+  localstack:
+    image: localstack/localstack
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=s3
+      - DEBUG=1
 
 networks:
   mycontent-network:
