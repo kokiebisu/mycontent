@@ -8,8 +8,8 @@ resource "aws_ecs_service" "authentication" {
 
   network_configuration {
     assign_public_ip = true
-    security_groups  = [aws_security_group.ecs_tasks.id]
-    subnets          = data.aws_subnets.default.ids
+    security_groups  = [var.ecs_task_security_group_id]
+    subnets          = var.subnet_ids
   }
 
   task_definition = aws_ecs_task_definition.authentication.arn
@@ -24,7 +24,7 @@ resource "aws_ecs_service" "authentication" {
   }
 
   tags = {
-    Environment = "production"
+    Environment = var.environment
   }
 }
 
@@ -56,7 +56,7 @@ resource "aws_ecs_task_definition" "authentication" {
   container_definitions = jsonencode([
     {
       name  = "service-authentication"
-      image = local.service_images["service-authentication"]
+      image = var.service_images["service-authentication"]
       portMappings = [
         {
           containerPort = 4001
@@ -81,30 +81,30 @@ resource "aws_ecs_task_definition" "authentication" {
         logDriver = "awslogs"
         options = {
           awslogs-group         = aws_cloudwatch_log_group.authentication.name
-          awslogs-region        = data.aws_region.current.name
+          awslogs-region        = var.region_name
           awslogs-stream-prefix = "ecs"
         }
       }
     }
   ])
 
-  execution_role_arn = aws_iam_role.ecs_execution_role.arn
-  task_role_arn      = aws_iam_role.ecs_task_role.arn
+  execution_role_arn = var.ecs_execution_role_arn
+  task_role_arn      = var.ecs_task_role_arn
 
   runtime_platform {
     cpu_architecture = "ARM64"
   } 
 
   tags = {
-    Environment = "production"
+    Environment = var.environment
   }
 }
 
 resource "aws_cloudwatch_log_group" "authentication" {
-  name              = "/ecs/${local.namespace}/authentication"
+  name              = "/ecs/${var.environment}/authentication"
   retention_in_days = 30
 
   tags = {
-    Environment = "production"
+    Environment = var.environment
   }
 }

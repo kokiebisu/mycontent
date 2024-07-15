@@ -1,6 +1,6 @@
-# Create ECS service for the blog service
-resource "aws_ecs_service" "blog" {
-  name             = "blog"
+# Create ECS service for the user service
+resource "aws_ecs_service" "user" {
+  name             = "user"
   cluster          = aws_ecs_cluster.main.id
   desired_count    = 1
   launch_type      = "FARGATE"
@@ -8,11 +8,11 @@ resource "aws_ecs_service" "blog" {
 
   network_configuration {
     assign_public_ip = true
-    security_groups  = [aws_security_group.ecs_tasks.id]
-    subnets          = data.aws_subnets.default.ids
+    security_groups  = [var.ecs_task_security_group_id]
+    subnets          = var.subnet_ids
   }
 
-  task_definition = aws_ecs_task_definition.blog.arn
+  task_definition = aws_ecs_task_definition.user.arn
 
   lifecycle {
     ignore_changes = [task_definition, desired_count]
@@ -20,16 +20,16 @@ resource "aws_ecs_service" "blog" {
   }
 
   service_registries {
-    registry_arn = aws_service_discovery_service.blog.arn
+    registry_arn = aws_service_discovery_service.user.arn
   }
 
   tags = {
-    Environment = "production"
+    Environment = var.environment
   }
 }
 
-resource "aws_service_discovery_service" "blog" {
-  name = "blog"
+resource "aws_service_discovery_service" "user" {
+  name = "user"
 
   dns_config {
     namespace_id = aws_service_discovery_private_dns_namespace.internal.id
@@ -45,9 +45,9 @@ resource "aws_service_discovery_service" "blog" {
   }
 }
 
-# Create task definition for the blog service
-resource "aws_ecs_task_definition" "blog" {
-  family                   = "blog"
+# Create task definition for the user service
+resource "aws_ecs_task_definition" "user" {
+  family                   = "user"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = "256"
@@ -55,26 +55,26 @@ resource "aws_ecs_task_definition" "blog" {
 
   container_definitions = jsonencode([
     {
-      name  = "service-blog"
-      image = local.service_images["service-blog"]
+      name  = "service-user"
+      image = var.service_images["service-user"]
       portMappings = [
         {
-          containerPort = 4002
-          hostPort      = 4002
+          containerPort = 4003
+          hostPort      = 4003
         },
         {
-          containerPort = 50052
-          hostPort      = 50052
+          containerPort = 50053
+          hostPort      = 50053
         }
       ]
       environment = [
         {
           name = "GRAPHQL_PORT",
-          value = "4002"
+          value = "4003"
         },
         {
-          name = "BLOG_GRPC_PORT",
-          value = "50052"
+          name = "USER_GRPC_PORT",
+          value = "50053"
         },
         {
           name = "DB_PORT",
@@ -82,7 +82,7 @@ resource "aws_ecs_task_definition" "blog" {
         },
         {
           name = "DB_HOST",
-          value = aws_db_instance.default.address
+          value = var.db_host
         },
         {
           name = "DB_USER",
@@ -100,31 +100,32 @@ resource "aws_ecs_task_definition" "blog" {
       logConfiguration = {
         logDriver = "awslogs"
         options = {
-          awslogs-group         = aws_cloudwatch_log_group.blog.name
-          awslogs-region        = data.aws_region.current.name
+          awslogs-group         = aws_cloudwatch_log_group.user.name
+          awslogs-region        = var.region_name
           awslogs-stream-prefix = "ecs"
         }
       }
     }
   ])
 
-  execution_role_arn = aws_iam_role.ecs_execution_role.arn
-  task_role_arn      = aws_iam_role.ecs_task_role.arn
+  execution_role_arn = var.ecs_execution_role_arn
+  task_role_arn      = var.ecs_task_role_arn
 
   runtime_platform {
     cpu_architecture = "ARM64"
   } 
 
   tags = {
-    Environment = "production"
+    Environment = var.environment
   }
 }
 
-resource "aws_cloudwatch_log_group" "blog" {
-  name              = "/ecs/${local.namespace}/blog"
+# Create CloudWatch log groups for the new services
+resource "aws_cloudwatch_log_group" "user" {
+  name              = "/ecs/${var.environment}/user"
   retention_in_days = 30
 
   tags = {
-    Environment = "production"
+    Environment = var.environment
   }
 }

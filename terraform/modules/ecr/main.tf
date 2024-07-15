@@ -1,6 +1,6 @@
 # Create ECR repositories for each service
 resource "aws_ecr_repository" "services" {
-  for_each = toset(["gateway", "service-authentication", "service-blog", "service-user"])
+  for_each = toset(var.services)
 
   name                 = each.key
   image_tag_mutability = "MUTABLE"
@@ -10,7 +10,7 @@ resource "aws_ecr_repository" "services" {
   }
 
   tags = {
-    Environment = "production"
+    Environment = var.environment
   }
 
   force_delete = true

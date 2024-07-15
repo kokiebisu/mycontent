@@ -1,6 +1,6 @@
 # Create an ECS cluster
 resource "aws_ecs_cluster" "main" {
-  name = local.namespace
+  name = "cluster"
 
   setting {
     name  = "containerInsights"
@@ -8,20 +8,20 @@ resource "aws_ecs_cluster" "main" {
   }
 
   tags = {
-    Environment = "production"
+    Environment = var.environment
   }
 }
 
 # Create an Application Load Balancer for external access
 resource "aws_lb" "external" {
-  name               = "${local.namespace}-external-alb"
+  name               = "external-alb"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.alb.id]
-  subnets            = data.aws_subnets.default.ids
+  security_groups    = [var.alb_security_group_id]
+  subnets            = var.subnet_ids
 
   tags = {
-    Environment = "production"
+    Environment = var.environment
   }
 }
 
@@ -29,5 +29,5 @@ resource "aws_lb" "external" {
 resource "aws_service_discovery_private_dns_namespace" "internal" {
   name        = "mycontent.internal"
   description = "Internal service discovery namespace"
-  vpc         = data.aws_vpc.default.id
+  vpc         = var.vpc_id
 }

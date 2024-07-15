@@ -8,8 +8,8 @@ resource "aws_ecs_service" "gateway" {
 
   network_configuration {
     assign_public_ip = true
-    security_groups  = [aws_security_group.ecs_tasks.id]
-    subnets          = data.aws_subnets.default.ids
+    security_groups  = [var.ecs_task_security_group_id]
+    subnets          = var.subnet_ids
   }
 
   task_definition = aws_ecs_task_definition.gateway.arn
@@ -30,7 +30,7 @@ resource "aws_ecs_service" "gateway" {
   }
 
   tags = {
-    Environment = "production"
+    Environment = var.environment
   }
 }
 
@@ -62,7 +62,7 @@ resource "aws_ecs_task_definition" "gateway" {
   container_definitions = jsonencode([
     {
       name  = "gateway"
-      image = local.service_images["gateway"]
+      image = var.service_images["gateway"]
       environment = [
         {
           name  = "AUTHENTICATION_SERVICE_URL"
@@ -95,42 +95,42 @@ resource "aws_ecs_task_definition" "gateway" {
         logDriver = "awslogs"
         options = {
           awslogs-group         = aws_cloudwatch_log_group.gateway.name
-          awslogs-region        = data.aws_region.current.name
+          awslogs-region        = var.region_name
           awslogs-stream-prefix = "ecs"
         }
       }
     }
   ])
 
-  execution_role_arn = aws_iam_role.ecs_execution_role.arn
-  task_role_arn      = aws_iam_role.ecs_task_role.arn
+  execution_role_arn = var.ecs_execution_role_arn
+  task_role_arn      = var.ecs_task_role_arn
 
   runtime_platform {
     cpu_architecture = "X86_64"
   } 
 
   tags = {
-    Environment = "production"
+    Environment = var.environment
   }
 }
 
 # Create CloudWatch log group for the gateway service
 resource "aws_cloudwatch_log_group" "gateway" {
-  name              = "/ecs/${local.namespace}/gateway"
+  name              = "/ecs/${var.environment}/gateway"
   retention_in_days = 30
 
   tags = {
-    Environment = "production"
+    Environment = var.environment
   }
 }
 
 
 # Create a target group for the gateway service
 resource "aws_lb_target_group" "gateway" {
-  name        = "${local.namespace}-gateway-tg"
+  name        = "${var.environment}-gateway-tg"
   port        = 4000
   protocol    = "HTTP"
-  vpc_id      = data.aws_vpc.default.id
+  vpc_id      = var.vpc_id
   target_type = "ip"
 
   health_check {

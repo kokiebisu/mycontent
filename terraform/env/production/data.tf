@@ -15,19 +15,17 @@ data "aws_subnets" "default" {
 # Add this data source at the top of the file or with other data sources
 data "aws_caller_identity" "current" {}
 
-
-# Data source to get current region
+# # Data source to get current region
 data "aws_region" "current" {}
 
 data "aws_ecr_repository" "services" {
-  for_each = toset(["gateway", "service-authentication", "service-blog", "service-user"])
+  for_each = toset(var.services)
   name     = each.key
-  depends_on = [aws_ecr_repository.services]
 }
 
 locals {
   service_images = {
-    for service in ["gateway", "service-authentication", "service-blog", "service-user"] :
+    for service in var.services :
     service => try(
       "${data.aws_ecr_repository.services[service].repository_url}:latest",
       "nginx:latest"

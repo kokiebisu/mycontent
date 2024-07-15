@@ -131,8 +131,6 @@ services:
       AWS_ACCESS_KEY_ID: "test"
       AWS_SECRET_ACCESS_KEY: "test"
       AWS_DEFAULT_REGION: "us-east-1"
-    volumes:
-      - "./scripts/init-s3.sh:/etc/localstack/init/ready.d/init-s3.sh"
     networks:
       - mycontent-network
 
