@@ -11,9 +11,3 @@ mutation Login($input: LoginInput) {
     userId
   }
 }
-
-mutation Logout {
-  logout {
-    message
-  }
-}

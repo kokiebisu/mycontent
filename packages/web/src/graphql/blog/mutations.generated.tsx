@@ -17,6 +17,13 @@ export type DeleteIntegrationMutationVariables = Types.Exact<{
 
 export type DeleteIntegrationMutation = { __typename?: 'Mutation', deleteIntegration: string };
 
+export type CreatePresignedUrlMutationVariables = Types.Exact<{
+  input: Types.CreatePresignedUrlInput;
+}>;
+
+
+export type CreatePresignedUrlMutation = { __typename?: 'Mutation', createPresignedUrl: { __typename?: 'PresignedUrlResponse', url: string, key: string } };
+
 
 export const DeleteBlogDocument = gql`
     mutation DeleteBlog($id: ID!) {
@@ -80,3 +87,37 @@ export function useDeleteIntegrationMutation(baseOptions?: Apollo.MutationHookOp
 export type DeleteIntegrationMutationHookResult = ReturnType<typeof useDeleteIntegrationMutation>;
 export type DeleteIntegrationMutationResult = Apollo.MutationResult<DeleteIntegrationMutation>;
 export type DeleteIntegrationMutationOptions = Apollo.BaseMutationOptions<DeleteIntegrationMutation, DeleteIntegrationMutationVariables>;
+export const CreatePresignedUrlDocument = gql`
+    mutation CreatePresignedUrl($input: CreatePresignedUrlInput!) {
+  createPresignedUrl(input: $input) {
+    url
+    key
+  }
+}
+    `;
+export type CreatePresignedUrlMutationFn = Apollo.MutationFunction<CreatePresignedUrlMutation, CreatePresignedUrlMutationVariables>;
+
+/**
+ * __useCreatePresignedUrlMutation__
+ *
+ * To run a mutation, you first call `useCreatePresignedUrlMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreatePresignedUrlMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createPresignedUrlMutation, { data, loading, error }] = useCreatePresignedUrlMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreatePresignedUrlMutation(baseOptions?: Apollo.MutationHookOptions<CreatePresignedUrlMutation, CreatePresignedUrlMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreatePresignedUrlMutation, CreatePresignedUrlMutationVariables>(CreatePresignedUrlDocument, options);
+      }
+export type CreatePresignedUrlMutationHookResult = ReturnType<typeof useCreatePresignedUrlMutation>;
+export type CreatePresignedUrlMutationResult = Apollo.MutationResult<CreatePresignedUrlMutation>;
+export type CreatePresignedUrlMutationOptions = Apollo.BaseMutationOptions<CreatePresignedUrlMutation, CreatePresignedUrlMutationVariables>;

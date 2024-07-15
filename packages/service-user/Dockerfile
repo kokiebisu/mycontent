@@ -1,4 +1,4 @@
-FROM golang:latest as Builder
+FROM golang:latest as builder
 
 WORKDIR /app
 
@@ -14,7 +14,7 @@ RUN GOOS=linux GOARCH=arm64 go build -o server ./cmd/server/main.go
 
 FROM golang:latest
 
-COPY --from=Builder /app/packages/service-user/server /server
+COPY --from=builder /app/packages/service-user/server /server
 
 EXPOSE 4003
 

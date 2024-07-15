@@ -30,6 +30,12 @@ export type Blog = {
   userId: Scalars['ID']['output'];
 };
 
+export type CreatePresignedUrlInput = {
+  bucketName: Scalars['String']['input'];
+  fileName: Scalars['String']['input'];
+  fileType: Scalars['String']['input'];
+};
+
 export type Integration = {
   __typename?: 'Integration';
   apiKey: Scalars['String']['output'];
@@ -55,19 +61,19 @@ export type LoginInput = {
   password: Scalars['String']['input'];
 };
 
-export type LogoutPayload = {
-  __typename?: 'LogoutPayload';
-  message: Scalars['String']['output'];
-};
-
 export type Mutation = {
   __typename?: 'Mutation';
+  createPresignedUrl: PresignedUrlResponse;
   deleteBlog: Scalars['String']['output'];
   deleteIntegration: Scalars['String']['output'];
   login?: Maybe<AuthPayload>;
-  logout?: Maybe<LogoutPayload>;
   register?: Maybe<AuthPayload>;
   updateUser: User;
+};
+
+
+export type MutationCreatePresignedUrlArgs = {
+  input: CreatePresignedUrlInput;
 };
 
 
@@ -101,6 +107,12 @@ export enum Platform {
   Qiita = 'QIITA',
   Zenn = 'ZENN'
 }
+
+export type PresignedUrlResponse = {
+  __typename?: 'PresignedUrlResponse';
+  key: Scalars['String']['output'];
+  url: Scalars['String']['output'];
+};
 
 export type Query = {
   __typename?: 'Query';

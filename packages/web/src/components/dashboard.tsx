@@ -24,12 +24,18 @@ import {
   UserIcon,
   XIcon,
 } from "./icon";
+import { useCreatePresignedUrlMutation } from "@/graphql/blog";
+import { useApolloClient } from "@apollo/client";
+import { MeDocument } from "@/graphql/user";
 
 interface DashboardInterface {
   onLogout: () => void;
 }
 
 const Dashboard = ({ onLogout }: DashboardInterface) => {
+  const client = useApolloClient();
+  const userData = client.readQuery({ query: MeDocument });
+  const [createPresignedUrl] = useCreatePresignedUrlMutation();
   const [isOpen, setIsOpen] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<{
     name: string;
@@ -80,6 +86,56 @@ const Dashboard = ({ onLogout }: DashboardInterface) => {
       status: "draft",
     },
   ]);
+
+  const handleUpload = async () => {
+    if (!uploadedFile || !userData?.me?.id) {
+      console.error("Missing required data for upload");
+      return;
+    }
+
+    try {
+      const result = await createPresignedUrl({
+        variables: {
+          input: {
+            bucketName: "mycontent",
+            fileName: `conversations/user/${userData.me.id}/${uploadedFile.name}`,
+            fileType: "application/json",
+          },
+        },
+      });
+
+      if (result.data?.createPresignedUrl?.url) {
+        const presignedUrl = result.data.createPresignedUrl.url;
+
+        try {
+          const response = await fetch(presignedUrl, {
+            method: "PUT",
+            body: JSON.stringify(uploadedFile.data),
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (response.ok) {
+            console.log("File uploaded successfully");
+            setUploadedFile(null);
+            setIsOpen(false);
+          } else {
+            console.error("Failed to upload file:", response.statusText);
+          }
+        } catch (uploadError) {
+          console.error("Error uploading file:", uploadError);
+        }
+      } else {
+        console.error("No presigned URL received");
+      }
+      console.log("Presigned URL created successfully: ", result);
+      // Add logic here to actually upload the file using the presigned URL
+    } catch (error) {
+      console.log("ERROR: ", error);
+      console.error("Error creating presigned URL:", error);
+    }
+  };
 
   const handleDrop = useCallback((files: FileList) => {
     if (files.length > 0) {
@@ -251,14 +307,7 @@ const Dashboard = ({ onLogout }: DashboardInterface) => {
               <Button variant="outline" onClick={() => setIsOpen(false)}>
                 Close
               </Button>
-              <Button
-                disabled={!uploadedFile}
-                onClick={() => {
-                  // Handle upload logic here
-                  console.log("Uploading file:", uploadedFile);
-                  setIsOpen(false);
-                }}
-              >
+              <Button disabled={!uploadedFile} onClick={handleUpload}>
                 Upload
               </Button>
             </DialogFooter>

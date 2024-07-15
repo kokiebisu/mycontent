@@ -1,4 +1,4 @@
-FROM golang:latest as Builder
+FROM golang:latest AS builder
 
 RUN go install github.com/air-verse/air@latest
 
@@ -11,6 +11,8 @@ RUN go mod download
 COPY . .
 
 WORKDIR /app/packages/service-blog
+
+RUN mkdir -p /root/.aws
 
 EXPOSE 4002
 

@@ -5,3 +5,10 @@ mutation DeleteBlog($id: ID!) {
 mutation DeleteIntegration($id: ID!) {
   deleteIntegration(id: $id)
 }
+
+mutation CreatePresignedUrl($input: CreatePresignedUrlInput!) {
+  createPresignedUrl(input: $input) {
+    url
+    key
+  }
+}

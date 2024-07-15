@@ -49,12 +49,15 @@ services:
     environment:
       GRAPHQL_PORT: "4002"
       BLOG_GRPC_PORT: "50052"
-      S3_HOST: "http://localhost:4566"
+      S3_ENDPOINT: "http://localhost:4566"
       DB_PORT: "5432"
       DB_HOST: "db"
       DB_USER: "postgres"
       DB_NAME: "mydb"
       DB_PASSWORD: "mypassword"
+      AWS_ACCESS_KEY_ID: "test"
+      AWS_SECRET_ACCESS_KEY: "test"
+      AWS_DEFAULT_REGION: "us-east-1"
     ports:
       - "4002:4002"
       - "50052:50052"
@@ -118,12 +121,20 @@ services:
       - ./packages/gateway/src:/app/src
 
   localstack:
+    container_name: localstack
     image: localstack/localstack
     ports:
-      - "4566:4566"
+      - "127.0.0.1:4566:4566"
+      - "127.0.0.1:4510-4559:4510-4559"
     environment:
-      - SERVICES=s3
-      - DEBUG=1
+      DEBUG: ${DEBUG:-0}
+      AWS_ACCESS_KEY_ID: "test"
+      AWS_SECRET_ACCESS_KEY: "test"
+      AWS_DEFAULT_REGION: "us-east-1"
+    volumes:
+      - "./scripts/init-s3.sh:/etc/localstack/init/ready.d/init-s3.sh"
+    networks:
+      - mycontent-network
 
 networks:
   mycontent-network:

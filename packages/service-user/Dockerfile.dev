@@ -1,4 +1,4 @@
-FROM golang:latest as Builder
+FROM golang:latest AS builder
 
 RUN go install github.com/air-verse/air@latest
 

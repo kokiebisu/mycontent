@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net"
 	"net/http"
@@ -16,7 +17,9 @@ import (
 	"github.com/kokiebisu/mycontent/packages/shared/ent"
 	"github.com/kokiebisu/mycontent/packages/shared/proto"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/kokiebisu/mycontent/packages/service-blog/graphql/resolver"
 	_ "github.com/lib/pq"
@@ -41,8 +44,33 @@ func main() {
 	if err := dbClient.Schema.Create(context.Background(), schema.WithDropIndex(true), schema.WithDropColumn(true),); err != nil {
 		log.Fatalf("failed creating schema resources: %v", err)
 	}
-	cfg, err := config.LoadDefaultConfig(context.TODO())
-	s3Client := s3.NewFromConfig(cfg)
+	s3Endpoint := os.Getenv("S3_ENDPOINT")
+	environment := os.Getenv("ENVIRONMENT")
+
+	var credentialsLoadOption config.LoadOptionsFunc
+
+	if environment != "Production" {
+		fmt.Println("Loading s3 credentials for Non-Production...")
+		accessKey := os.Getenv("AWS_ACCESS_KEY_ID")
+		secretKey := os.Getenv("AWS_SECRET_ACCESS_KEY")
+		credentialsLoadOption = config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(accessKey, secretKey, ""))
+	}
+	region := os.Getenv("AWS_DEFAULT_REGION")
+	cfg, err := config.LoadDefaultConfig(context.TODO(),
+		config.WithRegion(region),
+		credentialsLoadOption,
+	)
+	if err != nil {
+		log.Fatalf("unable to load SDK config, %v", err)
+	}
+
+	s3Client := s3.NewFromConfig(cfg, func(o *s3.Options) {
+		if s3Endpoint != "" {
+			o.BaseEndpoint = aws.String(s3Endpoint)
+			o.UsePathStyle = true
+			fmt.Printf("S3 Endpoint set to: %s\n", s3Endpoint)
+		}
+	})
 
 	blogService := service.NewBlogService(dbClient)
 	integrationService := service.NewIntegrationService(dbClient)
