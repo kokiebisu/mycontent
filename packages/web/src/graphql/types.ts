@@ -68,6 +68,7 @@ export type Mutation = {
   deleteIntegration: Scalars['String']['output'];
   login?: Maybe<AuthPayload>;
   register?: Maybe<AuthPayload>;
+  updatePassword: User;
   updateUser: User;
 };
 
@@ -94,6 +95,12 @@ export type MutationLoginArgs = {
 
 export type MutationRegisterArgs = {
   input?: InputMaybe<RegisterInput>;
+};
+
+
+export type MutationUpdatePasswordArgs = {
+  id: Scalars['ID']['input'];
+  input?: InputMaybe<UpdatePasswordInput>;
 };
 
 
@@ -161,6 +168,11 @@ export type RegisterInput = {
   publishTime: Scalars['String']['input'];
   username: Scalars['String']['input'];
   yearsOfExperience: Scalars['Int']['input'];
+};
+
+export type UpdatePasswordInput = {
+  currentPassword: Scalars['String']['input'];
+  newPassword: Scalars['String']['input'];
 };
 
 export type UpdateUserInput = {

@@ -14,5 +14,6 @@ type UserService interface {
 	GetAll(ctx context.Context) ([]*ent.User, error)
 	GetByEmail(ctx context.Context, email string) (*ent.User, error)
 	Update(ctx context.Context, id string, firstName string, lastName string, email string, password string, interest enum.Interest, yearsOfExperience int, username string) (*ent.User, error)
+	UpdatePassword(ctx context.Context, id string, currentPassword string, newPassword string) (*ent.User, error)
 	Delete(ctx context.Context, id string) (string, error)
 }

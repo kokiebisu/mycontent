@@ -20,6 +20,7 @@ type Query {
 
 type Mutation {
   updateUser(id: ID!, input: UpdateUserInput): User!
+  updatePassword(id: ID!, input: UpdatePasswordInput): User!
 }
 
 input UpdateUserInput {
@@ -31,6 +32,11 @@ input UpdateUserInput {
   interest: Interest!
   yearsOfExperience: Int!
   publishTime: String!
+}
+
+input UpdatePasswordInput {
+  currentPassword: String!
+  newPassword: String!
 }
 
 enum Interest {

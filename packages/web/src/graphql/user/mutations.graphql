@@ -6,3 +6,12 @@ mutation UpdateUser($id: ID!, $input: UpdateUserInput!) {
     lastName
   }
 }
+
+mutation UpdatePassword($id: ID!, $input: UpdatePasswordInput!) {
+  updatePassword(id: $id, input: $input) {
+    id
+    email
+    firstName
+    lastName
+  }
+}

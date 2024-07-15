@@ -6,6 +6,11 @@ import (
 	"github.com/kokiebisu/mycontent/packages/shared/enum"
 )
 
+type UpdatePasswordInput struct {
+	CurrentPassword string `json:"currentPassword"`
+	NewPassword     string `json:"newPassword"`
+}
+
 type UpdateUserInput struct {
 	FirstName         string        `json:"firstName"`
 	LastName          string        `json:"lastName"`

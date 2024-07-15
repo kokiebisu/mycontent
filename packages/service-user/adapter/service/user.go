@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
@@ -117,6 +118,37 @@ func (s *UserService) Update(ctx context.Context, id string, firstName string, l
 		PublishTime:       user.PublishTime,
 		CreatedAt:         user.CreatedAt,
 		UpdatedAt:         user.UpdatedAt,
+	}, nil
+}
+
+func (s *UserService) UpdatePassword(ctx context.Context, id string, currentPassword string, newPassword string) (*ent.User, error) {
+	uuidParsed, err := uuid.Parse(id)
+	if err != nil {
+		return nil, err
+	}
+	user, err := s.db.User.Get(context.Background(), uuidParsed)
+	if err != nil {
+		return nil, err
+	}
+	if user.Password != currentPassword {
+		return nil, errors.New("invalid password")
+	}
+	user, err = user.Update().SetPassword(newPassword).Save(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	return &ent.User{
+		ID: user.ID,
+		FirstName: user.FirstName,
+		LastName: user.LastName,
+		Email: user.Email,
+		Password: user.Password,
+		Interest: user.Interest,
+		YearsOfExperience: user.YearsOfExperience,
+		Username: user.Username,
+		PublishTime: user.PublishTime,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
 	}, nil
 }
 
