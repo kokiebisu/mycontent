@@ -14,7 +14,11 @@ resource "aws_lambda_function" "process_conversations" {
   filename         = data.archive_file.process_conversations.output_path
   source_code_hash = data.archive_file.process_conversations.output_base64sha256
   handler          = "main.lambda_handler"
-  runtime          = "python3.8"
+  runtime          = "python3.11"
 
   depends_on = [data.archive_file.process_conversations]
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }

@@ -14,9 +14,13 @@ resource "aws_lambda_function" "generate_content" {
   filename = data.archive_file.generate_content.output_path
   source_code_hash = data.archive_file.generate_content.output_base64sha256
   handler = "main.lambda_handler"
-  runtime = "python3.8"
+  runtime = "python3.11"
 
   depends_on = [data.archive_file.generate_content]
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 # resource "aws_lambda_function" "generate_content" {
