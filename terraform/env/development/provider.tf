@@ -9,5 +9,11 @@ provider "aws" {
 
   endpoints {
     s3             = "http://localhost:4566"
+    lambda         = "http://localhost:4566"
+    iam    = "http://localhost:4566"
+    cloudwatch = "http://localhost:4566"
+    cloudwatchlogs = "http://localhost:4566"
+    stepfunctions  = "http://localhost:4566"
+    ecr = "http://localhost:5001"
   }
 }

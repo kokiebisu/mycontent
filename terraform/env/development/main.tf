@@ -3,3 +3,9 @@ module s3 {
 
   allowed_origins = ["http://localhost:3000"]
 }
+
+module lambda {
+  source = "../../modules/lambda"
+
+  environment = "dev"
+}
