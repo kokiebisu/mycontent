@@ -12,7 +12,7 @@ resource "aws_lambda_function" "generate_content" {
     for_each = var.environment == "dev" ? [1] : []
     content {
       entry_point = ["python", "-m", "awslambdaric"]
-      command     = ["generate_content.lambda_handler"]
+      command     = ["main.lambda_handler"]
     }
   }
 }

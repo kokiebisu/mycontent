@@ -8,7 +8,7 @@ COPY requirements.txt ${LAMBDA_TASK_ROOT}
 RUN pip install -r requirements.txt
 
 # Copy function code
-COPY save_content.py ${LAMBDA_TASK_ROOT}
+COPY main.py ${LAMBDA_TASK_ROOT}
 
 # Set the CMD to your handler
-CMD [ "save_content.lambda_handler" ]
+CMD [ "main.lambda_handler" ]

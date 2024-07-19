@@ -12,7 +12,7 @@ resource "aws_lambda_function" "process_conversations" {
     for_each = var.environment == "dev" ? [1] : []
     content {
       entry_point = ["python", "-m", "awslambdaric"]
-      command     = ["process_conversations.lambda_handler"]
+      command     = ["main.lambda_handler"]
     }
   }
 }
