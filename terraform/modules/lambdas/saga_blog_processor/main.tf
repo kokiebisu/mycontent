@@ -1,5 +1,5 @@
-module load_conversations {
-  source = "./load_conversations"
+module process_conversations {
+  source = "./process_conversations"
 
   lambda_role_arn = var.lambda_role_arn
   environment = var.environment

@@ -8,7 +8,7 @@ COPY requirements.txt ${LAMBDA_TASK_ROOT}
 RUN pip install -r requirements.txt
 
 # Copy function code
-COPY load_conversations.py ${LAMBDA_TASK_ROOT}
+COPY generate_content.py ${LAMBDA_TASK_ROOT}
 
 # Set the CMD to your handler
 CMD [ "generate_content.lambda_handler" ]

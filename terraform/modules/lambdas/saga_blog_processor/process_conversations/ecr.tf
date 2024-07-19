@@ -1,6 +1,6 @@
-resource "aws_ecr_repository" "load_conversations" {
+resource "aws_ecr_repository" "process_conversations" {
   count = var.environment == "production" ? 1 : 0
-  name  = "load_conversations"
+  name  = "process_conversations"
   
   image_tag_mutability = "MUTABLE"
 
