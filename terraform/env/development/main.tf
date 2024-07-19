@@ -4,10 +4,18 @@ module s3 {
   allowed_origins = ["http://localhost:3000"]
 }
 
+module eventbridge {
+  source = "../../modules/eventbridge"
+
+  sfn_saga_blog_processor_arn = module.step_functions.sfn_saga_blog_processor_arn
+  upload_bucket_id = module.s3.upload_bucket_id
+  upload_bucket_name = module.s3.upload_bucket_name
+}
+
 module lambdas {
   source = "../../modules/lambdas"
 
-  environment = "dev" # we have this to push to local registry
+  environment = "dev"
 }
 
 module step_functions {

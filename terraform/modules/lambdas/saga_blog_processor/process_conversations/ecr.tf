@@ -1,5 +1,5 @@
 resource "aws_ecr_repository" "process_conversations" {
-  count = var.environment == "production" ? 1 : 0
+  count = var.environment == "dev" ? 0 : 1
   name  = "process_conversations"
   
   image_tag_mutability = "MUTABLE"

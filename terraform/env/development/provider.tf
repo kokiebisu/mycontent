@@ -14,6 +14,7 @@ provider "aws" {
     cloudwatch = "http://localhost:4566"
     cloudwatchlogs = "http://localhost:4566"
     stepfunctions  = "http://localhost:4566"
+    events = "http://localhost:4566"
     ecr = "http://localhost:5001"
   }
 }

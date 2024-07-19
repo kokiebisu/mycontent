@@ -1,10 +1,10 @@
-resource "aws_s3_bucket" "mycontent" {
-  bucket = "mycontent"
+resource "aws_s3_bucket" "uploads" {
+  bucket = "uploads"
   force_destroy = true
 }
 
-resource "aws_s3_bucket_cors_configuration" "mycontent_cors" {
-  bucket = aws_s3_bucket.mycontent.id
+resource "aws_s3_bucket_cors_configuration" "uploads" {
+  bucket = aws_s3_bucket.uploads.id
 
   cors_rule {
     allowed_headers = ["*"]
@@ -13,4 +13,10 @@ resource "aws_s3_bucket_cors_configuration" "mycontent_cors" {
     expose_headers  = ["ETag"]
     max_age_seconds = 3000
   }
+}
+
+resource "aws_s3_bucket_notification" "bucket_notification" {
+  bucket = aws_s3_bucket.uploads.id
+
+  eventbridge = true
 }
