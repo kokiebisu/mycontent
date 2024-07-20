@@ -1,6 +1,6 @@
-# Create ECS service for the authentication service
-resource "aws_ecs_service" "authentication" {
-  name             = "authentication"
+# Create ECS service for the blog service
+resource "aws_ecs_service" "blog" {
+  name             = "blog"
   cluster          = aws_ecs_cluster.main.id
   desired_count    = 1
   launch_type      = "FARGATE"
@@ -12,7 +12,7 @@ resource "aws_ecs_service" "authentication" {
     subnets          = var.subnet_ids
   }
 
-  task_definition = aws_ecs_task_definition.authentication.arn
+  task_definition = aws_ecs_task_definition.blog.arn
 
   lifecycle {
     ignore_changes = [task_definition, desired_count]
@@ -20,7 +20,7 @@ resource "aws_ecs_service" "authentication" {
   }
 
   service_registries {
-    registry_arn = aws_service_discovery_service.authentication.arn
+    registry_arn = aws_service_discovery_service.blog.arn
   }
 
   tags = {
@@ -28,8 +28,8 @@ resource "aws_ecs_service" "authentication" {
   }
 }
 
-resource "aws_service_discovery_service" "authentication" {
-  name = "authentication"
+resource "aws_service_discovery_service" "blog" {
+  name = "blog"
 
   dns_config {
     namespace_id = aws_service_discovery_private_dns_namespace.internal.id
@@ -45,9 +45,9 @@ resource "aws_service_discovery_service" "authentication" {
   }
 }
 
-# Create task definition for the authentication service
-resource "aws_ecs_task_definition" "authentication" {
-  family                   = "authentication"
+# Create task definition for the blog service
+resource "aws_ecs_task_definition" "blog" {
+  family                   = "blog"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = "256"
@@ -55,32 +55,52 @@ resource "aws_ecs_task_definition" "authentication" {
 
   container_definitions = jsonencode([
     {
-      name  = "service-authentication"
-      image = var.service_images["service-authentication"]
+      name  = "service-blog"
+      image = var.service_images["service-blog"]
       portMappings = [
         {
-          containerPort = 4001
-          hostPort      = 4001
+          containerPort = 4002
+          hostPort      = 4002
+        },
+        {
+          containerPort = 50052
+          hostPort      = 50052
         }
       ]
       environment = [
         {
           name = "GRAPHQL_PORT",
-          value = "4001"
+          value = "4002"
         },
         {
-          name = "USER_GRPC_PORT",
-          value = "50053"
+          name = "BLOG_GRPC_PORT",
+          value = "50052"
         },
         {
-          name = "USER_SERVICE_HOST",
-          value = "user.mycontent.internal"
+          name = "DB_PORT",
+          value = "5432"
+        },
+        {
+          name = "DB_HOST",
+          value = var.db_host
+        },
+        {
+          name = "DB_USER",
+          value = "postgres"
+        },
+        {
+          name = "DB_NAME",
+          value = "mydb"
+        },
+        {
+          name = "DB_PASSWORD",
+          value = "mypassword"
         }
       ]
       logConfiguration = {
         logDriver = "awslogs"
         options = {
-          awslogs-group         = aws_cloudwatch_log_group.authentication.name
+          awslogs-group         = aws_cloudwatch_log_group.service_blog.name
           awslogs-region        = var.region_name
           awslogs-stream-prefix = "ecs"
         }
@@ -100,8 +120,8 @@ resource "aws_ecs_task_definition" "authentication" {
   }
 }
 
-resource "aws_cloudwatch_log_group" "authentication" {
-  name              = "/ecs/${var.environment}/authentication"
+resource "aws_cloudwatch_log_group" "service_blog" {
+  name              = "/ecs/${var.environment}/service-blog"
   retention_in_days = 30
 
   tags = {

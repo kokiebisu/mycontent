@@ -100,7 +100,7 @@ resource "aws_ecs_task_definition" "user" {
       logConfiguration = {
         logDriver = "awslogs"
         options = {
-          awslogs-group         = aws_cloudwatch_log_group.user.name
+          awslogs-group         = aws_cloudwatch_log_group.service_user.name
           awslogs-region        = var.region_name
           awslogs-stream-prefix = "ecs"
         }
@@ -121,8 +121,8 @@ resource "aws_ecs_task_definition" "user" {
 }
 
 # Create CloudWatch log groups for the new services
-resource "aws_cloudwatch_log_group" "user" {
-  name              = "/ecs/${var.environment}/user"
+resource "aws_cloudwatch_log_group" "service_user" {
+  name              = "/ecs/${var.environment}/service-user"
   retention_in_days = 30
 
   tags = {
