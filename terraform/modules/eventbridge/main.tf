@@ -2,18 +2,6 @@ resource "aws_cloudwatch_event_target" "sfn_target" {
   rule      = aws_cloudwatch_event_rule.s3_upload_rule.name
   arn       = var.sfn_saga_blog_processor_arn
   role_arn  = aws_iam_role.eventbridge_sfn_role.arn
-  input_transformer {
-    input_paths = {
-      bucket = "$.detail.bucket.name"
-      key    = "$.detail.object.key"
-    }
-    input_template = <<EOF
-      {
-        "bucket": <bucket>,
-        "key": <key>
-      }
-    EOF
-  }
 }
 
 resource "aws_cloudwatch_event_rule" "s3_upload_rule" {
