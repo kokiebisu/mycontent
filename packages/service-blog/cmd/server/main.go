@@ -47,19 +47,24 @@ func main() {
 	s3Endpoint := os.Getenv("S3_ENDPOINT")
 	environment := os.Getenv("ENVIRONMENT")
 
-	var credentialsLoadOption config.LoadOptionsFunc
-
-	if environment != "Production" {
-		fmt.Println("Loading s3 credentials for Non-Production...")
+	var cfg aws.Config
+	region := os.Getenv("AWS_DEFAULT_REGION")
+	if environment != "production" {
+		fmt.Println("Loading S3 credentials for Non-Production...")
 		accessKey := os.Getenv("AWS_ACCESS_KEY_ID")
 		secretKey := os.Getenv("AWS_SECRET_ACCESS_KEY")
-		credentialsLoadOption = config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(accessKey, secretKey, ""))
+
+		cfg, err = config.LoadDefaultConfig(context.TODO(),
+			config.WithRegion(region),
+			config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(accessKey, secretKey, "")),
+		)
+	} else {
+		fmt.Println("Using IAM role for Production...")
+		cfg, err = config.LoadDefaultConfig(context.TODO(),
+			config.WithRegion(region),
+		)
 	}
-	region := os.Getenv("AWS_DEFAULT_REGION")
-	cfg, err := config.LoadDefaultConfig(context.TODO(),
-		config.WithRegion(region),
-		credentialsLoadOption,
-	)
+
 	if err != nil {
 		log.Fatalf("unable to load SDK config, %v", err)
 	}

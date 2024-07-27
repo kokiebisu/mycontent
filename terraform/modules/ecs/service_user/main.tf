@@ -1,7 +1,7 @@
 # Create ECS service for the user service
 resource "aws_ecs_service" "user" {
   name             = "user"
-  cluster          = aws_ecs_cluster.main.id
+  cluster          = var.cluster_id
   desired_count    = 1
   launch_type      = "FARGATE"
   platform_version = "LATEST"
@@ -23,6 +23,8 @@ resource "aws_ecs_service" "user" {
     registry_arn = aws_service_discovery_service.user.arn
   }
 
+  force_new_deployment = true
+
   tags = {
     Environment = var.environment
   }
@@ -32,7 +34,7 @@ resource "aws_service_discovery_service" "user" {
   name = "user"
 
   dns_config {
-    namespace_id = aws_service_discovery_private_dns_namespace.internal.id
+    namespace_id = var.private_dns_namespace_id
     
     dns_records {
       ttl  = 10
@@ -56,7 +58,7 @@ resource "aws_ecs_task_definition" "user" {
   container_definitions = jsonencode([
     {
       name  = "service-user"
-      image = var.service_images["service-user"]
+      image = var.service_image
       portMappings = [
         {
           containerPort = 4003
@@ -95,6 +97,10 @@ resource "aws_ecs_task_definition" "user" {
         {
           name = "DB_PASSWORD",
           value = "mypassword"
+        },
+        {
+          name = "ENVIRONMENT",
+          value = var.environment
         }
       ]
       logConfiguration = {
@@ -114,16 +120,6 @@ resource "aws_ecs_task_definition" "user" {
   runtime_platform {
     cpu_architecture = "ARM64"
   } 
-
-  tags = {
-    Environment = var.environment
-  }
-}
-
-# Create CloudWatch log groups for the new services
-resource "aws_cloudwatch_log_group" "service_user" {
-  name              = "/ecs/${var.environment}/service-user"
-  retention_in_days = 30
 
   tags = {
     Environment = var.environment

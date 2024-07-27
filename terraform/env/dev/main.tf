@@ -1,9 +1,19 @@
+terraform {
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+      version = "5.59.0"
+    }
+  }
+}
+
 locals {
   namespace = "mycontent"
-  environment = "production"
+  environment = "dev"
 }
 
 module "ecs" {
+  depends_on = [module.rds]
   source = "../../modules/ecs"
   environment = local.environment
   subnet_ids = data.aws_subnets.default.ids
@@ -19,10 +29,8 @@ module "ecs" {
   ecs_execution_role_arn = data.aws_iam_role.ecs_execution_role.arn
   ecs_task_role_arn = data.aws_iam_role.ecs_task_role.arn
   ecs_task_security_group_id = data.aws_security_group.ecs_task_security_group.id
-  db_host = module.rds.db_host
+  db_host = data.aws_db_instance.rds_db_instance.endpoint
   alb_security_group_id = data.aws_security_group.alb_security_group.id
-
-  depends_on = [module.rds]
 }
 
 module eventbridge {
@@ -31,8 +39,6 @@ module eventbridge {
   sfn_saga_blog_processor_arn = module.step_functions.sfn_saga_blog_processor_arn
   upload_bucket_id = data.aws_s3_bucket.upload_bucket.id
   upload_bucket_name = data.aws_s3_bucket.upload_bucket.bucket
-
-  depends_on = [module.step_functions]
 }
 
 module lambdas {
@@ -40,8 +46,8 @@ module lambdas {
 
   environment = local.environment
   region = data.aws_region.current.name
-  thread_grouper_ecr_repository_url = data.aws_ecr_repository.thread_grouper.repository_url
-  process_conversations_ecr_repository_url = data.aws_ecr_repository.process_conversations.repository_url
+  thread_grouper_repository_url = data.aws_ecr_repository.thread_grouper.repository_url
+  process_conversations_repository_url = data.aws_ecr_repository.process_conversations.repository_url
 }
 
 module "rds" {
@@ -57,7 +63,4 @@ module step_functions {
 
   lambda_process_conversations_arn = module.lambdas.lambda_process_conversations_arn
   lambda_thread_grouper_arn = module.lambdas.lambda_thread_grouper_arn
-  iam_role_step_functions_role_arn = data.aws_iam_role.step_functions_role.arn
-
-  depends_on = [module.lambdas]
 }

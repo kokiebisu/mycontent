@@ -1,7 +1,7 @@
 # Create ECS service for the gateway
 resource "aws_ecs_service" "gateway" {
   name             = "gateway"
-  cluster          = aws_ecs_cluster.main.id
+  cluster          = var.cluster_id
   desired_count    = 1
   launch_type      = "FARGATE"
   platform_version = "LATEST"
@@ -29,6 +29,8 @@ resource "aws_ecs_service" "gateway" {
     registry_arn = aws_service_discovery_service.gateway.arn
   }
 
+  force_new_deployment = true
+
   tags = {
     Environment = var.environment
   }
@@ -38,7 +40,7 @@ resource "aws_service_discovery_service" "gateway" {
   name = "gateway"
 
   dns_config {
-    namespace_id = aws_service_discovery_private_dns_namespace.internal.id
+    namespace_id = var.private_dns_namespace_id
     
     dns_records {
       ttl  = 10
@@ -62,7 +64,7 @@ resource "aws_ecs_task_definition" "gateway" {
   container_definitions = jsonencode([
     {
       name  = "gateway"
-      image = var.service_images["gateway"]
+      image = var.service_image
       environment = [
         {
           name  = "AUTHENTICATION_SERVICE_URL"
@@ -83,6 +85,10 @@ resource "aws_ecs_task_definition" "gateway" {
         {
           name = "USER_GRPC_PORT",
           value = "50053"
+        },
+        {
+          name = "ENVIRONMENT",
+          value = var.environment
         }
       ]
       portMappings = [
@@ -114,15 +120,7 @@ resource "aws_ecs_task_definition" "gateway" {
   }
 }
 
-# Create CloudWatch log group for the gateway service
-resource "aws_cloudwatch_log_group" "gateway" {
-  name              = "/ecs/${var.environment}/gateway"
-  retention_in_days = 30
 
-  tags = {
-    Environment = var.environment
-  }
-}
 
 
 # Create a target group for the gateway service
@@ -149,7 +147,7 @@ resource "aws_lb_target_group" "gateway" {
 
 # Create a listener for the ALB
 resource "aws_lb_listener" "gateway" {
-  load_balancer_arn = aws_lb.external.arn
+  load_balancer_arn = var.lb_external_arn
   port              = "80"
   protocol          = "HTTP"
 

@@ -1,6 +1,6 @@
 # Create a security group for the ALB
 resource "aws_security_group" "alb" {
-  name        = "alb-sg"
+  name        = "${var.environment}-alb-sg"
   description = "Allow inbound traffic to ALB"
   vpc_id      = var.vpc_id
 
@@ -81,7 +81,7 @@ resource "aws_security_group" "alb" {
 
 # Create a security group for ECS tasks
 resource "aws_security_group" "ecs_tasks" {
-  name        = "ecs-tasks-sg"
+  name        = "${var.environment}-ecs-tasks-sg"
   description = "Allow inbound traffic to ECS tasks and outbound to RDS"
   vpc_id      = var.vpc_id
   

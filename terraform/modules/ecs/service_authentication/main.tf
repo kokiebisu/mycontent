@@ -1,7 +1,7 @@
 # Create ECS service for the authentication service
 resource "aws_ecs_service" "authentication" {
   name             = "authentication"
-  cluster          = aws_ecs_cluster.main.id
+  cluster          = var.cluster_id
   desired_count    = 1
   launch_type      = "FARGATE"
   platform_version = "LATEST"
@@ -23,6 +23,8 @@ resource "aws_ecs_service" "authentication" {
     registry_arn = aws_service_discovery_service.authentication.arn
   }
 
+  force_new_deployment = true
+
   tags = {
     Environment = var.environment
   }
@@ -32,7 +34,7 @@ resource "aws_service_discovery_service" "authentication" {
   name = "authentication"
 
   dns_config {
-    namespace_id = aws_service_discovery_private_dns_namespace.internal.id
+    namespace_id = var.private_dns_namespace_id
     
     dns_records {
       ttl  = 10
@@ -56,7 +58,7 @@ resource "aws_ecs_task_definition" "authentication" {
   container_definitions = jsonencode([
     {
       name  = "service-authentication"
-      image = var.service_images["service-authentication"]
+      image = var.service_image
       portMappings = [
         {
           containerPort = 4001
@@ -75,6 +77,10 @@ resource "aws_ecs_task_definition" "authentication" {
         {
           name = "USER_SERVICE_HOST",
           value = "user.mycontent.internal"
+        },
+        {
+          name = "ENVIRONMENT",
+          value = var.environment
         }
       ]
       logConfiguration = {
@@ -94,15 +100,6 @@ resource "aws_ecs_task_definition" "authentication" {
   runtime_platform {
     cpu_architecture = "ARM64"
   } 
-
-  tags = {
-    Environment = var.environment
-  }
-}
-
-resource "aws_cloudwatch_log_group" "service_authentication" {
-  name              = "/ecs/${var.environment}/service-authentication"
-  retention_in_days = 30
 
   tags = {
     Environment = var.environment

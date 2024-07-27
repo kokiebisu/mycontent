@@ -22,34 +22,35 @@ data "aws_s3_bucket" "upload_bucket" {
 }
 
 data "aws_ecr_repository" "thread_grouper" {
-  name = "${local.namespace}/${local.environment}/thread_grouper"
+  name = "${local.environment}/thread_grouper"
 }
 
 data "aws_ecr_repository" "process_conversations" {
-  name = "${local.namespace}/${local.environment}/process_conversations"
+  name = "${local.environment}/process_conversations"
 }
 
 data "aws_ecr_repository" "services" {
   for_each = toset(var.services)
-  name     = "${local.namespace}/${local.environment}/${each.key}"
+  name     = each.key
 }
 
 data "aws_iam_role" "ecs_execution_role" {
-  name = "ecs-execution-role"
+  name = "${local.environment}-ecs-execution-role"
 }
 
 data "aws_iam_role" "ecs_task_role" {
-  name = "ecs-task-role"
-}
-
-data "aws_iam_role" "step_functions_role" {
-  name = "step-functions-role"
+  name = "${local.environment}-ecs-task-role"
 }
 
 data "aws_security_group" "ecs_task_security_group" {
-  name = "${local.environment}-ecs-tasks-sg"
+  name = "${local.environment}-ecs-task-security-group"
 }
 
 data "aws_security_group" "alb_security_group" {
-  name = "${local.environment}-alb-sg"
+  name = "${local.environment}-alb-security-group"
+}
+
+# Start of Selection
+data "aws_db_instance" "rds_db_instance" {
+  db_instance_identifier = "${local.environment}-rds-db-instance"
 }

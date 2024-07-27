@@ -3,8 +3,8 @@ variable subnet_ids {
   description = "The subnet ids to deploy to"
 }
 
-variable service_images {
-  type = map(string)
+variable service_image {
+  type = string
   description = "The service images to deploy"
 }
 
@@ -46,4 +46,19 @@ variable db_host {
 variable alb_security_group_id {
   type = string
   description = "The security group ID of the ALB"
+}
+
+variable private_dns_namespace_id {
+  type = string
+  description = "The private DNS namespace ID"
+}
+
+variable cluster_id {
+  type = string
+  description = "The cluster ID"
+}
+
+variable lb_external_arn {
+  type = string
+  description = "The ARN of the external load balancer"
 }
