@@ -24,6 +24,13 @@ module ecr {
 
 module iam {
   source = "../modules/iam"
+  for_each = toset(local.environments)
+
+  upload_bucket_name = module.s3.upload_bucket_name
+  vpc_id = data.aws_vpc.default.id
+  environment = each.key
+
+  depends_on = [module.s3]
 }
 
 module security_group {
@@ -33,8 +40,6 @@ module security_group {
   environment = each.key
   vpc_id = data.aws_vpc.default.id
   vpc_cidr = data.aws_vpc.default.cidr_block
-
-  depends_on = [module.iam]
 }
 
 module s3 {

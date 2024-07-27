@@ -31,6 +31,7 @@ module eventbridge {
   sfn_saga_blog_processor_arn = module.step_functions.sfn_saga_blog_processor_arn
   upload_bucket_id = data.aws_s3_bucket.upload_bucket.id
   upload_bucket_name = data.aws_s3_bucket.upload_bucket.bucket
+  iam_eventbridge_sfn_role = data.aws_iam_role.eventbridge_sfn_role.arn
 
   depends_on = [module.step_functions]
 }
@@ -42,6 +43,9 @@ module lambdas {
   region = data.aws_region.current.name
   thread_grouper_ecr_repository_url = data.aws_ecr_repository.thread_grouper.repository_url
   process_conversations_ecr_repository_url = data.aws_ecr_repository.process_conversations.repository_url
+  openai_api_key = var.openai_api_key
+  langchain_smith_api_key = var.langchain_smith_api_key
+  lambda_role_arn = data.aws_iam_role.lambda_role.arn
 }
 
 module "rds" {
@@ -50,6 +54,7 @@ module "rds" {
   environment = local.environment
   ecs_task_security_group_id = data.aws_security_group.ecs_task_security_group.id
   vpc_id = data.aws_vpc.default.id
+  rds_security_group_id = data.aws_security_group.rds_security_group.id
 }
 
 module step_functions {

@@ -20,13 +20,11 @@ resource "aws_iam_role_policy_attachment" "eventbridge_sfn_policy" {
   role       = aws_iam_role.eventbridge_sfn_role.name
 }
 
-// Add S3 read permissions
 resource "aws_iam_role_policy_attachment" "eventbridge_s3_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
   role       = aws_iam_role.eventbridge_sfn_role.name
 }
 
-// Add specific Step Functions execution permission
 resource "aws_iam_role_policy" "eventbridge_sfn_execution_policy" {
   name = "eventbridge_sfn_execution_policy"
   role = aws_iam_role.eventbridge_sfn_role.name
@@ -39,7 +37,9 @@ resource "aws_iam_role_policy" "eventbridge_sfn_execution_policy" {
         Action = [
           "states:StartExecution"
         ]
-        Resource = var.sfn_saga_blog_processor_arn
+        Resource = [
+          "*"
+        ]
       },
       {
         Effect = "Allow"
@@ -56,7 +56,6 @@ resource "aws_iam_role_policy" "eventbridge_sfn_execution_policy" {
   })
 }
 
-// Add CloudWatch Logs permissions
 resource "aws_iam_role_policy_attachment" "eventbridge_cloudwatch_logs_policy" {
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
   role       = aws_iam_role.eventbridge_sfn_role.name

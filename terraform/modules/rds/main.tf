@@ -11,27 +11,9 @@ resource "aws_db_instance" "default" {
   password = "mypassword"
   port     = 5432
 
-  vpc_security_group_ids = [aws_security_group.rds.id]
+  vpc_security_group_ids = [var.rds_security_group_id]
 
   skip_final_snapshot = true
-
-  tags = {
-    Environment = var.environment
-  }
-}
-
-# Create a security group for RDS
-resource "aws_security_group" "rds" {
-  name        = "rds-sg"
-  description = "Allow inbound traffic from ECS tasks to RDS"
-  vpc_id      = var.vpc_id
-
-  ingress {
-    from_port       = 5432
-    to_port         = 5432
-    protocol        = "tcp"
-    security_groups = [var.ecs_task_security_group_id]
-  }
 
   tags = {
     Environment = var.environment

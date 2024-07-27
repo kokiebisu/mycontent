@@ -1,5 +1,5 @@
 resource "aws_ecr_repository" "process_conversations" {
-  name  = "${var.namespace}/${var.environment}/process_conversations"
+  name  = "${var.namespace}/${var.environment}/process-conversations"
   
   image_tag_mutability = "MUTABLE"
 
@@ -15,7 +15,7 @@ resource "aws_ecr_repository" "process_conversations" {
 }
 
 resource "aws_ecr_repository" "thread_grouper" {
-  name  = "${var.namespace}/${var.environment}/thread_grouper"
+  name  = "${var.namespace}/${var.environment}/thread-grouper"
   
   image_tag_mutability = "MUTABLE"
 
