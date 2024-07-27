@@ -1,6 +1,7 @@
 node_modules
 .terraform
 terraform.tfstate.backup
+terraform.tfvars
 dist
 tmp
 .env
