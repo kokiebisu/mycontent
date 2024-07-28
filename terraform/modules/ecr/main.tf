@@ -1,13 +1,13 @@
-module lambdas_ecr {
+module lambdas {
   source = "./lambdas"
 
   environment = var.environment
+  namespace = var.namespace
 }
 
-module services_ecr {
-  source = "./services"
+module ecs {
+  source = "./ecs"
 
-  services = var.services
   environment = var.environment
   namespace = var.namespace
 }

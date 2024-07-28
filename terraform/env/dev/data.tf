@@ -21,12 +21,12 @@ data "aws_s3_bucket" "upload_bucket" {
   bucket = "${local.namespace}-uploads"
 }
 
-data "aws_ecr_repository" "thread_grouper" {
-  name = "${local.environment}/thread_grouper"
+data "aws_ecr_repository" "parse_conversations" {
+  name = "${local.environment}/parse-conversations"
 }
 
-data "aws_ecr_repository" "process_conversations" {
-  name = "${local.environment}/process_conversations"
+data "aws_ecr_repository" "generate_blog" {
+  name = "${local.environment}/generate-blog"
 }
 
 data "aws_ecr_repository" "services" {

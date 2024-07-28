@@ -13,13 +13,13 @@ variable region {
   type        = string
 }
 
-variable thread_grouper_ecr_repository_url {
-  description = "The URL of the ECR repository for thread_grouper"
+variable parse_conversations_ecr_repository_url {
+  description = "The URL of the ECR repository for parse_conversations"
   type        = string
 }
 
-variable process_conversations_ecr_repository_url {
-  description = "The URL of the ECR repository for process_conversations"
+variable generate_blog_ecr_repository_url {
+  description = "The URL of the ECR repository for generate_blog"
   type        = string
 }
 

@@ -4,16 +4,31 @@ resource "aws_sfn_state_machine" "saga_blog_processor" {
 
   definition = jsonencode({
     "Comment": "Blog Content Generation Process",
-    "StartAt": "ThreadGrouper",
+    "StartAt": "ParseConversations",
     "States": {
-      "ThreadGrouper": {
+      "ParseConversations": {
         "Type": "Task",
-        "Resource": var.lambda_thread_grouper_arn,
-        "Next": "ProcessConversations"
+        "Resource": var.lambda_parse_conversations_arn,
+        "Next": "MapConversations"
       },
-      "ProcessConversations": {
-        "Type": "Task",
-        "Resource": var.lambda_process_conversations_arn,
+      "MapConversations": {
+        "Type": "Map",
+        "ItemsPath": "$.conversations",
+        "Parameters": {
+          "conversation.$": "$$.Map.Item.Value",
+          "bucket_name.$": "$.bucket_name",
+          "key.$": "$.key"
+        },
+        "Iterator": {
+          "StartAt": "GenerateBlog",
+          "States": {
+            "GenerateBlog": {
+              "Type": "Task",
+              "Resource": var.lambda_generate_blog_arn,
+              "End": true
+            }
+          }
+        },
         "End": true
       },
     }

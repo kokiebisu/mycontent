@@ -9,7 +9,11 @@ import {
   concat,
 } from "@apollo/client";
 
-const httpLink = new HttpLink({ uri: "http://localhost:4000/graphql" });
+const httpLink = new HttpLink({
+  uri:
+    "http://external-alb-1612178360.us-east-1.elb.amazonaws.com/graphql" ||
+    "http://localhost:4000/graphql",
+});
 
 const authMiddleware = new ApolloLink((operation, forward) => {
   const token = localStorage.getItem("authToken");

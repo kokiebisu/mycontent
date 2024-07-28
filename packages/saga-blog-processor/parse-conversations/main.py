@@ -33,14 +33,15 @@ def lambda_handler(event, context):
     print("Event: ", event)
     bucket_name = event['detail']['bucket']['name']
     key = event['detail']['object']['key']
-    result = []
+    transformed_conversations = []
     conversations = load_conversations(bucket_name=bucket_name, key=key)
     for c in conversations:
         transformed = transform(c)
-        result.append(transformed)
+        transformed_conversations.append(transformed)
 
     return {
+        'status': 'success',
         'bucket_name': bucket_name,
         'key': key,
-        'result': result
+        'conversations': transformed_conversations
     }

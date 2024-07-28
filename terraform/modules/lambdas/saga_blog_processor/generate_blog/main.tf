@@ -1,5 +1,5 @@
-resource "aws_lambda_function" "process_conversations" {
-  function_name = "process_conversations"
+resource "aws_lambda_function" "generate_blog" {
+  function_name = "${var.environment}-generate-blog"
   role          = var.lambda_role_arn
   package_type  = "Image"
   image_uri     = "${var.ecr_repository_url}:latest"

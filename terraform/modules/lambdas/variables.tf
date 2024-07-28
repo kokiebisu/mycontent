@@ -8,12 +8,12 @@ variable region {
   description = "The region to deploy to"
 }
 
-variable thread_grouper_ecr_repository_url {
+variable parse_conversations_ecr_repository_url {
   type = string
   description = "The repository URL for the thread grouper"
 }
 
-variable process_conversations_ecr_repository_url {
+variable generate_blog_ecr_repository_url {
   type = string
   description = "The repository URL for the process conversations"
 }

@@ -18,12 +18,12 @@ os.environ["LANGCHAIN_API_KEY"] = os.getenv("LANGCHAIN_SMITH_API_KEY")
 llm = ChatOpenAI(model='gpt-4o-mini')
 
 
-def generate_blog_content(conversation, min_chars=8000, max_attempts=3):
+def generate_blog_content(title, question, thread, min_chars=8000, max_attempts=3):
     combined_text = ""
 
-    combined_text += f"### タイトル: {conversation['title']}\n"
-    combined_text += f"### 冒頭の質問: {conversation['question']}\n"
-    for t in conversation['thread']:
+    combined_text += f"### タイトル: {title}\n"
+    combined_text += f"### 冒頭の質問: {question}\n"
+    for t in thread:
         combined_text += f"### {'回答' if t['role'] == 'assistant' else '追加の質問'}: {t['content']}\n\n"
 
     prompt_template = PromptTemplate(
@@ -108,14 +108,11 @@ def lambda_handler(event, context):
         bucket_name = event['bucket_name']
         key = event['key']
         user_id = key.split('/')[2]
-        threads = event['result']
+        conversation = event['conversation']
         timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-        for thread in threads:
-            blog_content = generate_blog_content(thread)
-            print("BLOG CONTENT: ", blog_content)
-            key=f"generated/user/{user_id}/{timestamp}.md"
-            print("STORING BLOG CONTENT TO: ", key)
-            store_blog_content(bucket_name, key, blog_content)
+        blog_content = generate_blog_content(title=conversation['title'], question=conversation['question'], thread=conversation['thread'])
+        key=f"generated/user/{user_id}/{timestamp}.md"
+        store_blog_content(bucket_name, key, blog_content)
     except Exception as e:
         print(f"Error: {str(e)}")
         raise

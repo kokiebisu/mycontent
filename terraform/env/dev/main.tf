@@ -46,8 +46,8 @@ module lambdas {
 
   environment = local.environment
   region = data.aws_region.current.name
-  thread_grouper_repository_url = data.aws_ecr_repository.thread_grouper.repository_url
-  process_conversations_repository_url = data.aws_ecr_repository.process_conversations.repository_url
+  parse_conversations_repository_url = data.aws_ecr_repository.parse_conversations.repository_url
+  generate_blog_repository_url = data.aws_ecr_repository.generate_blog.repository_url
 }
 
 module "rds" {
@@ -61,6 +61,6 @@ module "rds" {
 module step_functions {
   source = "../../modules/step_functions"
 
-  lambda_process_conversations_arn = module.lambdas.lambda_process_conversations_arn
-  lambda_thread_grouper_arn = module.lambdas.lambda_thread_grouper_arn
+  lambda_generate_blog_arn = module.lambdas.lambda_generate_blog_arn
+  lambda_parse_conversations_arn = module.lambdas.lambda_parse_conversations_arn
 }

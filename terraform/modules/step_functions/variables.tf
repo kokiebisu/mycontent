@@ -1,8 +1,8 @@
-variable lambda_thread_grouper_arn {
+variable lambda_parse_conversations_arn {
   type = string
 }
 
-variable lambda_process_conversations_arn {
+variable lambda_generate_blog_arn {
   type = string
 }
 
