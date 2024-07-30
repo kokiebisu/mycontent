@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -50,7 +51,7 @@ func (s *BlogService) GetAllByUserId(ctx context.Context, userId string) ([]*ent
 	return blogs, nil
 }
 
-func (s *BlogService) Create(ctx context.Context, userId string, interest blog.Interest) (*ent.Blog, error) {
+func (s *BlogService) Create(ctx context.Context, userId string, title string, url string) (*ent.Blog, error) {
 	openaiAPIKey := os.Getenv("OPENAI_API_KEY")
 	if openaiAPIKey == "" {
 		openaiAPIKey = "TEMPORARY SECRET"
@@ -96,8 +97,8 @@ func (s *BlogService) Create(ctx context.Context, userId string, interest blog.I
 		Create().
 		SetUserID(userId).
 		SetTitle(blogData.Title).
-		SetContent(blogData.Content).
-		SetInterest(interest).
+		SetURL(url).
+		SetCreatedAt(time.Now()).
 		Save(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to save blog: %w", err)
@@ -105,10 +106,9 @@ func (s *BlogService) Create(ctx context.Context, userId string, interest blog.I
 
 	blogModel := &ent.Blog{
 		ID:    blog.ID,
-		Title: blog.Title,
-		Content:   blog.Content,
+		Title:     blog.Title,
+		URL:       blog.URL,
 		CreatedAt: blog.CreatedAt,
-		UpdatedAt: blog.UpdatedAt,
 	}
 
 	return blogModel, nil

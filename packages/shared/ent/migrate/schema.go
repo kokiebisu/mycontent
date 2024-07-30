@@ -11,12 +11,10 @@ var (
 	// BlogsColumns holds the columns for the "blogs" table.
 	BlogsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID},
-		{Name: "title", Type: field.TypeString},
-		{Name: "content", Type: field.TypeString},
 		{Name: "user_id", Type: field.TypeString},
-		{Name: "interest", Type: field.TypeEnum, Enums: []string{"REACT", "NODEJS", "PYTHON", "GO", "RUST", "DOCKER", "KUBERNETES"}},
+		{Name: "title", Type: field.TypeString},
+		{Name: "url", Type: field.TypeString},
 		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
 	}
 	// BlogsTable holds the schema information for the "blogs" table.
 	BlogsTable = &schema.Table{

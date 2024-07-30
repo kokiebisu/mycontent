@@ -1,9 +1,13 @@
-FROM public.ecr.aws/lambda/python:3.11
+FROM python:3.9-slim
 
-COPY ./requirements.txt ${LAMBDA_TASK_ROOT}
+WORKDIR /app
+
+COPY packages/saga-blog-processor/generate-blog/requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY ./main.py ${LAMBDA_TASK_ROOT}
+COPY packages/saga-blog-processor/generate-blog/ ./
 
-CMD [ "main.lambda_handler" ]
+ENV PYTHONPATH=/app
+
+CMD ["python", "-m", "main"]

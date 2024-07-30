@@ -1,13 +1,31 @@
 locals {
   service_type = "ecs"
   ecs_services = ["gateway", "service-authentication", "service-blog", "service-user"]
+  ecs_tasks = ["generate-blog"]
 }
 
 # Create ECR repositories for each service
 resource "aws_ecr_repository" "ecs_services" {
   for_each = toset(local.ecs_services)
 
-  name                 = "${var.namespace}/${var.environment}/${local.service_type}/${each.key}"
+  name                 = "${var.namespace}/${var.environment}/ecs/services/${each.key}"
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+
+  tags = {
+    Environment = var.environment
+  }
+
+  force_delete = true
+}
+
+resource aws_ecr_repository "ecs_tasks" {
+  for_each = toset(local.ecs_tasks)
+
+  name                 = "${var.namespace}/${var.environment}/ecs/tasks/${each.key}"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {

@@ -96,3 +96,46 @@ resource "aws_service_discovery_private_dns_namespace" "internal" {
   description = "Internal service discovery namespace"
   vpc         = var.vpc_id
 }
+
+resource "aws_ecs_task_definition" "generate_blog" {
+  family                   = "${var.environment}-generate-blog"
+  requires_compatibilities = ["FARGATE"]
+  network_mode             = "awsvpc"
+  cpu                      = "256"
+  memory                   = "512"
+  execution_role_arn       = var.ecs_execution_role_arn
+  task_role_arn            = var.ecs_task_role_arn
+
+  container_definitions = jsonencode([
+    {
+      name      = "generate-blog"
+      image     = var.task_images["generate-blog"]
+      essential = true
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-group         = aws_cloudwatch_log_group.saga_blog_processor_generate_blog.name
+          awslogs-region        = var.region_name
+          awslogs-stream-prefix = "ecs"
+        }
+      }
+    }
+  ])
+
+  runtime_platform {
+    cpu_architecture = "ARM64"
+  }
+
+  tags = {
+    Environment = var.environment
+  }
+}
+
+resource "aws_cloudwatch_log_group" "saga_blog_processor_generate_blog" {
+  name              = "/aws/ecs/${var.environment}/saga-blog-processor/generate-blog"
+  retention_in_days = 30
+
+  tags = {
+    Environment = var.environment
+  }
+}

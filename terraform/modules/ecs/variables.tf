@@ -8,6 +8,11 @@ variable service_images {
   description = "The service images to deploy"
 }
 
+variable task_images {
+  type = map(string)
+  description = "The task images to deploy"
+}
+
 variable region_name {
   type = string
   description = "The region to deploy to"

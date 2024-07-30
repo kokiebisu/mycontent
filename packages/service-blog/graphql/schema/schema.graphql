@@ -5,11 +5,10 @@ extend type User {
 
 type Blog @key(fields: "id") {
   id: ID!
+  user_id: String!
   title: String!
-  content: String!
-  userId: ID!
+  url: String!
   createdAt: String!
-  updatedAt: String!
 }
 
 type Integration @key(fields: "id") {

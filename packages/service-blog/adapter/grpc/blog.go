@@ -6,7 +6,6 @@ import (
 
 	"github.com/kokiebisu/mycontent/packages/service-blog/port"
 
-	"github.com/kokiebisu/mycontent/packages/shared/ent/blog"
 	"github.com/kokiebisu/mycontent/packages/shared/proto"
 )
 
@@ -20,10 +19,10 @@ func NewGRPCAdapter(service port.BlogService) *Adapter {
 }
 
 func (a *Adapter) CreateBlog(ctx context.Context, req *proto.CreateBlogRequest) (*proto.CreateBlogResponse, error) {
-	blog, err := a.service.Create(ctx, req.UserId, blog.Interest(req.Interest))
+	blog, err := a.service.Create(ctx, req.UserId, req.Title, req.Url)
 	if err != nil {
 		log.Printf("Error creating blog: %v", err)
 		return &proto.CreateBlogResponse{Error: err.Error()}, nil
 	}
-	return &proto.CreateBlogResponse{Title: blog.Title, Content: blog.Content}, nil
+	return &proto.CreateBlogResponse{Id: blog.ID.String()}, nil
 }

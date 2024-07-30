@@ -12,3 +12,8 @@ variable environment {
   type = string
   description = "The environment to deploy to"
 }
+
+variable account_id {
+  type = string
+  description = "The account ID to deploy to"
+}

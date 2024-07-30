@@ -18,18 +18,14 @@ type Blog struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
-	// Title holds the value of the "title" field.
-	Title string `json:"title,omitempty"`
-	// Content holds the value of the "content" field.
-	Content string `json:"content,omitempty"`
 	// UserID holds the value of the "user_id" field.
 	UserID string `json:"user_id,omitempty"`
-	// Interest holds the value of the "interest" field.
-	Interest blog.Interest `json:"interest,omitempty"`
+	// Title holds the value of the "title" field.
+	Title string `json:"title,omitempty"`
+	// URL holds the value of the "url" field.
+	URL string `json:"url,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
-	CreatedAt time.Time `json:"created_at,omitempty"`
-	// UpdatedAt holds the value of the "updated_at" field.
-	UpdatedAt    time.Time `json:"updated_at,omitempty"`
+	CreatedAt    time.Time `json:"created_at,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -38,9 +34,9 @@ func (*Blog) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case blog.FieldTitle, blog.FieldContent, blog.FieldUserID, blog.FieldInterest:
+		case blog.FieldUserID, blog.FieldTitle, blog.FieldURL:
 			values[i] = new(sql.NullString)
-		case blog.FieldCreatedAt, blog.FieldUpdatedAt:
+		case blog.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
 		case blog.FieldID:
 			values[i] = new(uuid.UUID)
@@ -65,41 +61,29 @@ func (b *Blog) assignValues(columns []string, values []any) error {
 			} else if value != nil {
 				b.ID = *value
 			}
-		case blog.FieldTitle:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field title", values[i])
-			} else if value.Valid {
-				b.Title = value.String
-			}
-		case blog.FieldContent:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field content", values[i])
-			} else if value.Valid {
-				b.Content = value.String
-			}
 		case blog.FieldUserID:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field user_id", values[i])
 			} else if value.Valid {
 				b.UserID = value.String
 			}
-		case blog.FieldInterest:
+		case blog.FieldTitle:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field interest", values[i])
+				return fmt.Errorf("unexpected type %T for field title", values[i])
 			} else if value.Valid {
-				b.Interest = blog.Interest(value.String)
+				b.Title = value.String
+			}
+		case blog.FieldURL:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field url", values[i])
+			} else if value.Valid {
+				b.URL = value.String
 			}
 		case blog.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
 				b.CreatedAt = value.Time
-			}
-		case blog.FieldUpdatedAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
-			} else if value.Valid {
-				b.UpdatedAt = value.Time
 			}
 		default:
 			b.selectValues.Set(columns[i], values[i])
@@ -137,23 +121,17 @@ func (b *Blog) String() string {
 	var builder strings.Builder
 	builder.WriteString("Blog(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", b.ID))
-	builder.WriteString("title=")
-	builder.WriteString(b.Title)
-	builder.WriteString(", ")
-	builder.WriteString("content=")
-	builder.WriteString(b.Content)
-	builder.WriteString(", ")
 	builder.WriteString("user_id=")
 	builder.WriteString(b.UserID)
 	builder.WriteString(", ")
-	builder.WriteString("interest=")
-	builder.WriteString(fmt.Sprintf("%v", b.Interest))
+	builder.WriteString("title=")
+	builder.WriteString(b.Title)
+	builder.WriteString(", ")
+	builder.WriteString("url=")
+	builder.WriteString(b.URL)
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(b.CreatedAt.Format(time.ANSIC))
-	builder.WriteString(", ")
-	builder.WriteString("updated_at=")
-	builder.WriteString(b.UpdatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

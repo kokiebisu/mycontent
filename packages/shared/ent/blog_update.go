@@ -6,7 +6,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -28,34 +27,6 @@ func (bu *BlogUpdate) Where(ps ...predicate.Blog) *BlogUpdate {
 	return bu
 }
 
-// SetTitle sets the "title" field.
-func (bu *BlogUpdate) SetTitle(s string) *BlogUpdate {
-	bu.mutation.SetTitle(s)
-	return bu
-}
-
-// SetNillableTitle sets the "title" field if the given value is not nil.
-func (bu *BlogUpdate) SetNillableTitle(s *string) *BlogUpdate {
-	if s != nil {
-		bu.SetTitle(*s)
-	}
-	return bu
-}
-
-// SetContent sets the "content" field.
-func (bu *BlogUpdate) SetContent(s string) *BlogUpdate {
-	bu.mutation.SetContent(s)
-	return bu
-}
-
-// SetNillableContent sets the "content" field if the given value is not nil.
-func (bu *BlogUpdate) SetNillableContent(s *string) *BlogUpdate {
-	if s != nil {
-		bu.SetContent(*s)
-	}
-	return bu
-}
-
 // SetUserID sets the "user_id" field.
 func (bu *BlogUpdate) SetUserID(s string) *BlogUpdate {
 	bu.mutation.SetUserID(s)
@@ -70,23 +41,31 @@ func (bu *BlogUpdate) SetNillableUserID(s *string) *BlogUpdate {
 	return bu
 }
 
-// SetInterest sets the "interest" field.
-func (bu *BlogUpdate) SetInterest(b blog.Interest) *BlogUpdate {
-	bu.mutation.SetInterest(b)
+// SetTitle sets the "title" field.
+func (bu *BlogUpdate) SetTitle(s string) *BlogUpdate {
+	bu.mutation.SetTitle(s)
 	return bu
 }
 
-// SetNillableInterest sets the "interest" field if the given value is not nil.
-func (bu *BlogUpdate) SetNillableInterest(b *blog.Interest) *BlogUpdate {
-	if b != nil {
-		bu.SetInterest(*b)
+// SetNillableTitle sets the "title" field if the given value is not nil.
+func (bu *BlogUpdate) SetNillableTitle(s *string) *BlogUpdate {
+	if s != nil {
+		bu.SetTitle(*s)
 	}
 	return bu
 }
 
-// SetUpdatedAt sets the "updated_at" field.
-func (bu *BlogUpdate) SetUpdatedAt(t time.Time) *BlogUpdate {
-	bu.mutation.SetUpdatedAt(t)
+// SetURL sets the "url" field.
+func (bu *BlogUpdate) SetURL(s string) *BlogUpdate {
+	bu.mutation.SetURL(s)
+	return bu
+}
+
+// SetNillableURL sets the "url" field if the given value is not nil.
+func (bu *BlogUpdate) SetNillableURL(s *string) *BlogUpdate {
+	if s != nil {
+		bu.SetURL(*s)
+	}
 	return bu
 }
 
@@ -97,7 +76,6 @@ func (bu *BlogUpdate) Mutation() *BlogMutation {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (bu *BlogUpdate) Save(ctx context.Context) (int, error) {
-	bu.defaults()
 	return withHooks(ctx, bu.sqlSave, bu.mutation, bu.hooks)
 }
 
@@ -123,28 +101,7 @@ func (bu *BlogUpdate) ExecX(ctx context.Context) {
 	}
 }
 
-// defaults sets the default values of the builder before save.
-func (bu *BlogUpdate) defaults() {
-	if _, ok := bu.mutation.UpdatedAt(); !ok {
-		v := blog.UpdateDefaultUpdatedAt()
-		bu.mutation.SetUpdatedAt(v)
-	}
-}
-
-// check runs all checks and user-defined validators on the builder.
-func (bu *BlogUpdate) check() error {
-	if v, ok := bu.mutation.Interest(); ok {
-		if err := blog.InterestValidator(v); err != nil {
-			return &ValidationError{Name: "interest", err: fmt.Errorf(`ent: validator failed for field "Blog.interest": %w`, err)}
-		}
-	}
-	return nil
-}
-
 func (bu *BlogUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := bu.check(); err != nil {
-		return n, err
-	}
 	_spec := sqlgraph.NewUpdateSpec(blog.Table, blog.Columns, sqlgraph.NewFieldSpec(blog.FieldID, field.TypeUUID))
 	if ps := bu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -153,20 +110,14 @@ func (bu *BlogUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
-	if value, ok := bu.mutation.Title(); ok {
-		_spec.SetField(blog.FieldTitle, field.TypeString, value)
-	}
-	if value, ok := bu.mutation.Content(); ok {
-		_spec.SetField(blog.FieldContent, field.TypeString, value)
-	}
 	if value, ok := bu.mutation.UserID(); ok {
 		_spec.SetField(blog.FieldUserID, field.TypeString, value)
 	}
-	if value, ok := bu.mutation.Interest(); ok {
-		_spec.SetField(blog.FieldInterest, field.TypeEnum, value)
+	if value, ok := bu.mutation.Title(); ok {
+		_spec.SetField(blog.FieldTitle, field.TypeString, value)
 	}
-	if value, ok := bu.mutation.UpdatedAt(); ok {
-		_spec.SetField(blog.FieldUpdatedAt, field.TypeTime, value)
+	if value, ok := bu.mutation.URL(); ok {
+		_spec.SetField(blog.FieldURL, field.TypeString, value)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, bu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -188,34 +139,6 @@ type BlogUpdateOne struct {
 	mutation *BlogMutation
 }
 
-// SetTitle sets the "title" field.
-func (buo *BlogUpdateOne) SetTitle(s string) *BlogUpdateOne {
-	buo.mutation.SetTitle(s)
-	return buo
-}
-
-// SetNillableTitle sets the "title" field if the given value is not nil.
-func (buo *BlogUpdateOne) SetNillableTitle(s *string) *BlogUpdateOne {
-	if s != nil {
-		buo.SetTitle(*s)
-	}
-	return buo
-}
-
-// SetContent sets the "content" field.
-func (buo *BlogUpdateOne) SetContent(s string) *BlogUpdateOne {
-	buo.mutation.SetContent(s)
-	return buo
-}
-
-// SetNillableContent sets the "content" field if the given value is not nil.
-func (buo *BlogUpdateOne) SetNillableContent(s *string) *BlogUpdateOne {
-	if s != nil {
-		buo.SetContent(*s)
-	}
-	return buo
-}
-
 // SetUserID sets the "user_id" field.
 func (buo *BlogUpdateOne) SetUserID(s string) *BlogUpdateOne {
 	buo.mutation.SetUserID(s)
@@ -230,23 +153,31 @@ func (buo *BlogUpdateOne) SetNillableUserID(s *string) *BlogUpdateOne {
 	return buo
 }
 
-// SetInterest sets the "interest" field.
-func (buo *BlogUpdateOne) SetInterest(b blog.Interest) *BlogUpdateOne {
-	buo.mutation.SetInterest(b)
+// SetTitle sets the "title" field.
+func (buo *BlogUpdateOne) SetTitle(s string) *BlogUpdateOne {
+	buo.mutation.SetTitle(s)
 	return buo
 }
 
-// SetNillableInterest sets the "interest" field if the given value is not nil.
-func (buo *BlogUpdateOne) SetNillableInterest(b *blog.Interest) *BlogUpdateOne {
-	if b != nil {
-		buo.SetInterest(*b)
+// SetNillableTitle sets the "title" field if the given value is not nil.
+func (buo *BlogUpdateOne) SetNillableTitle(s *string) *BlogUpdateOne {
+	if s != nil {
+		buo.SetTitle(*s)
 	}
 	return buo
 }
 
-// SetUpdatedAt sets the "updated_at" field.
-func (buo *BlogUpdateOne) SetUpdatedAt(t time.Time) *BlogUpdateOne {
-	buo.mutation.SetUpdatedAt(t)
+// SetURL sets the "url" field.
+func (buo *BlogUpdateOne) SetURL(s string) *BlogUpdateOne {
+	buo.mutation.SetURL(s)
+	return buo
+}
+
+// SetNillableURL sets the "url" field if the given value is not nil.
+func (buo *BlogUpdateOne) SetNillableURL(s *string) *BlogUpdateOne {
+	if s != nil {
+		buo.SetURL(*s)
+	}
 	return buo
 }
 
@@ -270,7 +201,6 @@ func (buo *BlogUpdateOne) Select(field string, fields ...string) *BlogUpdateOne 
 
 // Save executes the query and returns the updated Blog entity.
 func (buo *BlogUpdateOne) Save(ctx context.Context) (*Blog, error) {
-	buo.defaults()
 	return withHooks(ctx, buo.sqlSave, buo.mutation, buo.hooks)
 }
 
@@ -296,28 +226,7 @@ func (buo *BlogUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
-// defaults sets the default values of the builder before save.
-func (buo *BlogUpdateOne) defaults() {
-	if _, ok := buo.mutation.UpdatedAt(); !ok {
-		v := blog.UpdateDefaultUpdatedAt()
-		buo.mutation.SetUpdatedAt(v)
-	}
-}
-
-// check runs all checks and user-defined validators on the builder.
-func (buo *BlogUpdateOne) check() error {
-	if v, ok := buo.mutation.Interest(); ok {
-		if err := blog.InterestValidator(v); err != nil {
-			return &ValidationError{Name: "interest", err: fmt.Errorf(`ent: validator failed for field "Blog.interest": %w`, err)}
-		}
-	}
-	return nil
-}
-
 func (buo *BlogUpdateOne) sqlSave(ctx context.Context) (_node *Blog, err error) {
-	if err := buo.check(); err != nil {
-		return _node, err
-	}
 	_spec := sqlgraph.NewUpdateSpec(blog.Table, blog.Columns, sqlgraph.NewFieldSpec(blog.FieldID, field.TypeUUID))
 	id, ok := buo.mutation.ID()
 	if !ok {
@@ -343,20 +252,14 @@ func (buo *BlogUpdateOne) sqlSave(ctx context.Context) (_node *Blog, err error) 
 			}
 		}
 	}
-	if value, ok := buo.mutation.Title(); ok {
-		_spec.SetField(blog.FieldTitle, field.TypeString, value)
-	}
-	if value, ok := buo.mutation.Content(); ok {
-		_spec.SetField(blog.FieldContent, field.TypeString, value)
-	}
 	if value, ok := buo.mutation.UserID(); ok {
 		_spec.SetField(blog.FieldUserID, field.TypeString, value)
 	}
-	if value, ok := buo.mutation.Interest(); ok {
-		_spec.SetField(blog.FieldInterest, field.TypeEnum, value)
+	if value, ok := buo.mutation.Title(); ok {
+		_spec.SetField(blog.FieldTitle, field.TypeString, value)
 	}
-	if value, ok := buo.mutation.UpdatedAt(); ok {
-		_spec.SetField(blog.FieldUpdatedAt, field.TypeTime, value)
+	if value, ok := buo.mutation.URL(); ok {
+		_spec.SetField(blog.FieldURL, field.TypeString, value)
 	}
 	_node = &Blog{config: buo.config}
 	_spec.Assign = _node.assignValues

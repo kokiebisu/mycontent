@@ -23,13 +23,14 @@ data "aws_ecr_repository" "parse_conversations" {
   name = "${local.namespace}/${local.environment}/lambda/parse-conversations"
 }
 
-data "aws_ecr_repository" "generate_blog" {
-  name = "${local.namespace}/${local.environment}/lambda/generate-blog"
-}
-
 data "aws_ecr_repository" "services" {
   for_each = toset(var.services)
-  name     = "${local.namespace}/${local.environment}/ecs/${each.key}"
+  name     = "${local.namespace}/${local.environment}/ecs/services/${each.key}"
+}
+
+data "aws_ecr_repository" "tasks" {
+  for_each = toset(var.tasks)
+  name = "${local.namespace}/${local.environment}/ecs/tasks/${each.key}"
 }
 
 # IAM Roles

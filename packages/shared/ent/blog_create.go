@@ -21,27 +21,21 @@ type BlogCreate struct {
 	hooks    []Hook
 }
 
-// SetTitle sets the "title" field.
-func (bc *BlogCreate) SetTitle(s string) *BlogCreate {
-	bc.mutation.SetTitle(s)
-	return bc
-}
-
-// SetContent sets the "content" field.
-func (bc *BlogCreate) SetContent(s string) *BlogCreate {
-	bc.mutation.SetContent(s)
-	return bc
-}
-
 // SetUserID sets the "user_id" field.
 func (bc *BlogCreate) SetUserID(s string) *BlogCreate {
 	bc.mutation.SetUserID(s)
 	return bc
 }
 
-// SetInterest sets the "interest" field.
-func (bc *BlogCreate) SetInterest(b blog.Interest) *BlogCreate {
-	bc.mutation.SetInterest(b)
+// SetTitle sets the "title" field.
+func (bc *BlogCreate) SetTitle(s string) *BlogCreate {
+	bc.mutation.SetTitle(s)
+	return bc
+}
+
+// SetURL sets the "url" field.
+func (bc *BlogCreate) SetURL(s string) *BlogCreate {
+	bc.mutation.SetURL(s)
 	return bc
 }
 
@@ -55,20 +49,6 @@ func (bc *BlogCreate) SetCreatedAt(t time.Time) *BlogCreate {
 func (bc *BlogCreate) SetNillableCreatedAt(t *time.Time) *BlogCreate {
 	if t != nil {
 		bc.SetCreatedAt(*t)
-	}
-	return bc
-}
-
-// SetUpdatedAt sets the "updated_at" field.
-func (bc *BlogCreate) SetUpdatedAt(t time.Time) *BlogCreate {
-	bc.mutation.SetUpdatedAt(t)
-	return bc
-}
-
-// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (bc *BlogCreate) SetNillableUpdatedAt(t *time.Time) *BlogCreate {
-	if t != nil {
-		bc.SetUpdatedAt(*t)
 	}
 	return bc
 }
@@ -126,10 +106,6 @@ func (bc *BlogCreate) defaults() {
 		v := blog.DefaultCreatedAt()
 		bc.mutation.SetCreatedAt(v)
 	}
-	if _, ok := bc.mutation.UpdatedAt(); !ok {
-		v := blog.DefaultUpdatedAt()
-		bc.mutation.SetUpdatedAt(v)
-	}
 	if _, ok := bc.mutation.ID(); !ok {
 		v := blog.DefaultID()
 		bc.mutation.SetID(v)
@@ -138,28 +114,17 @@ func (bc *BlogCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (bc *BlogCreate) check() error {
-	if _, ok := bc.mutation.Title(); !ok {
-		return &ValidationError{Name: "title", err: errors.New(`ent: missing required field "Blog.title"`)}
-	}
-	if _, ok := bc.mutation.Content(); !ok {
-		return &ValidationError{Name: "content", err: errors.New(`ent: missing required field "Blog.content"`)}
-	}
 	if _, ok := bc.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "Blog.user_id"`)}
 	}
-	if _, ok := bc.mutation.Interest(); !ok {
-		return &ValidationError{Name: "interest", err: errors.New(`ent: missing required field "Blog.interest"`)}
+	if _, ok := bc.mutation.Title(); !ok {
+		return &ValidationError{Name: "title", err: errors.New(`ent: missing required field "Blog.title"`)}
 	}
-	if v, ok := bc.mutation.Interest(); ok {
-		if err := blog.InterestValidator(v); err != nil {
-			return &ValidationError{Name: "interest", err: fmt.Errorf(`ent: validator failed for field "Blog.interest": %w`, err)}
-		}
+	if _, ok := bc.mutation.URL(); !ok {
+		return &ValidationError{Name: "url", err: errors.New(`ent: missing required field "Blog.url"`)}
 	}
 	if _, ok := bc.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Blog.created_at"`)}
-	}
-	if _, ok := bc.mutation.UpdatedAt(); !ok {
-		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Blog.updated_at"`)}
 	}
 	return nil
 }
@@ -196,29 +161,21 @@ func (bc *BlogCreate) createSpec() (*Blog, *sqlgraph.CreateSpec) {
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
-	if value, ok := bc.mutation.Title(); ok {
-		_spec.SetField(blog.FieldTitle, field.TypeString, value)
-		_node.Title = value
-	}
-	if value, ok := bc.mutation.Content(); ok {
-		_spec.SetField(blog.FieldContent, field.TypeString, value)
-		_node.Content = value
-	}
 	if value, ok := bc.mutation.UserID(); ok {
 		_spec.SetField(blog.FieldUserID, field.TypeString, value)
 		_node.UserID = value
 	}
-	if value, ok := bc.mutation.Interest(); ok {
-		_spec.SetField(blog.FieldInterest, field.TypeEnum, value)
-		_node.Interest = value
+	if value, ok := bc.mutation.Title(); ok {
+		_spec.SetField(blog.FieldTitle, field.TypeString, value)
+		_node.Title = value
+	}
+	if value, ok := bc.mutation.URL(); ok {
+		_spec.SetField(blog.FieldURL, field.TypeString, value)
+		_node.URL = value
 	}
 	if value, ok := bc.mutation.CreatedAt(); ok {
 		_spec.SetField(blog.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
-	}
-	if value, ok := bc.mutation.UpdatedAt(); ok {
-		_spec.SetField(blog.FieldUpdatedAt, field.TypeTime, value)
-		_node.UpdatedAt = value
 	}
 	return _node, _spec
 }

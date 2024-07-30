@@ -3,6 +3,11 @@ locals {
   environment = "production"
 }
 
+module dynamodb {
+  source = "../../modules/dynamodb"
+  environment = local.environment
+}
+
 module "ecs" {
   source = "../../modules/ecs"
   environment = local.environment
@@ -12,8 +17,13 @@ module "ecs" {
   service_images = {
     for service in var.services :
     service => try(
-      "${data.aws_ecr_repository.services[service].repository_url}:latest",
-      "nginx:latest"
+      "${data.aws_ecr_repository.services[service].repository_url}:latest"
+    )
+  }
+  task_images = {
+    for task in var.tasks :
+    task => try(
+      "${data.aws_ecr_repository.tasks[task].repository_url}:latest"
     )
   }
   ecs_execution_role_arn = data.aws_iam_role.ecs_execution_role.arn
@@ -42,9 +52,6 @@ module lambdas {
   environment = local.environment
   region = data.aws_region.current.name
   parse_conversations_ecr_repository_url = data.aws_ecr_repository.parse_conversations.repository_url
-  generate_blog_ecr_repository_url = data.aws_ecr_repository.generate_blog.repository_url
-  openai_api_key = var.openai_api_key
-  langchain_smith_api_key = var.langchain_smith_api_key
   lambda_role_arn = data.aws_iam_role.lambda_role.arn
 }
 
@@ -60,9 +67,14 @@ module "rds" {
 module step_functions {
   source = "../../modules/step_functions"
 
-  lambda_generate_blog_arn = module.lambdas.lambda_generate_blog_arn
-  lambda_parse_conversations_arn = module.lambdas.lambda_parse_conversations_arn
   iam_role_step_functions_role_arn = data.aws_iam_role.step_functions_role.arn
+  lambda_parse_conversations_arn = module.lambdas.lambda_parse_conversations_arn
+  ecs_cluster_arn = module.ecs.ecs_cluster_arn
+  generate_blog_task_definition_arn = module.ecs.generate_blog_task_definition_arn
+  ecs_task_security_group_id = data.aws_security_group.ecs_task_security_group.id
+  subnet_ids = data.aws_subnets.default.ids
+  environment = local.environment
+  region_name = data.aws_region.current.name
 
-  depends_on = [module.lambdas]
+  depends_on = [module.lambdas, module.ecs]
 }

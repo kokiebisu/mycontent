@@ -39,12 +39,10 @@ type BlogMutation struct {
 	op            Op
 	typ           string
 	id            *uuid.UUID
-	title         *string
-	content       *string
 	user_id       *string
-	interest      *blog.Interest
+	title         *string
+	url           *string
 	created_at    *time.Time
-	updated_at    *time.Time
 	clearedFields map[string]struct{}
 	done          bool
 	oldValue      func(context.Context) (*Blog, error)
@@ -155,78 +153,6 @@ func (m *BlogMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
 	}
 }
 
-// SetTitle sets the "title" field.
-func (m *BlogMutation) SetTitle(s string) {
-	m.title = &s
-}
-
-// Title returns the value of the "title" field in the mutation.
-func (m *BlogMutation) Title() (r string, exists bool) {
-	v := m.title
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldTitle returns the old "title" field's value of the Blog entity.
-// If the Blog object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *BlogMutation) OldTitle(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldTitle is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldTitle requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldTitle: %w", err)
-	}
-	return oldValue.Title, nil
-}
-
-// ResetTitle resets all changes to the "title" field.
-func (m *BlogMutation) ResetTitle() {
-	m.title = nil
-}
-
-// SetContent sets the "content" field.
-func (m *BlogMutation) SetContent(s string) {
-	m.content = &s
-}
-
-// Content returns the value of the "content" field in the mutation.
-func (m *BlogMutation) Content() (r string, exists bool) {
-	v := m.content
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldContent returns the old "content" field's value of the Blog entity.
-// If the Blog object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *BlogMutation) OldContent(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldContent is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldContent requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldContent: %w", err)
-	}
-	return oldValue.Content, nil
-}
-
-// ResetContent resets all changes to the "content" field.
-func (m *BlogMutation) ResetContent() {
-	m.content = nil
-}
-
 // SetUserID sets the "user_id" field.
 func (m *BlogMutation) SetUserID(s string) {
 	m.user_id = &s
@@ -263,40 +189,76 @@ func (m *BlogMutation) ResetUserID() {
 	m.user_id = nil
 }
 
-// SetInterest sets the "interest" field.
-func (m *BlogMutation) SetInterest(b blog.Interest) {
-	m.interest = &b
+// SetTitle sets the "title" field.
+func (m *BlogMutation) SetTitle(s string) {
+	m.title = &s
 }
 
-// Interest returns the value of the "interest" field in the mutation.
-func (m *BlogMutation) Interest() (r blog.Interest, exists bool) {
-	v := m.interest
+// Title returns the value of the "title" field in the mutation.
+func (m *BlogMutation) Title() (r string, exists bool) {
+	v := m.title
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldInterest returns the old "interest" field's value of the Blog entity.
+// OldTitle returns the old "title" field's value of the Blog entity.
 // If the Blog object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *BlogMutation) OldInterest(ctx context.Context) (v blog.Interest, err error) {
+func (m *BlogMutation) OldTitle(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldInterest is only allowed on UpdateOne operations")
+		return v, errors.New("OldTitle is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldInterest requires an ID field in the mutation")
+		return v, errors.New("OldTitle requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldInterest: %w", err)
+		return v, fmt.Errorf("querying old value for OldTitle: %w", err)
 	}
-	return oldValue.Interest, nil
+	return oldValue.Title, nil
 }
 
-// ResetInterest resets all changes to the "interest" field.
-func (m *BlogMutation) ResetInterest() {
-	m.interest = nil
+// ResetTitle resets all changes to the "title" field.
+func (m *BlogMutation) ResetTitle() {
+	m.title = nil
+}
+
+// SetURL sets the "url" field.
+func (m *BlogMutation) SetURL(s string) {
+	m.url = &s
+}
+
+// URL returns the value of the "url" field in the mutation.
+func (m *BlogMutation) URL() (r string, exists bool) {
+	v := m.url
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldURL returns the old "url" field's value of the Blog entity.
+// If the Blog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BlogMutation) OldURL(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldURL is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldURL requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldURL: %w", err)
+	}
+	return oldValue.URL, nil
+}
+
+// ResetURL resets all changes to the "url" field.
+func (m *BlogMutation) ResetURL() {
+	m.url = nil
 }
 
 // SetCreatedAt sets the "created_at" field.
@@ -335,42 +297,6 @@ func (m *BlogMutation) ResetCreatedAt() {
 	m.created_at = nil
 }
 
-// SetUpdatedAt sets the "updated_at" field.
-func (m *BlogMutation) SetUpdatedAt(t time.Time) {
-	m.updated_at = &t
-}
-
-// UpdatedAt returns the value of the "updated_at" field in the mutation.
-func (m *BlogMutation) UpdatedAt() (r time.Time, exists bool) {
-	v := m.updated_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUpdatedAt returns the old "updated_at" field's value of the Blog entity.
-// If the Blog object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *BlogMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
-	}
-	return oldValue.UpdatedAt, nil
-}
-
-// ResetUpdatedAt resets all changes to the "updated_at" field.
-func (m *BlogMutation) ResetUpdatedAt() {
-	m.updated_at = nil
-}
-
 // Where appends a list predicates to the BlogMutation builder.
 func (m *BlogMutation) Where(ps ...predicate.Blog) {
 	m.predicates = append(m.predicates, ps...)
@@ -405,24 +331,18 @@ func (m *BlogMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *BlogMutation) Fields() []string {
-	fields := make([]string, 0, 6)
-	if m.title != nil {
-		fields = append(fields, blog.FieldTitle)
-	}
-	if m.content != nil {
-		fields = append(fields, blog.FieldContent)
-	}
+	fields := make([]string, 0, 4)
 	if m.user_id != nil {
 		fields = append(fields, blog.FieldUserID)
 	}
-	if m.interest != nil {
-		fields = append(fields, blog.FieldInterest)
+	if m.title != nil {
+		fields = append(fields, blog.FieldTitle)
+	}
+	if m.url != nil {
+		fields = append(fields, blog.FieldURL)
 	}
 	if m.created_at != nil {
 		fields = append(fields, blog.FieldCreatedAt)
-	}
-	if m.updated_at != nil {
-		fields = append(fields, blog.FieldUpdatedAt)
 	}
 	return fields
 }
@@ -432,18 +352,14 @@ func (m *BlogMutation) Fields() []string {
 // schema.
 func (m *BlogMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case blog.FieldTitle:
-		return m.Title()
-	case blog.FieldContent:
-		return m.Content()
 	case blog.FieldUserID:
 		return m.UserID()
-	case blog.FieldInterest:
-		return m.Interest()
+	case blog.FieldTitle:
+		return m.Title()
+	case blog.FieldURL:
+		return m.URL()
 	case blog.FieldCreatedAt:
 		return m.CreatedAt()
-	case blog.FieldUpdatedAt:
-		return m.UpdatedAt()
 	}
 	return nil, false
 }
@@ -453,18 +369,14 @@ func (m *BlogMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *BlogMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case blog.FieldTitle:
-		return m.OldTitle(ctx)
-	case blog.FieldContent:
-		return m.OldContent(ctx)
 	case blog.FieldUserID:
 		return m.OldUserID(ctx)
-	case blog.FieldInterest:
-		return m.OldInterest(ctx)
+	case blog.FieldTitle:
+		return m.OldTitle(ctx)
+	case blog.FieldURL:
+		return m.OldURL(ctx)
 	case blog.FieldCreatedAt:
 		return m.OldCreatedAt(ctx)
-	case blog.FieldUpdatedAt:
-		return m.OldUpdatedAt(ctx)
 	}
 	return nil, fmt.Errorf("unknown Blog field %s", name)
 }
@@ -474,20 +386,6 @@ func (m *BlogMutation) OldField(ctx context.Context, name string) (ent.Value, er
 // type.
 func (m *BlogMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case blog.FieldTitle:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetTitle(v)
-		return nil
-	case blog.FieldContent:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetContent(v)
-		return nil
 	case blog.FieldUserID:
 		v, ok := value.(string)
 		if !ok {
@@ -495,12 +393,19 @@ func (m *BlogMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetUserID(v)
 		return nil
-	case blog.FieldInterest:
-		v, ok := value.(blog.Interest)
+	case blog.FieldTitle:
+		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetInterest(v)
+		m.SetTitle(v)
+		return nil
+	case blog.FieldURL:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetURL(v)
 		return nil
 	case blog.FieldCreatedAt:
 		v, ok := value.(time.Time)
@@ -508,13 +413,6 @@ func (m *BlogMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetCreatedAt(v)
-		return nil
-	case blog.FieldUpdatedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUpdatedAt(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Blog field %s", name)
@@ -565,23 +463,17 @@ func (m *BlogMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *BlogMutation) ResetField(name string) error {
 	switch name {
-	case blog.FieldTitle:
-		m.ResetTitle()
-		return nil
-	case blog.FieldContent:
-		m.ResetContent()
-		return nil
 	case blog.FieldUserID:
 		m.ResetUserID()
 		return nil
-	case blog.FieldInterest:
-		m.ResetInterest()
+	case blog.FieldTitle:
+		m.ResetTitle()
+		return nil
+	case blog.FieldURL:
+		m.ResetURL()
 		return nil
 	case blog.FieldCreatedAt:
 		m.ResetCreatedAt()
-		return nil
-	case blog.FieldUpdatedAt:
-		m.ResetUpdatedAt()
 		return nil
 	}
 	return fmt.Errorf("unknown Blog field %s", name)

@@ -12,7 +12,6 @@ import (
 	"github.com/kokiebisu/mycontent/packages/service-blog/graphql/generated"
 	"github.com/kokiebisu/mycontent/packages/service-blog/graphql/model"
 	"github.com/kokiebisu/mycontent/packages/shared/ent"
-	"github.com/kokiebisu/mycontent/packages/shared/ent/blog"
 	"github.com/kokiebisu/mycontent/packages/shared/enum"
 )
 
@@ -24,11 +23,6 @@ func (r *blogResolver) ID(ctx context.Context, obj *ent.Blog) (string, error) {
 // CreatedAt is the resolver for the createdAt field.
 func (r *blogResolver) CreatedAt(ctx context.Context, obj *ent.Blog) (string, error) {
 	return obj.CreatedAt.Format(time.RFC3339), nil
-}
-
-// UpdatedAt is the resolver for the updatedAt field.
-func (r *blogResolver) UpdatedAt(ctx context.Context, obj *ent.Blog) (string, error) {
-	return obj.UpdatedAt.Format(time.RFC3339), nil
 }
 
 // ID is the resolver for the id field.
@@ -123,11 +117,6 @@ func (r *queryResolver) IntegrationsByUserID(ctx context.Context, userID string,
 // ID is the resolver for the id field.
 func (r *userResolver) ID(ctx context.Context, obj *ent.User) (string, error) {
 	return obj.ID.String(), nil
-}
-
-// Interest is the resolver for the interest field.
-func (r *userResolver) Interest(ctx context.Context, obj *ent.User) (blog.Interest, error) {
-	return blog.Interest(obj.Interest), nil
 }
 
 // Blog returns generated.BlogResolver implementation.

@@ -29,6 +29,7 @@ module iam {
   upload_bucket_name = module.s3.upload_bucket_name
   vpc_id = data.aws_vpc.default.id
   environment = each.key
+  account_id = data.aws_caller_identity.current.account_id
 
   depends_on = [module.s3]
 }
@@ -46,4 +47,11 @@ module s3 {
   source = "../modules/s3"
 
   allowed_origins = ["http://localhost:3000"]
+}
+
+module ssm {
+  source = "../modules/ssm"
+
+  langchain_smith_api_key = var.langchain_smith_api_key
+  openai_api_key = var.openai_api_key
 }

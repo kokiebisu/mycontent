@@ -8,12 +8,23 @@ from langchain.chains.summarize import load_summarize_chain
 from langchain.prompts import PromptTemplate
 from langchain.schema import Document
 
+import blog_pb2_grpc, blog_pb2
+
 
 dotenv.load_dotenv()
 
-os.environ["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY")
-os.environ["LANGCHAIN_TRACING_V2"] = os.getenv("LANGCHAIN_TRACING_V2")
-os.environ["LANGCHAIN_API_KEY"] = os.getenv("LANGCHAIN_SMITH_API_KEY")
+# Function to get SSM parameter
+def get_ssm_parameter(parameter_name):
+    ssm_client = boto3.client('ssm')
+    response = ssm_client.get_parameter(Name=parameter_name, WithDecryption=True)
+    return response['Parameter']['Value']
+
+# Fetch API keys from SSM
+environment = os.environ['ENVIRONMENT']
+blog_service_url = os.environ['BLOG_SERVICE_URL']
+os.environ["OPENAI_API_KEY"] = get_ssm_parameter('/openai/api_key')
+os.environ["LANGCHAIN_API_KEY"] = get_ssm_parameter('/langchain/api_key')
+os.environ["LANGCHAIN_TRACING_V2"] = "true"
 
 llm = ChatOpenAI(model='gpt-4o-mini')
 
@@ -95,24 +106,59 @@ def generate_blog_content(title, question, thread, min_chars=8000, max_attempts=
 
 def store_blog_content(bucket_name, key, blog_content):
     s3_client = boto3.client('s3')
+    s3_config = s3_client.meta.config
+    endpoint_url = f"https://s3.{s3_config.region_name}.amazonaws.com"
+    print(endpoint_url)
     s3_client.put_object(Bucket=bucket_name, Key=key, Body=blog_content)
+    return f"{endpoint_url}/{bucket_name}/{key}"
 
 
-def lambda_handler(event, context):
+def get_conversation(conversation_id):
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table(f'{environment}-conversation-store')
+    response = table.get_item(Key={'id': conversation_id})
+    return response['Item']
+
+def main():
     '''
     This lambda will get triggered when the 'Thread Grouper' lambda has finished grouping the conversations
     by threads and uploaded the result to s3. This lambda handles a single thread and stores the generated
     blog post back in s3 at the (generated/user_id/thread_id.md) path.
     '''
     try:
-        bucket_name = event['bucket_name']
-        key = event['key']
+        # bucket_name = event['bucket_name']
+        # key = event['key']
+        # conversation = event['conversation']
+        bucket_name = os.environ['INPUT_BUCKET']
+        key = os.environ['INPUT_KEY']
+        conversation_id = os.environ['CONVERSATION_ID']
+
         user_id = key.split('/')[2]
-        conversation = event['conversation']
         timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+        conversation = get_conversation(conversation_id)
         blog_content = generate_blog_content(title=conversation['title'], question=conversation['question'], thread=conversation['thread'])
         key=f"generated/user/{user_id}/{timestamp}.md"
-        store_blog_content(bucket_name, key, blog_content)
+        endpoint_url = store_blog_content(bucket_name, key, blog_content)
+        print(f"Stored blog content successfully {endpoint_url}")
+        import grpc
+        channel = grpc.insecure_channel(blog_service_url)
+        client = blog_pb2_grpc.BlogServiceStub(channel)
+        client.CreateBlog(
+            blog_pb2.CreateBlogRequest(
+                user_id=user_id,
+                title=conversation['title'],
+                url=endpoint_url,
+                created_at=timestamp
+            )
+        )
+        print("Created blog successfully after grpc")
+        return {
+            'status': 'success'
+        }
+        
     except Exception as e:
         print(f"Error: {str(e)}")
         raise
+
+if __name__ == '__main__':
+    main()

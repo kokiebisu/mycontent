@@ -19,12 +19,10 @@ func (Blog) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("id", uuid.UUID{}).
             Default(uuid.New),
-		field.String("title"),
-		field.String("content"),
 		field.String("user_id"),
-		field.Enum("interest").Values(INTERESTS...),
+		field.String("title"),
+		field.String("url"),
 		field.Time("created_at").Default(time.Now).Immutable(),
-		field.Time("updated_at").Default(time.Now).UpdateDefault(time.Now),
 	}
 }
 

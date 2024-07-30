@@ -262,12 +262,12 @@ func (bq *BlogQuery) Clone() *BlogQuery {
 // Example:
 //
 //	var v []struct {
-//		Title string `json:"title,omitempty"`
+//		UserID string `json:"user_id,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Blog.Query().
-//		GroupBy(blog.FieldTitle).
+//		GroupBy(blog.FieldUserID).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (bq *BlogQuery) GroupBy(field string, fields ...string) *BlogGroupBy {
@@ -285,11 +285,11 @@ func (bq *BlogQuery) GroupBy(field string, fields ...string) *BlogGroupBy {
 // Example:
 //
 //	var v []struct {
-//		Title string `json:"title,omitempty"`
+//		UserID string `json:"user_id,omitempty"`
 //	}
 //
 //	client.Blog.Query().
-//		Select(blog.FieldTitle).
+//		Select(blog.FieldUserID).
 //		Scan(ctx, &v)
 func (bq *BlogQuery) Select(fields ...string) *BlogSelect {
 	bq.ctx.Fields = append(bq.ctx.Fields, fields...)

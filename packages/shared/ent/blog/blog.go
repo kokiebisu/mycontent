@@ -3,7 +3,6 @@
 package blog
 
 import (
-	"fmt"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
@@ -15,18 +14,14 @@ const (
 	Label = "blog"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
-	// FieldTitle holds the string denoting the title field in the database.
-	FieldTitle = "title"
-	// FieldContent holds the string denoting the content field in the database.
-	FieldContent = "content"
 	// FieldUserID holds the string denoting the user_id field in the database.
 	FieldUserID = "user_id"
-	// FieldInterest holds the string denoting the interest field in the database.
-	FieldInterest = "interest"
+	// FieldTitle holds the string denoting the title field in the database.
+	FieldTitle = "title"
+	// FieldURL holds the string denoting the url field in the database.
+	FieldURL = "url"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
-	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
-	FieldUpdatedAt = "updated_at"
 	// Table holds the table name of the blog in the database.
 	Table = "blogs"
 )
@@ -34,12 +29,10 @@ const (
 // Columns holds all SQL columns for blog fields.
 var Columns = []string{
 	FieldID,
-	FieldTitle,
-	FieldContent,
 	FieldUserID,
-	FieldInterest,
+	FieldTitle,
+	FieldURL,
 	FieldCreatedAt,
-	FieldUpdatedAt,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -55,41 +48,9 @@ func ValidColumn(column string) bool {
 var (
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
 	DefaultCreatedAt func() time.Time
-	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
-	DefaultUpdatedAt func() time.Time
-	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
-	UpdateDefaultUpdatedAt func() time.Time
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() uuid.UUID
 )
-
-// Interest defines the type for the "interest" enum field.
-type Interest string
-
-// Interest values.
-const (
-	InterestREACT      Interest = "REACT"
-	InterestNODEJS     Interest = "NODEJS"
-	InterestPYTHON     Interest = "PYTHON"
-	InterestGO         Interest = "GO"
-	InterestRUST       Interest = "RUST"
-	InterestDOCKER     Interest = "DOCKER"
-	InterestKUBERNETES Interest = "KUBERNETES"
-)
-
-func (i Interest) String() string {
-	return string(i)
-}
-
-// InterestValidator is a validator for the "interest" field enum values. It is called by the builders before save.
-func InterestValidator(i Interest) error {
-	switch i {
-	case InterestREACT, InterestNODEJS, InterestPYTHON, InterestGO, InterestRUST, InterestDOCKER, InterestKUBERNETES:
-		return nil
-	default:
-		return fmt.Errorf("blog: invalid enum value for interest field: %q", i)
-	}
-}
 
 // OrderOption defines the ordering options for the Blog queries.
 type OrderOption func(*sql.Selector)
@@ -99,32 +60,22 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
 }
 
-// ByTitle orders the results by the title field.
-func ByTitle(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldTitle, opts...).ToFunc()
-}
-
-// ByContent orders the results by the content field.
-func ByContent(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldContent, opts...).ToFunc()
-}
-
 // ByUserID orders the results by the user_id field.
 func ByUserID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUserID, opts...).ToFunc()
 }
 
-// ByInterest orders the results by the interest field.
-func ByInterest(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldInterest, opts...).ToFunc()
+// ByTitle orders the results by the title field.
+func ByTitle(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTitle, opts...).ToFunc()
+}
+
+// ByURL orders the results by the url field.
+func ByURL(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldURL, opts...).ToFunc()
 }
 
 // ByCreatedAt orders the results by the created_at field.
 func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
-}
-
-// ByUpdatedAt orders the results by the updated_at field.
-func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
 }

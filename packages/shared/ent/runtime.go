@@ -19,15 +19,9 @@ func init() {
 	blogFields := schema.Blog{}.Fields()
 	_ = blogFields
 	// blogDescCreatedAt is the schema descriptor for created_at field.
-	blogDescCreatedAt := blogFields[5].Descriptor()
+	blogDescCreatedAt := blogFields[4].Descriptor()
 	// blog.DefaultCreatedAt holds the default value on creation for the created_at field.
 	blog.DefaultCreatedAt = blogDescCreatedAt.Default.(func() time.Time)
-	// blogDescUpdatedAt is the schema descriptor for updated_at field.
-	blogDescUpdatedAt := blogFields[6].Descriptor()
-	// blog.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	blog.DefaultUpdatedAt = blogDescUpdatedAt.Default.(func() time.Time)
-	// blog.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
-	blog.UpdateDefaultUpdatedAt = blogDescUpdatedAt.UpdateDefault.(func() time.Time)
 	// blogDescID is the schema descriptor for id field.
 	blogDescID := blogFields[0].Descriptor()
 	// blog.DefaultID holds the default value on creation for the id field.

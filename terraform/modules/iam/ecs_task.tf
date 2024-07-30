@@ -15,7 +15,36 @@ resource "aws_iam_role" "ecs_task_role" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "ecs_s3_full_access_policy" {
+resource "aws_iam_policy" "ecs_ssm" {
+  name        = "ecs-task-generate-blog"
+  description = "Policy to allow SSM GetParameter action for specific parameters"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action   = "ssm:GetParameter"
+        Effect   = "Allow"
+        Resource = [
+          "arn:aws:ssm:*:*:parameter/openai/api_key",
+          "arn:aws:ssm:*:*:parameter/langchain/api_key"
+        ]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_task_s3_full_access_policy" {
   role       = aws_iam_role.ecs_task_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_task_ssm_full_access" {
+  role       = aws_iam_role.ecs_task_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMFullAccess"
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_task_dynamodb_full_access" {
+  role       = aws_iam_role.ecs_task_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess"
 }

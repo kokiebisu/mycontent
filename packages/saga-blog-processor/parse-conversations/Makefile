@@ -1,5 +1,5 @@
 push-to-ecr:
-	docker build -t mycontent/production/lambda/parse-conversations .
+	cd ../../../ && docker build -t mycontent/production/lambda/parse-conversations -f packages/saga-blog-processor/parse-conversations/Dockerfile .
 	docker tag mycontent/production/lambda/parse-conversations:latest 474489807730.dkr.ecr.us-east-1.amazonaws.com/mycontent/production/lambda/parse-conversations:latest
 	docker push 474489807730.dkr.ecr.us-east-1.amazonaws.com/mycontent/production/lambda/parse-conversations:latest
 
