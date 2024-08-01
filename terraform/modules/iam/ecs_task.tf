@@ -26,8 +26,8 @@ resource "aws_iam_policy" "ecs_ssm" {
         Action   = "ssm:GetParameter"
         Effect   = "Allow"
         Resource = [
-          "arn:aws:ssm:*:*:parameter/openai/api_key",
-          "arn:aws:ssm:*:*:parameter/langchain/api_key"
+          "arn:aws:ssm:*:*:parameter/secrets/openai/api_key",
+          "arn:aws:ssm:*:*:parameter/secrets/langchain/api_key"
         ]
       }
     ]

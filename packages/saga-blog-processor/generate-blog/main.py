@@ -22,8 +22,8 @@ def get_ssm_parameter(parameter_name):
 # Fetch API keys from SSM
 environment = os.environ['ENVIRONMENT']
 blog_service_url = os.environ['BLOG_SERVICE_URL']
-os.environ["OPENAI_API_KEY"] = get_ssm_parameter('/openai/api_key')
-os.environ["LANGCHAIN_API_KEY"] = get_ssm_parameter('/langchain/api_key')
+os.environ["OPENAI_API_KEY"] = get_ssm_parameter('/secrets/openai/api_key')
+os.environ["LANGCHAIN_API_KEY"] = get_ssm_parameter('/secrets/langchain/api_key')
 os.environ["LANGCHAIN_TRACING_V2"] = "true"
 
 llm = ChatOpenAI(model='gpt-4o-mini')
