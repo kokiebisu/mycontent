@@ -36,7 +36,7 @@ module gateway {
   db_host = var.db_host
   region_name = var.region_name
   ecs_task_security_group_id = var.ecs_task_security_group_id
-  service_image = var.service_images["gateway"]
+  service_image = var.gateway_image
   private_dns_namespace_id = aws_service_discovery_private_dns_namespace.internal.id
   cluster_id = aws_ecs_cluster.main.id
   lb_external_arn = aws_lb.external.arn
@@ -49,7 +49,7 @@ module service_authentication {
   db_host = var.db_host
   subnet_ids = var.subnet_ids
   region_name = var.region_name
-  service_image = var.service_images["service-authentication"]
+  service_image = var.service_images["authentication"]
   alb_security_group_id = var.alb_security_group_id
   ecs_execution_role_arn = var.ecs_execution_role_arn
   ecs_task_role_arn = var.ecs_task_role_arn
@@ -67,7 +67,7 @@ module service_blog {
   ecs_execution_role_arn = var.ecs_execution_role_arn
   ecs_task_role_arn = var.ecs_task_role_arn
   ecs_task_security_group_id = var.ecs_task_security_group_id
-  service_image = var.service_images["service-blog"]
+  service_image = var.service_images["blog"]
   db_host = var.db_host
   region_name = var.region_name
   private_dns_namespace_id = aws_service_discovery_private_dns_namespace.internal.id
@@ -83,7 +83,7 @@ module service_user {
   ecs_execution_role_arn = var.ecs_execution_role_arn
   ecs_task_role_arn = var.ecs_task_role_arn
   ecs_task_security_group_id = var.ecs_task_security_group_id
-  service_image = var.service_images["service-user"]
+  service_image = var.service_images["user"]
   db_host = var.db_host
   region_name = var.region_name
   private_dns_namespace_id = aws_service_discovery_private_dns_namespace.internal.id

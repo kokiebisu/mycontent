@@ -1,6 +1,6 @@
 locals {
   service_type = "lambda"
-  lambda_services = ["parse-conversations", "generate-blog"]
+  lambda_services = ["parse-conversations"]
 }
 
 resource "aws_ecr_repository" "parse_conversations" {

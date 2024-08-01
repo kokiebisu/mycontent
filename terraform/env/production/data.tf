@@ -19,18 +19,22 @@ data "aws_s3_bucket" "upload_bucket" {
 }
 
 # ECR Repositories
+data "aws_ecr_repository" "gateway" {
+  name = "${local.namespace}/${local.environment}/ecs/gateway"
+}
+
 data "aws_ecr_repository" "parse_conversations" {
   name = "${local.namespace}/${local.environment}/lambda/parse-conversations"
 }
 
 data "aws_ecr_repository" "services" {
   for_each = toset(var.services)
-  name     = "${local.namespace}/${local.environment}/ecs/services/${each.key}"
+  name     = "${local.namespace}/${local.environment}/ecs/service/${each.key}"
 }
 
 data "aws_ecr_repository" "tasks" {
   for_each = toset(var.tasks)
-  name = "${local.namespace}/${local.environment}/ecs/tasks/${each.key}"
+  name = "${local.namespace}/${local.environment}/ecs/task/${each.key}"
 }
 
 # IAM Roles
@@ -56,7 +60,7 @@ data "aws_iam_role" "eventbridge_sfn_role" {
 
 # Security Groups
 data "aws_security_group" "ecs_task_security_group" {
-  name = "${local.environment}-ecs-tasks-sg"
+  name = "${local.environment}-ecs-task-sg"
 }
 
 data "aws_security_group" "alb_security_group" {

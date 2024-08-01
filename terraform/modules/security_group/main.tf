@@ -81,7 +81,7 @@ resource "aws_security_group" "alb" {
 
 # Create a security group for ECS tasks
 resource "aws_security_group" "ecs_tasks" {
-  name        = "${var.environment}-ecs-tasks-sg"
+  name        = "${var.environment}-ecs-task-sg"
   description = "Allow inbound traffic to ECS tasks and outbound to RDS"
   vpc_id      = var.vpc_id
   

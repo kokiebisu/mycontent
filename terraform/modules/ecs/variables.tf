@@ -3,6 +3,11 @@ variable subnet_ids {
   description = "The subnet ids to deploy to"
 }
 
+variable gateway_image {
+  type = string
+  description = "The gateway image to deploy"
+}
+
 variable service_images {
   type = map(string)
   description = "The service images to deploy"

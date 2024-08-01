@@ -14,6 +14,7 @@ module "ecs" {
   subnet_ids = data.aws_subnets.default.ids
   region_name = data.aws_region.current.name
   vpc_id = data.aws_vpc.default.id
+  gateway_image = "${data.aws_ecr_repository.gateway.repository_url}:latest"
   service_images = {
     for service in var.services :
     service => try(
