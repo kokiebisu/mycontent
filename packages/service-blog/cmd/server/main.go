@@ -14,8 +14,8 @@ import (
 	grpc_client "github.com/kokiebisu/mycontent/packages/service-blog/adapter/grpc"
 	"github.com/kokiebisu/mycontent/packages/service-blog/adapter/service"
 	"github.com/kokiebisu/mycontent/packages/service-blog/graphql/generated"
+	"github.com/kokiebisu/mycontent/packages/service-blog/stub"
 	"github.com/kokiebisu/mycontent/packages/shared/ent"
-	"github.com/kokiebisu/mycontent/packages/shared/proto"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -108,7 +108,7 @@ func main() {
 
 	adapter := grpc_client.NewGRPCAdapter(blogService)
 	grpcServer := grpc.NewServer()
-	proto.RegisterBlogServiceServer(grpcServer, adapter)
+	stub.RegisterBlogServiceServer(grpcServer, adapter)
 
 	reflection.Register(grpcServer)
 

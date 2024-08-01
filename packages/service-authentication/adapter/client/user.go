@@ -6,21 +6,21 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/kokiebisu/mycontent/packages/service-authentication/stub"
 	"github.com/kokiebisu/mycontent/packages/shared/ent"
 	"github.com/kokiebisu/mycontent/packages/shared/enum"
-	"github.com/kokiebisu/mycontent/packages/shared/proto"
 )
 
 type UserServiceClient struct {
-	userClient proto.UserServiceClient
+	userClient stub.UserServiceClient
 }
 
-func NewUserServiceClient(userClient proto.UserServiceClient) *UserServiceClient {
+func NewUserServiceClient(userClient stub.UserServiceClient) *UserServiceClient {
 	return &UserServiceClient{userClient: userClient}
 }
 
 func (s *UserServiceClient) CreateUser(ctx context.Context, firstName string, lastName string, email string, username string, interest enum.Interest, yearsOfExperience int, publishTime time.Time, password string) (*ent.User, error) {
-	res, err := s.userClient.CreateUser(ctx, &proto.CreateUserRequest{
+	res, err := s.userClient.CreateUser(ctx, &stub.CreateUserRequest{
 		FirstName: firstName,
 		LastName: lastName,
 		Email: email,
@@ -65,7 +65,7 @@ func (s *UserServiceClient) CreateUser(ctx context.Context, firstName string, la
 }
 
 func (s *UserServiceClient) GetUserByEmail(ctx context.Context, email string) (*ent.User, error) {
-	res, err := s.userClient.GetUserByEmail(ctx, &proto.GetUserByEmailRequest{
+	res, err := s.userClient.GetUserByEmail(ctx, &stub.GetUserByEmailRequest{
 		Email: email,
 	})
 	if err != nil {
@@ -106,7 +106,7 @@ func (s *UserServiceClient) GetUserByEmail(ctx context.Context, email string) (*
 
 
 func (s *UserServiceClient) GetUserById(ctx context.Context, id string) (*ent.User, error) {
-	res, err := s.userClient.GetById(ctx, &proto.GetByIdRequest{
+	res, err := s.userClient.GetById(ctx, &stub.GetByIdRequest{
 		Id: id,
 	})
 	if err != nil {
@@ -124,7 +124,7 @@ func (s *UserServiceClient) GetUserById(ctx context.Context, id string) (*ent.Us
 
 
 func (s *UserServiceClient) DeleteUser(ctx context.Context, id string) (string, error) {
-	res, err := s.userClient.DeleteUser(ctx, &proto.DeleteUserRequest{
+	res, err := s.userClient.DeleteUser(ctx, &stub.DeleteUserRequest{
 		Id: id,
 	})
 	if err != nil {

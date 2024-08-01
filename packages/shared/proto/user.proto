@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "github.com/kokiebisu/mycontent/packages/service-user/proto";
+option go_package = "github.com/kokiebisu/mycontent/packages/shared/proto/stub";
 
 service UserService {
   rpc GetUserByEmail(GetUserByEmailRequest) returns (GetUserByEmailResponse);

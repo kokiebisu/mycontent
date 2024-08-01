@@ -12,7 +12,8 @@ import (
 	"github.com/kokiebisu/mycontent/packages/service-authentication/adapter/service"
 	"github.com/kokiebisu/mycontent/packages/service-authentication/graphql/generated"
 	"github.com/kokiebisu/mycontent/packages/service-authentication/graphql/resolver"
-	"github.com/kokiebisu/mycontent/packages/shared/proto"
+	"github.com/kokiebisu/mycontent/packages/service-authentication/stub"
+
 	_ "github.com/lib/pq"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -31,7 +32,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	userClient := proto.NewUserServiceClient(conn)
+	userClient := stub.NewUserServiceClient(conn)
 	userServiceClient := client.NewUserServiceClient(userClient)
 	tokenService := service.NewTokenService(SECRET_KEY)
 

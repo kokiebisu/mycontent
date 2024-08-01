@@ -17,8 +17,9 @@ import (
 	"github.com/kokiebisu/mycontent/packages/service-user/adapter/service"
 	"github.com/kokiebisu/mycontent/packages/service-user/graphql/generated"
 	"github.com/kokiebisu/mycontent/packages/service-user/graphql/resolver"
+	"github.com/kokiebisu/mycontent/packages/service-user/stub"
 	"github.com/kokiebisu/mycontent/packages/shared/ent"
-	"github.com/kokiebisu/mycontent/packages/shared/proto"
+
 	_ "github.com/lib/pq"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -106,7 +107,7 @@ func main() {
 
 	adapter := grpc_client.NewGRPCAdapter(userService)
 	grpcServer := grpc.NewServer()
-	proto.RegisterUserServiceServer(grpcServer, adapter)
+	stub.RegisterUserServiceServer(grpcServer, adapter)
 
 	reflection.Register(grpcServer)
 
