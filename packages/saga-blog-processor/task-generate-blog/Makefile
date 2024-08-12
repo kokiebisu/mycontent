@@ -5,7 +5,7 @@ ecr-login:
 	aws ecr get-login-password --region $(REGION) | docker login --username AWS --password-stdin $(ACCOUNT_ID).dkr.ecr.$(REGION).amazonaws.com
 
 push-to-ecr:
-	cd ../../../ && docker build -t mycontent/production/ecs/task/generate-blog -f packages/saga-blog-processor/generate-blog/Dockerfile .
+	cd ../../../ && docker build -t mycontent/production/ecs/task/generate-blog -f packages/saga-blog-processor/task-generate-blog/Dockerfile .
 	docker tag mycontent/production/ecs/task/generate-blog:latest $(ACCOUNT_ID).dkr.ecr.$(REGION).amazonaws.com/mycontent/production/ecs/task/generate-blog:latest
 	docker push $(ACCOUNT_ID).dkr.ecr.$(REGION).amazonaws.com/mycontent/production/ecs/task/generate-blog:latest
 
