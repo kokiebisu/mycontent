@@ -1,7 +1,7 @@
-variable "langchain_smith_api_key" {
+variable langchain_smith_api_key {
   type = string
 }
 
-variable "openai_api_key" {
+variable openai_api_key {
   type = string
 }

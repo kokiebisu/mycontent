@@ -8,12 +8,7 @@ variable lambda_role_arn {
   type        = string
 }
 
-variable region {
-  description = "The region of the ECR repository"
-  type        = string
-}
-
-variable parse_conversations_ecr_repository_url {
-  description = "The URL of the ECR repository for parse_conversations"
+variable ecr_repository_url {
+  description = "The URL of the ECR repository"
   type        = string
 }

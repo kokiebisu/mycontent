@@ -15,7 +15,7 @@ resource "aws_ecs_service" "gateway" {
   task_definition = aws_ecs_task_definition.gateway.arn
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.gateway.arn
+    target_group_arn = var.lb_target_group_gateway_arn
     container_name   = "gateway"
     container_port   = 4000
   }
@@ -117,66 +117,5 @@ resource "aws_ecs_task_definition" "gateway" {
 
   tags = {
     Environment = var.environment
-  }
-}
-
-
-
-
-# Create a target group for the gateway service
-resource "aws_lb_target_group" "gateway" {
-  name        = "${var.environment}-gateway-tg"
-  port        = 4000
-  protocol    = "HTTP"
-  vpc_id      = var.vpc_id
-  target_type = "ip"
-
-  health_check {
-    path                = "/health"
-    port                = 4000
-    healthy_threshold   = 2
-    unhealthy_threshold = 10
-    timeout             = 30
-    interval            = 60
-  }
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-# Create a listener for the ALB
-resource "aws_lb_listener" "gateway" {
-  load_balancer_arn = var.lb_external_arn
-  port              = "80"
-  protocol          = "HTTP"
-
-  default_action {
-    type = "fixed-response"
-    fixed_response {
-      content_type = "text/plain"
-      message_body = "OK"
-      status_code  = "200"
-    }
-  }
-
-  lifecycle {
-    ignore_changes = [default_action]
-  }
-}
-
-# Create a listener rule to associate the listener with the target group
-resource "aws_lb_listener_rule" "gateway" {
-  listener_arn = aws_lb_listener.gateway.arn
-
-  action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.gateway.arn
-  }
-
-  condition {
-    path_pattern {
-      values = ["/*"]
-    }
   }
 }

@@ -3,14 +3,9 @@ variable environment {
   description = "The environment to deploy to"
 }
 
-variable region {
-  type = string
-  description = "The region to deploy to"
-}
-
-variable parse_conversations_ecr_repository_url {
-  type = string
-  description = "The repository URL for the thread grouper"
+variable lambda_images {
+  type = map(string)
+  description = "The images for the lambdas"
 }
 
 variable lambda_role_arn {

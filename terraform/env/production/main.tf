@@ -32,13 +32,15 @@ module "ecs" {
   ecs_task_security_group_id = data.aws_security_group.ecs_task_security_group.id
   db_host = module.rds.db_host
   alb_security_group_id = data.aws_security_group.alb_security_group.id
+  lb_target_group_gateway_arn = module.load_balancer.lb_target_group_gateway_arn
 
-  depends_on = [module.rds]
+  depends_on = [module.rds, module.load_balancer]
 }
 
 module eventbridge {
   source = "../../modules/eventbridge"
 
+  environment = local.environment
   sfn_saga_blog_processor_arn = module.step_functions.sfn_saga_blog_processor_arn
   upload_bucket_id = data.aws_s3_bucket.upload_bucket.id
   upload_bucket_name = data.aws_s3_bucket.upload_bucket.bucket
@@ -51,9 +53,24 @@ module lambdas {
   source = "../../modules/lambdas"
 
   environment = local.environment
-  region = data.aws_region.current.name
-  parse_conversations_ecr_repository_url = data.aws_ecr_repository.parse_conversations.repository_url
   lambda_role_arn = data.aws_iam_role.lambda_role.arn
+  lambda_images = {
+    for lambda in var.lambdas :
+    lambda => try(
+      "${data.aws_ecr_repository.lambdas[lambda].repository_url}:latest"
+    )
+  }
+}
+
+module load_balancer {
+  source = "../../modules/load_balancer"
+  environment = local.environment
+  subnet_ids = data.aws_subnets.default.ids
+  alb_security_group_id = data.aws_security_group.alb_security_group.id
+  vpc_id = data.aws_vpc.default.id
+  lambda_get_presigned_url_arn = module.lambdas.get_presigned_url_arn
+
+  depends_on = [module.lambdas]
 }
 
 module "rds" {

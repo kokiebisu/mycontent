@@ -9,3 +9,9 @@ variable tasks {
   description = "The tasks to deploy"
   default = ["generate-blog"]
 }
+
+variable lambdas {
+  type = list(string)
+  description = "The lambdas to deploy"
+  default = ["get-presigned-url", "parse-conversations"]
+}

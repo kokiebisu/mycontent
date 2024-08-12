@@ -57,3 +57,8 @@ variable alb_security_group_id {
   type = string
   description = "The security group ID of the ALB"
 }
+
+variable lb_target_group_gateway_arn {
+  type = string
+  description = "The ARN of the target group for the gateway"
+}

@@ -58,7 +58,7 @@ variable cluster_id {
   description = "The cluster ID"
 }
 
-variable lb_external_arn {
+variable lb_target_group_gateway_arn {
   type = string
-  description = "The ARN of the external load balancer"
+  description = "The ARN of the target group for the gateway"
 }

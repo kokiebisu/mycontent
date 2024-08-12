@@ -1,12 +1,6 @@
 variable environment {
-  description = "The deployment environment (dev or production)"
-  type        = string
-}
-
-variable use_ecr_image {
-  description = "Whether to use an ECR image or the public Lambda Python runtime"
-  type        = bool
-  default     = false
+  description = "The environment to deploy to"
+  type = string
 }
 
 variable lambda_role_arn {

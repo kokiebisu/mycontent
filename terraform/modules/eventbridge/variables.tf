@@ -13,3 +13,7 @@ variable upload_bucket_name {
 variable iam_eventbridge_sfn_role {
   type = string
 }
+
+variable environment {
+  type = string
+}

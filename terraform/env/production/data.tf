@@ -23,8 +23,9 @@ data "aws_ecr_repository" "gateway" {
   name = "${local.namespace}/${local.environment}/ecs/gateway"
 }
 
-data "aws_ecr_repository" "parse_conversations" {
-  name = "${local.namespace}/${local.environment}/lambda/parse-conversations"
+data "aws_ecr_repository" "lambdas" {
+  for_each = toset(var.lambdas)
+  name = "${local.namespace}/${local.environment}/lambda/${each.key}"
 }
 
 data "aws_ecr_repository" "services" {
