@@ -1,4 +1,10 @@
+ACCOUNT_ID := 746669204470
+REGION := ap-northeast-1
+
+ecr-login:
+	aws ecr get-login-password --region $(REGION) | docker login --username AWS --password-stdin $(ACCOUNT_ID).dkr.ecr.$(REGION).amazonaws.com
+
 push-to-ecr:
 	cd ../../ && docker build -t mycontent/production/ecs/service/blog -f packages/service-blog/Dockerfile .
-	docker tag mycontent/production/ecs/service/blog:latest 474489807730.dkr.ecr.us-east-1.amazonaws.com/mycontent/production/ecs/service/blog:latest
-	docker push 474489807730.dkr.ecr.us-east-1.amazonaws.com/mycontent/production/ecs/service/blog:latest
+	docker tag mycontent/production/ecs/service/blog:latest $(ACCOUNT_ID).dkr.ecr.$(REGION).amazonaws.com/mycontent/production/ecs/service/blog:latest
+	docker push $(ACCOUNT_ID).dkr.ecr.$(REGION).amazonaws.com/mycontent/production/ecs/service/blog:latest
