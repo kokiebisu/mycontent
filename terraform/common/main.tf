@@ -29,7 +29,7 @@ module iam {
   upload_bucket_name = module.s3.upload_bucket_name
   vpc_id = data.aws_vpc.default.id
   environment = each.key
-  region = "ap-north-east-1"
+  region = "ap-northeast-1"
   account_id = data.aws_caller_identity.current.account_id
 
   depends_on = [module.s3]
