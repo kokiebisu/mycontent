@@ -27,7 +27,7 @@ resource "aws_iam_policy" "parse_conversations_lambda" {
         Action = [
           "dynamodb:PutItem"
         ]
-        Resource = "arn:aws:dynamodb:us-east-1:${var.account_id}:table/${var.environment}-conversation-store"
+        Resource = "arn:aws:dynamodb:${var.region}:${var.account_id}:table/${var.environment}-conversation-store"
       }
     ]
   })

@@ -17,3 +17,8 @@ variable account_id {
   type = string
   description = "The account ID to deploy to"
 }
+
+variable region {
+  type = string
+  description = "The region to deploy to"
+}

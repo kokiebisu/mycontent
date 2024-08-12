@@ -1,5 +1,5 @@
 provider "aws" {
-  region = "us-east-1"
+  region = "ap-northeast-1"
   shared_credentials_files = ["~/Environments/aws/.aws/credentials"]
   profile                  = "mycontent"
 }
