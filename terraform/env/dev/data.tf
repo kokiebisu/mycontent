@@ -18,7 +18,7 @@ data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
 data "aws_s3_bucket" "upload_bucket" {
-  bucket = "${local.namespace}-uploads"
+  bucket = "${local.namespace}-assets-user"
 }
 
 data "aws_ecr_repository" "parse_conversations" {

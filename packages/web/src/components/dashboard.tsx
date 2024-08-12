@@ -97,7 +97,7 @@ const Dashboard = ({ onLogout }: DashboardInterface) => {
       const result = await createPresignedUrl({
         variables: {
           input: {
-            bucketName: "mycontent-uploads",
+            bucketName: "mycontent-assets-user",
             fileName: `conversations/user/${userData.me.id}/${uploadedFile.name}`,
             fileType: "application/json",
           },

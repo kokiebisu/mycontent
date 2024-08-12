@@ -15,7 +15,7 @@ data "aws_region" "current" {}
 
 # S3 Buckets
 data "aws_s3_bucket" "upload_bucket" {
-  bucket = "${local.namespace}-uploads"
+  bucket = "${local.namespace}-assets-user"
 }
 
 # ECR Repositories

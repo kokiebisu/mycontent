@@ -1,10 +1,10 @@
-resource "aws_s3_bucket" "uploads" {
-  bucket = "mycontent-uploads"
+resource "aws_s3_bucket" "assets_user" {
+  bucket = "mycontent-assets-user"
   force_destroy = true
 }
 
-resource "aws_s3_bucket_cors_configuration" "uploads" {
-  bucket = aws_s3_bucket.uploads.id
+resource "aws_s3_bucket_cors_configuration" "assets_user" {
+  bucket = aws_s3_bucket.assets_user.id
 
   cors_rule {
     allowed_headers = ["*"]
@@ -16,7 +16,7 @@ resource "aws_s3_bucket_cors_configuration" "uploads" {
 }
 
 resource "aws_s3_bucket_notification" "bucket_notification" {
-  bucket = aws_s3_bucket.uploads.id
+  bucket = aws_s3_bucket.assets_user.id
 
   eventbridge = true
 }
