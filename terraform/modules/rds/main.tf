@@ -12,6 +12,7 @@ resource "aws_db_instance" "default" {
   port     = 5432
 
   vpc_security_group_ids = [var.rds_security_group_id]
+  publicly_accessible = var.environment == "production" ? false : true
 
   skip_final_snapshot = true
 

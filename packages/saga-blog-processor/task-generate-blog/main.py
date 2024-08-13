@@ -119,6 +119,7 @@ def get_conversation(conversation_id):
     response = table.get_item(Key={'id': conversation_id})
     return response['Item']
 
+
 def main():
     '''
     This lambda will get triggered when the 'Thread Grouper' lambda has finished grouping the conversations
