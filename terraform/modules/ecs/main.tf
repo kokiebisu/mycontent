@@ -90,6 +90,7 @@ module web {
   region_name = var.region_name
   cluster_id = aws_ecs_cluster.main.id
   lb_target_group_web_arn = var.lb_target_group_web_arn
+  api_host = var.api_host
 }
 
 # Create a service discovery private DNS namespace for internal communication

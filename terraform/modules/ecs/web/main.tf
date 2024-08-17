@@ -50,6 +50,10 @@ resource "aws_ecs_task_definition" "web" {
       ]
       environment = [
         {
+          name = "NEXT_PUBLIC_API_HOST"
+          value = var.api_host
+        },
+        {
           name = "NODE_ENV"
           value = var.environment
         }

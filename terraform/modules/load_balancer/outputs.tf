@@ -12,3 +12,8 @@ output lb_target_group_web_arn {
   value = aws_lb_target_group.web.arn
   description = "The ARN of the target group for the web"
 }
+
+output api_host {
+  value = aws_lb.external.dns_name
+  description = "The host of the API"
+}

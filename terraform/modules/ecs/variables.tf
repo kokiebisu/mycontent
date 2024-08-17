@@ -72,3 +72,8 @@ variable lb_target_group_web_arn {
   type = string
   description = "The ARN of the target group for the web service"
 }
+
+variable api_host {
+  type = string
+  description = "The host of the API"
+}

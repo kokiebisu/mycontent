@@ -30,8 +30,9 @@ module "ecs" {
   alb_security_group_id = data.aws_security_group.alb_security_group.id
   lb_target_group_gateway_arn = module.load_balancer.lb_target_group_gateway_arn
   lb_target_group_web_arn = module.load_balancer.lb_target_group_web_arn
+  api_host = module.load_balancer.api_host
 
-  depends_on = [module.rds]
+  depends_on = [module.load_balancer, module.rds]
 }
 
 module eventbridge {
