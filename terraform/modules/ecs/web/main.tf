@@ -13,6 +13,12 @@ resource "aws_ecs_service" "web" {
 
   task_definition = aws_ecs_task_definition.web.id
 
+  load_balancer {
+    target_group_arn = var.lb_target_group_web_arn
+    container_name = "web"
+    container_port = 3000
+  }
+
   lifecycle {
     ignore_changes = [task_definition, desired_count]
     create_before_destroy = true

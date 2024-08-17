@@ -67,3 +67,8 @@ variable lb_target_group_gateway_arn {
   type = string
   description = "The ARN of the target group for the gateway"
 }
+
+variable lb_target_group_web_arn {
+  type = string
+  description = "The ARN of the target group for the web service"
+}

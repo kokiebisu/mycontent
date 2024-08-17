@@ -21,6 +21,7 @@ resource "aws_lb_target_group" "gateway" {
 
 resource "aws_lb_listener_rule" "gateway" {
   listener_arn = aws_lb_listener.main.arn
+  priority = 100
 
   action {
     type             = "forward"
@@ -29,7 +30,7 @@ resource "aws_lb_listener_rule" "gateway" {
 
   condition {
     path_pattern {
-      values = ["/*"]
+      values = ["/api"]
     }
   }
 }

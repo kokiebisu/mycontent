@@ -47,3 +47,8 @@ variable cluster_id {
   type = string
   description = "The cluster ID"
 }
+
+variable lb_target_group_web_arn {
+  type = string
+  description = "The ARN of the target group for the web service"
+}
