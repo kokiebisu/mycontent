@@ -1,4 +1,3 @@
-# Create ECS service for the user service
 resource "aws_ecs_service" "user" {
   name             = "user"
   cluster          = var.cluster_id
@@ -47,7 +46,6 @@ resource "aws_service_discovery_service" "user" {
   }
 }
 
-# Create task definition for the user service
 resource "aws_ecs_task_definition" "user" {
   family                   = "user"
   requires_compatibilities = ["FARGATE"]

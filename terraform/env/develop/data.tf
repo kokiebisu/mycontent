@@ -36,6 +36,10 @@ data "aws_ecr_repository" "tasks" {
   name = "${local.namespace}/${local.environment}/ecs/task/${each.key}"
 }
 
+data "aws_ecr_repository" "web" {
+  name = "${local.namespace}/${local.environment}/ecs/web"
+}
+
 data "aws_iam_role" "ecs_execution_role" {
   name = "ecs-execution-role"
 }

@@ -3,24 +3,9 @@ variable subnet_ids {
   description = "The subnet ids to deploy to"
 }
 
-variable gateway_image {
-  type = string
-  description = "The gateway image to deploy"
-}
-
-variable service_images {
-  type = map(string)
-  description = "The service images to deploy"
-}
-
 variable web_image {
   type = string
   description = "The web image to deploy"
-}
-
-variable task_images {
-  type = map(string)
-  description = "The task images to deploy"
 }
 
 variable region_name {
@@ -53,17 +38,12 @@ variable ecs_task_security_group_id {
   description = "The security group ID of the ECS task"
 }
 
-variable db_host {
-  type = string
-  description = "The host of the RDS instance"
-}
-
 variable alb_security_group_id {
   type = string
   description = "The security group ID of the ALB"
 }
 
-variable lb_target_group_gateway_arn {
+variable cluster_id {
   type = string
-  description = "The ARN of the target group for the gateway"
+  description = "The cluster ID"
 }

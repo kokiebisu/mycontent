@@ -18,7 +18,7 @@ function LoginPage() {
 
   const [login, { loading, error }] = useLoginMutation();
 
-  const handleLogin = async (e) => {
+  const handleLogin = async (e: any) => {
     e.preventDefault();
     try {
       const result = await login({

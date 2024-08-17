@@ -207,7 +207,6 @@ function RegisterPage() {
             </Label>
             <div className="mt-1">
               <Select
-                id="interest"
                 name="interest"
                 required
                 onValueChange={(value) =>

@@ -27,6 +27,7 @@ module "ecs" {
       "${data.aws_ecr_repository.tasks[task].repository_url}:latest"
     )
   }
+  web_image = "${data.aws_ecr_repository.web.repository_url}:latest"
   ecs_execution_role_arn = data.aws_iam_role.ecs_execution_role.arn
   ecs_task_role_arn = data.aws_iam_role.ecs_task_role.arn
   ecs_task_security_group_id = data.aws_security_group.ecs_task_security_group.id

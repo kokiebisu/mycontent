@@ -53,6 +53,21 @@ resource aws_ecr_repository "ecs_tasks" {
   force_delete = true
 }
 
+resource "aws_ecr_repository" "ecs_web" {
+  name                 = "${var.namespace}/${var.environment}/ecs/web"
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+
+  tags = {
+    Environment = var.environment
+  }
+
+  force_delete = true
+}
+
 # Set up lifecycle policy for ECR repositories
 resource "aws_ecr_lifecycle_policy" "services_policy" {
   for_each   = aws_ecr_repository.ecs_services

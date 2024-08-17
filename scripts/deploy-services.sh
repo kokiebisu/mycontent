@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define an array of package directories
-packages=("gateway" "service-user" "service-blog" "service-authentication")
+packages=("gateway" "service-user" "service-blog" "service-authentication" "web")
 
 # Function to process a package
 process_package() {

@@ -77,6 +77,20 @@ module service_user {
   cluster_id = aws_ecs_cluster.main.id
 }
 
+module web {
+  source = "./web"
+  environment = var.environment
+  vpc_id = var.vpc_id
+  subnet_ids = var.subnet_ids
+  alb_security_group_id = var.alb_security_group_id
+  ecs_execution_role_arn = var.ecs_execution_role_arn
+  ecs_task_role_arn = var.ecs_task_role_arn
+  ecs_task_security_group_id = var.ecs_task_security_group_id
+  web_image = var.web_image
+  region_name = var.region_name
+  cluster_id = aws_ecs_cluster.main.id
+}
+
 # Create a service discovery private DNS namespace for internal communication
 resource "aws_service_discovery_private_dns_namespace" "internal" {
   name        = "mycontent.internal"
