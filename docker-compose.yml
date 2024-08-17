@@ -126,28 +126,6 @@ services:
     volumes:
       - ./packages/gateway/src:/app/src
 
-  localstack:
-    container_name: localstack
-    image: localstack/localstack
-    ports:
-      - "127.0.0.1:4566:4566"
-      - "127.0.0.1:4510-4559:4510-4559"
-    environment:
-      DEBUG: ${DEBUG:-0}
-      AWS_ACCESS_KEY_ID: test
-      AWS_SECRET_ACCESS_KEY: test
-      AWS_DEFAULT_REGION: us-east-1
-      LAMBDA_RUNTIME_ENVIRONMENT_TIMEOUT: 30
-      DISABLE_CORS_CHECKS: 1
-      DISABLE_CUSTOM_CORS_S3: 1
-      LOCALSTACK_HOST: localhost
-      DOCKER_HOST: unix:///var/run/docker.sock
-      CLEAR_TMP_FOLDER: 0
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    networks:
-      - mycontent-network
-
 networks:
   mycontent-network:
     driver: bridge
