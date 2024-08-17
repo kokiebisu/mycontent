@@ -12,7 +12,7 @@ terraform {
 }
 
 locals {
-  environments = ["develop"]
+  environments = ["development"]
 }
 
 module ecr {

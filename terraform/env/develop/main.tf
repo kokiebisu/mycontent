@@ -1,6 +1,6 @@
 locals {
   namespace = "mycontent"
-  environment = "develop"
+  environment = "development"
 }
 
 module "ecs" {
