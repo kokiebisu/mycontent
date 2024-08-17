@@ -126,6 +126,16 @@ services:
     volumes:
       - ./packages/gateway/src:/app/src
 
+  web:
+    container_name: web
+    build:
+      context: ./packages/web
+      dockerfile: ./Dockerfile.dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./packages/web/src:/app/src
+
 networks:
   mycontent-network:
     driver: bridge
