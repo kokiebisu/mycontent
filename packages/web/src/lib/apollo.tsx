@@ -9,10 +9,9 @@ import {
   concat,
 } from "@apollo/client";
 
-const API_HOST = "external-alb-1386463735.us-east-1.elb.amazonaws.com";
-
 const httpLink = new HttpLink({
-  uri: `http://${API_HOST}/graphql` || "http://localhost:4000/graphql",
+  uri:
+    `http://${process.env.NEXT_PUBLIC_API_HOST}/api` || "http://localhost:4000",
 });
 
 const authMiddleware = new ApolloLink((operation, forward) => {
