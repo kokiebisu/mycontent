@@ -64,12 +64,13 @@ const apolloServer = new ApolloServer({
 
 async function startServer() {
   await apolloServer.start();
-
+  const CORS_ORIGIN =
+    `https://${process.env.CORS_ORIGIN}` || "http://localhost:4000";
   app.use(
     "/",
     cors({
-      origin: "http://localhost:3000",
-      methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTION",
+      origin: CORS_ORIGIN,
+      methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
       credentials: true,
     }),
     express.json(),
