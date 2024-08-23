@@ -1,5 +1,6 @@
 locals {
   namespace = "mycontent"
+  domain_name = "mycontent.is"
   environment = "development"
 }
 
@@ -67,6 +68,8 @@ module load_balancer {
   alb_security_group_id = data.aws_security_group.alb_security_group.id
   vpc_id = data.aws_vpc.default.id
   lambda_get_presigned_url_arn = module.lambdas.get_presigned_url_arn
+  domain_name = local.domain_name
+  route53_zone_id = data.aws_route53_zone.main.zone_id
 
   depends_on = [module.lambdas]
 }

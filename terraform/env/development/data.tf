@@ -71,3 +71,7 @@ data "aws_security_group" "alb_security_group" {
 data "aws_security_group" "rds_security_group" {
   name = "${local.environment}-rds-sg"
 }
+
+data "aws_route53_zone" "main" {
+  name = "mycontent.is"
+}
