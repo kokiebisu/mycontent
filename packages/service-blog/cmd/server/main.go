@@ -49,7 +49,7 @@ func main() {
 
 	var cfg aws.Config
 	region := os.Getenv("AWS_DEFAULT_REGION")
-	if environment != "production" {
+	if environment != "production" && environment != "development" {
 		fmt.Println("Loading S3 credentials for Non-Production...")
 		accessKey := os.Getenv("AWS_ACCESS_KEY_ID")
 		secretKey := os.Getenv("AWS_SECRET_ACCESS_KEY")

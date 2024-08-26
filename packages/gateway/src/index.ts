@@ -68,6 +68,7 @@ async function startServer() {
   await apolloServer.start();
   const allowedOrigins = [
     "https://mycontent.is",
+    "https://www.mycontent.is",
     `https://${process.env.CORS_ORIGIN}`,
     "http://localhost:3000",
   ];
