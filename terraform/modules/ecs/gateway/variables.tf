@@ -62,3 +62,8 @@ variable lb_target_group_gateway_arn {
   type = string
   description = "The ARN of the target group for the gateway"
 }
+
+variable cors_origin {
+  type = string
+  description = "The host of the API"
+}

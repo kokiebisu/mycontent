@@ -27,6 +27,7 @@ module gateway {
   private_dns_namespace_id = aws_service_discovery_private_dns_namespace.internal.id
   cluster_id = aws_ecs_cluster.main.id
   lb_target_group_gateway_arn = var.lb_target_group_gateway_arn
+  cors_origin = var.alb_dns_name
 }
 
 module service_authentication {

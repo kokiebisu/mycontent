@@ -5,6 +5,57 @@ locals {
   environment = "development"
 }
 
+resource "aws_acm_certificate" "cloudfront" {
+  provider = aws.cloudfront
+  domain_name       = "mycontent.is"
+  subject_alternative_names = ["www.mycontent.is"]
+  validation_method = "DNS"
+
+  tags = {
+    Environment = local.environment
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_route53_record" "cloudfront_acm_validation" {
+  provider = aws.cloudfront
+  for_each = {
+    for dvo in aws_acm_certificate.cloudfront.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  }
+
+  allow_overwrite = true
+  name            = each.value.name
+  records         = [each.value.record]
+  ttl             = 60
+  type            = each.value.type
+  zone_id         = data.aws_route53_zone.main.zone_id
+}
+
+resource "aws_acm_certificate_validation" "cloudfront" {
+  provider = aws.cloudfront
+  certificate_arn         = aws_acm_certificate.cloudfront.arn
+  validation_record_fqdns = [for record in aws_route53_record.cloudfront_acm_validation : record.fqdn]
+
+  depends_on = [aws_acm_certificate.cloudfront]
+}
+
+module cloudfront {
+  source = "../../modules/cloudfront"
+  alb_external_dns_name = module.load_balancer.api_host
+  environment = local.environment
+  route53_zone_id = data.aws_route53_zone.main.zone_id
+  acm_certificate_arn = aws_acm_certificate_validation.cloudfront.certificate_arn
+
+  depends_on = [module.load_balancer]
+}
+
 module "ecs" {
   source = "../../modules/ecs"
   environment = local.environment
@@ -33,8 +84,9 @@ module "ecs" {
   lb_target_group_gateway_arn = module.load_balancer.lb_target_group_gateway_arn
   lb_target_group_web_arn = module.load_balancer.lb_target_group_web_arn
   api_host = module.load_balancer.api_host
+  alb_dns_name = module.load_balancer.api_host
 
-  depends_on = [module.load_balancer, module.rds]
+  depends_on = [module.load_balancer, module.rds, module.cloudfront]
 }
 
 module eventbridge {
@@ -82,6 +134,14 @@ module "rds" {
   ecs_task_security_group_id = data.aws_security_group.ecs_task_security_group.id
   vpc_id = data.aws_vpc.default.id
   rds_security_group_id = data.aws_security_group.rds_security_group.id
+}
+
+module "route53" {
+  source = "../../modules/route53"
+  cloudfront_distribution_domain_name = module.cloudfront.cloudfront_distribution_domain_name
+  cloudfront_distribution_hosted_zone_id = module.cloudfront.cloudfront_distribution_hosted_zone_id
+
+  depends_on = [module.cloudfront]
 }
 
 module step_functions {

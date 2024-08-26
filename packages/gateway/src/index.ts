@@ -60,16 +60,28 @@ const gateway = new ApolloGateway({
 const apolloServer = new ApolloServer({
   gateway,
   plugins: [],
+  csrfPrevention: false,
+  introspection: true,
 });
 
 async function startServer() {
   await apolloServer.start();
-  const CORS_ORIGIN =
-    `https://${process.env.CORS_ORIGIN}` || "http://localhost:4000";
+  const allowedOrigins = [
+    "https://mycontent.is",
+    `https://${process.env.CORS_ORIGIN}`,
+    "http://localhost:3000",
+  ];
   app.use(
     "/",
     cors({
-      origin: CORS_ORIGIN,
+      origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+          console.log("ORIGIN: ", origin);
+          callback(null, origin);
+        } else {
+          callback(new Error("Not allowed by CORS"));
+        }
+      },
       methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
       credentials: true,
     }),

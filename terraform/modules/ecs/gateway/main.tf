@@ -89,6 +89,10 @@ resource "aws_ecs_task_definition" "gateway" {
         {
           name = "ENVIRONMENT",
           value = var.environment
+        },
+        {
+          name = "CORS_ORIGIN",
+          value = var.cors_origin
         }
       ]
       portMappings = [

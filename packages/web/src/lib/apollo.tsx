@@ -11,7 +11,8 @@ import {
 
 const httpLink = new HttpLink({
   uri:
-    `http://${process.env.NEXT_PUBLIC_API_HOST}/api` || "http://localhost:4000",
+    `https://${process.env.NEXT_PUBLIC_API_HOST}/api` ||
+    "http://localhost:4000",
 });
 
 const authMiddleware = new ApolloLink((operation, forward) => {

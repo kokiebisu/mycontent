@@ -77,3 +77,8 @@ variable api_host {
   type = string
   description = "The host of the API"
 }
+
+variable alb_dns_name {
+  type = string
+  description = "The DNS name of the ALB"
+}
