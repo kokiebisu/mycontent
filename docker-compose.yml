@@ -63,7 +63,7 @@ services:
       DB_PASSWORD: mypassword
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test
-      AWS_DEFAULT_REGION: ap-northeast-1
+      AWS_DEFAULT_REGION: us-east-1
     ports:
       - "4002:4002"
       - "50052:50052"

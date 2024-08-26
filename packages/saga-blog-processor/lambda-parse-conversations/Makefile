@@ -1,5 +1,5 @@
 ACCOUNT_ID := 746669204470
-REGION := ap-northeast-1
+REGION := us-east-1
 
 push-to-ecr:
 	cd ../../../ && docker build -t mycontent/development/lambda/parse-conversations -f packages/saga-blog-processor/lambda-parse-conversations/Dockerfile .

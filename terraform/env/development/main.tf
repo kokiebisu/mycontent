@@ -1,5 +1,6 @@
 locals {
   namespace = "mycontent"
+  region = "us-east-1"
   domain_name = "mycontent.is"
   environment = "development"
 }

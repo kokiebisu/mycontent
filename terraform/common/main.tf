@@ -13,6 +13,7 @@ terraform {
 
 locals {
   environments = ["development"]
+  region = "us-east-1"
 }
 
 module ecr {
@@ -29,7 +30,7 @@ module iam {
   upload_bucket_name = module.s3.upload_bucket_name
   vpc_id = data.aws_vpc.default.id
   environment = each.key
-  region = "ap-northeast-1"
+  region = local.region
   account_id = data.aws_caller_identity.current.account_id
 
   depends_on = [module.s3]

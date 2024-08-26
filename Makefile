@@ -1,5 +1,5 @@
 ACCOUNT_ID := 746669204470
-REGION := ap-northeast-1
+REGION := us-east-1
 
 build:
 	docker compose up --build
