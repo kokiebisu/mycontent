@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "assets_user" {
-  bucket = "mycontent-assets-user"
+  bucket = "mycontent-assets"
   force_destroy = true
 }
 

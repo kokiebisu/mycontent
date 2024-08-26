@@ -14,7 +14,7 @@ data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
 data "aws_s3_bucket" "upload_bucket" {
-  bucket = "${local.namespace}-assets-user"
+  bucket = "${local.namespace}-assets"
 }
 
 data "aws_ecr_repository" "gateway" {
