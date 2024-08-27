@@ -56,6 +56,11 @@ module cloudfront {
   depends_on = [module.load_balancer]
 }
 
+module dynamodb {
+  source = "../../modules/dynamodb"
+  environment = local.environment
+}
+
 module "ecs" {
   source = "../../modules/ecs"
   environment = local.environment
