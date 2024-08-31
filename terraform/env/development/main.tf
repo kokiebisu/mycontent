@@ -1,48 +1,18 @@
+terraform {
+  required_version = "1.9.5"
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+      version = "5.59.0"
+    }
+  }
+}
+
 locals {
   namespace = "mycontent"
   domain_name = "mycontent.is"
-  subject_alternative_names = ["*.mycontent.is"]
+  subject_alternative_names = ["*.${local.domain_name}"]
   environment = "development"
-}
-
-resource "aws_acm_certificate" "cloudfront" {
-  provider = aws.cloudfront
-  domain_name       = local.domain_name
-  subject_alternative_names = local.subject_alternative_names
-  validation_method = "DNS"
-
-  tags = {
-    Environment = local.environment
-  }
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-resource "aws_route53_record" "cloudfront_acm_validation" {
-  for_each = {
-    for dvo in aws_acm_certificate.cloudfront.domain_validation_options : dvo.domain_name => {
-      name   = dvo.resource_record_name
-      record = dvo.resource_record_value
-      type   = dvo.resource_record_type
-    }
-  }
-
-  allow_overwrite = true
-  name            = each.value.name
-  records         = [each.value.record]
-  ttl             = 60
-  type            = each.value.type
-  zone_id         = data.aws_route53_zone.main.zone_id
-}
-
-resource "aws_acm_certificate_validation" "cloudfront" {
-  provider = aws.cloudfront
-  certificate_arn         = aws_acm_certificate.cloudfront.arn
-  validation_record_fqdns = [for record in aws_route53_record.cloudfront_acm_validation : record.fqdn]
-
-  depends_on = [aws_acm_certificate.cloudfront]
 }
 
 module cloudfront {
@@ -50,7 +20,11 @@ module cloudfront {
   alb_external_dns_name = module.load_balancer.api_host
   environment = local.environment
   route53_zone_id = data.aws_route53_zone.main.zone_id
-  acm_certificate_arn = aws_acm_certificate_validation.cloudfront.certificate_arn
+  domain_name = local.domain_name
+  subject_alternative_names = local.subject_alternative_names
+  providers = {
+    aws.use1 = aws.use1
+  }
 
   depends_on = [module.load_balancer]
 }

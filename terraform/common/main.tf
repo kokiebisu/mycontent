@@ -1,4 +1,5 @@
 terraform {
+  required_version = "1.9.5"
   required_providers {
     aws = {
       source = "hashicorp/aws"
@@ -13,6 +14,7 @@ terraform {
 
 locals {
   environments = ["development"]
+  domain_name = "mycontent.is"
   region = "ap-northeast-1"
 }
 
@@ -48,7 +50,7 @@ module security_group {
 module s3 {
   source = "../modules/s3"
 
-  allowed_origins = ["http://localhost:3000", "https://mycontent.is"]
+  allowed_origins = ["http://localhost:3000", "https://${local.domain_name}", "https://www.${local.domain_name}"]
 }
 
 module ssm {

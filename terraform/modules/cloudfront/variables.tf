@@ -13,7 +13,12 @@ variable "route53_zone_id" {
   description = "The ID of the Route53 zone"
 }
 
-variable "acm_certificate_arn" {
+variable "domain_name" {
   type = string
-  description = "The ARN of the ACM certificate"
+  description = "The domain name"
+}
+
+variable "subject_alternative_names" {
+  type = list(string)
+  description = "The subject alternative names"
 }
