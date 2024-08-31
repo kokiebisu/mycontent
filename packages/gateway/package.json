@@ -24,6 +24,7 @@
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "graphql": "^16.9.0",
-    "jsonwebtoken": "^9.0.2"
+    "jsonwebtoken": "^9.0.2",
+    "pino": "^9.3.2"
   }
 }

@@ -10,8 +10,12 @@ import http from "http";
 import cors from "cors";
 import { decryptToken } from "./utils";
 import { SECRET } from "./config";
+import pino from "pino";
 
 const app = express();
+const logger = pino({
+  level: process.env.NODE_ENV === "production" ? "info" : "debug",
+});
 const httpServer = http.createServer(app);
 
 const gateway = new ApolloGateway({
@@ -77,7 +81,6 @@ async function startServer() {
     cors({
       origin: (origin, callback) => {
         if (!origin || allowedOrigins.includes(origin)) {
-          console.log("ORIGIN: ", origin);
           callback(null, origin);
         } else {
           callback(new Error("Not allowed by CORS"));
@@ -97,7 +100,7 @@ async function startServer() {
   await new Promise<void>((resolve) =>
     httpServer.listen({ port: process.env.GRAPHQL_PORT || 4000 }, resolve)
   );
-  console.log(
+  logger.info(
     `🚀 Server ready at http://localhost:${process.env.GRAPHQL_PORT || 4000}`
   );
 }
