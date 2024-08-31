@@ -8,7 +8,7 @@ locals {
 resource "aws_acm_certificate" "cloudfront" {
   provider = aws.cloudfront
   domain_name       = "mycontent.is"
-  subject_alternative_names = ["www.mycontent.is"]
+  subject_alternative_names = ["*.mycontent.is"]
   validation_method = "DNS"
 
   tags = {

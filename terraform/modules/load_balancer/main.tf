@@ -45,11 +45,3 @@ resource "aws_lb_listener" "http_redirect" {
     }
   }
 }
-
-resource "aws_lambda_permission" "allow_alb" {
-  statement_id  = "AllowExecutionFromALB"
-  action        = "lambda:InvokeFunction"
-  function_name = var.lambda_get_presigned_url_arn
-  principal     = "elasticloadbalancing.amazonaws.com"
-  source_arn    = aws_lb_target_group.lambda.arn
-}
