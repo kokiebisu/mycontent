@@ -7,6 +7,10 @@ terraform {
   }
 }
 
+locals {
+  region = "ap-northeast-1"
+}
+
 provider "aws" {
   region  = local.region
   profile = "mycontent"

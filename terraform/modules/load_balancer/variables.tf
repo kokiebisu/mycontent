@@ -32,3 +32,8 @@ variable route53_zone_id {
   type = string
   description = "The Route53 zone ID for the domain name"
 }
+
+variable subject_alternative_names {
+  type = list(string)
+  description = "The subject alternative names for the ALB"
+}

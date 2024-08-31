@@ -1,5 +1,5 @@
 ACCOUNT_ID := 746669204470
-REGION := us-east-1
+REGION := ap-northeast-1
 API_HOST := mycontent.is
 
 ecr-login:

@@ -1,5 +1,5 @@
 ACCOUNT_ID := 746669204470
-REGION := us-east-1
+REGION := ap-northeast-1
 
 ecr-login:
 	aws ecr get-login-password --region $(REGION) | docker login --username AWS --password-stdin $(ACCOUNT_ID).dkr.ecr.$(REGION).amazonaws.com

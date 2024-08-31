@@ -1,5 +1,6 @@
 resource "aws_acm_certificate" "alb" {
-  domain_name       = "mycontent.is"
+  domain_name       = var.domain_name
+  subject_alternative_names = var.subject_alternative_names
   validation_method = "DNS"
 
   tags = {
@@ -31,4 +32,6 @@ resource "aws_route53_record" "alb_acm_validation" {
 resource "aws_acm_certificate_validation" "alb" {
   certificate_arn         = aws_acm_certificate.alb.arn
   validation_record_fqdns = [for record in aws_route53_record.alb_acm_validation : record.fqdn]
+
+  depends_on = [aws_acm_certificate.alb]
 }

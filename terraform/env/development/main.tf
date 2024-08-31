@@ -1,14 +1,14 @@
 locals {
   namespace = "mycontent"
-  region = "us-east-1"
   domain_name = "mycontent.is"
+  subject_alternative_names = ["*.mycontent.is"]
   environment = "development"
 }
 
 resource "aws_acm_certificate" "cloudfront" {
   provider = aws.cloudfront
-  domain_name       = "mycontent.is"
-  subject_alternative_names = ["*.mycontent.is"]
+  domain_name       = local.domain_name
+  subject_alternative_names = local.subject_alternative_names
   validation_method = "DNS"
 
   tags = {
@@ -21,7 +21,6 @@ resource "aws_acm_certificate" "cloudfront" {
 }
 
 resource "aws_route53_record" "cloudfront_acm_validation" {
-  provider = aws.cloudfront
   for_each = {
     for dvo in aws_acm_certificate.cloudfront.domain_validation_options : dvo.domain_name => {
       name   = dvo.resource_record_name
@@ -127,6 +126,7 @@ module load_balancer {
   vpc_id = data.aws_vpc.default.id
   lambda_get_presigned_url_arn = module.lambdas.get_presigned_url_arn
   domain_name = local.domain_name
+  subject_alternative_names = local.subject_alternative_names
   route53_zone_id = data.aws_route53_zone.main.zone_id
 
   depends_on = [module.lambdas]

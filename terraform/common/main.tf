@@ -13,7 +13,7 @@ terraform {
 
 locals {
   environments = ["development"]
-  region = "us-east-1"
+  region = "ap-northeast-1"
 }
 
 module ecr {
