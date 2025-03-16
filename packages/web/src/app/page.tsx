@@ -1,6 +1,6 @@
 "use client";
 
-import Dashboard from "@/components/dashboard";
+import { Dashboard } from "@/components/pages/dashboard";
 import { useMeQuery } from "@/graphql/user";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";

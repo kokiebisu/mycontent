@@ -3,7 +3,6 @@ import {
   Card,
   CardHeader,
   CardTitle,
-  CardDescription,
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
@@ -11,16 +10,12 @@ import { Badge } from "@/components/ui/badge";
 
 interface BlogCardInterface {
   title: string;
-  description: string;
   content: string;
-  status: "published" | "draft";
 }
 
-const BlogCard = ({
+export const BlogCard = ({
   title,
-  description,
   content,
-  status,
 }: BlogCardInterface) => (
   <Card>
     <CardHeader>
@@ -30,7 +25,6 @@ const BlogCard = ({
           {status === "published" ? "Published" : "Draft"}
         </Badge>
       </div>
-      <CardDescription>{description}</CardDescription>
     </CardHeader>
     <CardContent>
       <p>{content}</p>
@@ -43,4 +37,3 @@ const BlogCard = ({
   </Card>
 );
 
-export default BlogCard;

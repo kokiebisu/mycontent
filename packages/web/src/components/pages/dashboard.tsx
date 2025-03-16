@@ -8,33 +8,35 @@ import {
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import Link from "next/link";
-import BlogCard from "./blog";
+import { BlogCard } from "../organisms/card-blog";
 import {
   Dialog,
   DialogContent,
   DialogTitle,
   DialogDescription,
 } from "@radix-ui/react-dialog";
-import { useState, useCallback } from "react";
-import { DialogHeader, DialogFooter } from "./ui/dialog";
+import { useState, useCallback, useEffect } from "react";
+import { DialogHeader, DialogFooter } from "../ui/dialog";
 import {
   CloudUploadIcon,
   LogOutIcon,
   UploadIcon,
   UserIcon,
   XIcon,
-} from "./icon";
-import { useCreatePresignedUrlMutation } from "@/graphql/blog";
+} from "../atoms/icon";
+import { GetBlogsDocument, useCreatePresignedUrlMutation } from "@/graphql/blog";
 import { useApolloClient } from "@apollo/client";
 import { MeDocument } from "@/graphql/user";
+import { Blog } from "@/graphql/types";
 
 interface DashboardInterface {
   onLogout: () => void;
 }
 
-const Dashboard = ({ onLogout }: DashboardInterface) => {
+export const Dashboard = ({ onLogout }: DashboardInterface) => {
   const client = useApolloClient();
   const userData = client.readQuery({ query: MeDocument });
+  const [blogs, setBlogs] = useState<Blog[]>([]);
   const [createPresignedUrl] = useCreatePresignedUrlMutation();
   const [isOpen, setIsOpen] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<{
@@ -42,50 +44,60 @@ const Dashboard = ({ onLogout }: DashboardInterface) => {
     data: any;
   } | null>(null);
 
-  const [blogPosts, setBlogPosts] = useState([
-    {
-      id: 1,
-      title: "First Blog Post",
-      description: "This is the first blog post.",
-      content: "Content of the first blog post.",
-      status: "published",
-    },
-    {
-      id: 2,
-      title: "Second Blog Post",
-      description: "This is the second blog post.",
-      content: "Content of the second blog post.",
-      status: "draft",
-    },
-    {
-      id: 3,
-      title: "Third Blog Post",
-      description: "This is the third blog post.",
-      content: "Content of the third blog post.",
-      status: "published",
-    },
-    {
-      id: 4,
-      title: "Fourth Blog Post",
-      description: "This is the fourth blog post.",
-      content: "Content of the fourth blog post.",
-      status: "draft",
-    },
-    {
-      id: 5,
-      title: "Fifth Blog Post",
-      description: "This is the fifth blog post.",
-      content: "Content of the fifth blog post.",
-      status: "published",
-    },
-    {
-      id: 6,
-      title: "Sixth Blog Post",
-      description: "This is the sixth blog post.",
-      content: "Content of the sixth blog post.",
-      status: "draft",
-    },
-  ]);
+  useEffect(() => {
+    const fetchBlogs = async () => {
+      const result = await client.query({ query: GetBlogsDocument })
+      console.log("BLOGS DATA: ", result)
+      setBlogs(result.data?.blogs || [])
+    }
+    fetchBlogs()
+  }, [client])
+
+
+  // const [blogPosts, setBlogPosts] = useState([
+  //   {
+  //     id: 1,
+  //     title: "First Blog Post",
+  //     description: "This is the first blog post.",
+  //     content: "Content of the first blog post.",
+  //     status: "published",
+  //   },
+  //   {
+  //     id: 2,
+  //     title: "Second Blog Post",
+  //     description: "This is the second blog post.",
+  //     content: "Content of the second blog post.",
+  //     status: "draft",
+  //   },
+  //   {
+  //     id: 3,
+  //     title: "Third Blog Post",
+  //     description: "This is the third blog post.",
+  //     content: "Content of the third blog post.",
+  //     status: "published",
+  //   },
+  //   {
+  //     id: 4,
+  //     title: "Fourth Blog Post",
+  //     description: "This is the fourth blog post.",
+  //     content: "Content of the fourth blog post.",
+  //     status: "draft",
+  //   },
+  //   {
+  //     id: 5,
+  //     title: "Fifth Blog Post",
+  //     description: "This is the fifth blog post.",
+  //     content: "Content of the fifth blog post.",
+  //     status: "published",
+  //   },
+  //   {
+  //     id: 6,
+  //     title: "Sixth Blog Post",
+  //     description: "This is the sixth blog post.",
+  //     content: "Content of the sixth blog post.",
+  //     status: "draft",
+  //   },
+  // ]);
 
   const handleUpload = async () => {
     if (!uploadedFile || !userData?.me?.id) {
@@ -238,13 +250,11 @@ const Dashboard = ({ onLogout }: DashboardInterface) => {
         </header>
         <main className="flex-1 p-4 sm:p-6">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {blogPosts.map((post) => (
+            {blogs.map((blog) => (
               <BlogCard
-                key={post.id}
-                title={post.title}
-                description={post.description}
-                content={post.content}
-                status={post.status as "published" | "draft"}
+                key={blog.id}
+                title={blog.title}
+                content={blog.content}
               />
             ))}
           </div>
@@ -317,5 +327,3 @@ const Dashboard = ({ onLogout }: DashboardInterface) => {
     </>
   );
 };
-
-export default Dashboard;

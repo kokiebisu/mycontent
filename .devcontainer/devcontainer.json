@@ -16,7 +16,8 @@
 		"vscode": {
 			"extensions": [
 				"apollographql.vscode-apollo",
-				"GraphQL.vscode-graphql"
+				"GraphQL.vscode-graphql",
+				"eamodio.gitlens"
 			]
 		}
 	}
